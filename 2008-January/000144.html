@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r172 - / trunk/includes
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2008-January/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r172%20-%20/%20trunk/includes&In-Reply-To=%3C200801202026.m0KKQkoM008303%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000143.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r172 - / trunk/includes</H1>
+    <B>goliath at mail.berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r172%20-%20/%20trunk/includes&In-Reply-To=%3C200801202026.m0KKQkoM008303%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r172 - / trunk/includes">goliath at mail.berlios.de
+       </A><BR>
+    <I>Sun Jan 20 21:26:46 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000143.html">[Serverstats-devel] r171 - / trunk/includes
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#144">[ date ]</a>
+              <a href="thread.html#144">[ thread ]</a>
+              <a href="subject.html#144">[ subject ]</a>
+              <a href="author.html#144">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2008-01-20 21:26:45 +0100 (Sun, 20 Jan 2008)
+New Revision: 172
+
+Modified:
+   /
+   trunk/includes/rrd.class.php
+Log:
+ <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">r180 at damasonium</A>:  ddanier | 2008-01-20 21:27:32 +0100
+  * Fix the fix, I hope ;-)
+
+
+
+Property changes on: 
+___________________________________________________________________
+Name: svk:merge
+   - 470888b1-382e-0410-8594-a82d82b39f71:/local:178
+   + 470888b1-382e-0410-8594-a82d82b39f71:/local:180
+
+Modified: trunk/includes/rrd.class.php
+===================================================================
+--- trunk/includes/rrd.class.php	2008-01-20 20:10:37 UTC (rev 171)
++++ trunk/includes/rrd.class.php	2008-01-20 20:26:45 UTC (rev 172)
+@@ -435,6 +435,11 @@
+ 					}
+ 					$dsvalue = number_format($dsvalue, $decimals, '.', '');
+ 				}
++				elseif (floor($dsvalue) == $dsvalue)
++				{
++					// Some integer values might be represented as floats
++					$dsvalue = number_format($dsvalue, 0, '.', '');
++				}
+ 				else
+ 				{
+ 					// Default format for floats, direct convert to string may
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000143.html">[Serverstats-devel] r171 - / trunk/includes
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#144">[ date ]</a>
+              <a href="thread.html#144">[ thread ]</a>
+              <a href="subject.html#144">[ subject ]</a>
+              <a href="author.html#144">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

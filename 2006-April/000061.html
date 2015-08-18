@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r125 - trunk/includes
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r125%20-%20trunk/includes&In-Reply-To=%3C200604120838.k3C8c1Wt022120%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000058.html">
+   <LINK REL="Next"  HREF="000063.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r125 - trunk/includes</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r125%20-%20trunk/includes&In-Reply-To=%3C200604120838.k3C8c1Wt022120%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r125 - trunk/includes">goliath at berlios.de
+       </A><BR>
+    <I>Wed Apr 12 10:38:01 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000058.html">[Serverstats-devel] r124 - trunk
+</A></li>
+        <LI>Next message: <A HREF="000063.html">[Serverstats-devel] r126 - in trunk: includes sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#61">[ date ]</a>
+              <a href="thread.html#61">[ thread ]</a>
+              <a href="subject.html#61">[ subject ]</a>
+              <a href="author.html#61">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-04-12 10:37:55 +0200 (Wed, 12 Apr 2006)
+New Revision: 125
+
+Modified:
+   trunk/includes/rrd.class.php
+   trunk/includes/rrdgraph.class.php
+Log:
+ * Changed license of rrd-classes to LGPL
+
+
+Modified: trunk/includes/rrd.class.php
+===================================================================
+--- trunk/includes/rrd.class.php	2006-04-11 12:37:49 UTC (rev 124)
++++ trunk/includes/rrd.class.php	2006-04-12 08:37:55 UTC (rev 125)
+@@ -4,23 +4,23 @@
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+  * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+- * License: GPL v2 or later (<A HREF="http://www.gnu.org/licenses/gpl.html">http://www.gnu.org/licenses/gpl.html</A>)
++ * License: LGPL v2.1 or later (<A HREF="http://www.gnu.org/licenses/lgpl.html">http://www.gnu.org/licenses/lgpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
+  *
+- * This program is distributed in the hope that it will be useful,
++ * This library is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
+  *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+ 
+ class rrd
+
+Modified: trunk/includes/rrdgraph.class.php
+===================================================================
+--- trunk/includes/rrdgraph.class.php	2006-04-11 12:37:49 UTC (rev 124)
++++ trunk/includes/rrdgraph.class.php	2006-04-12 08:37:55 UTC (rev 125)
+@@ -4,23 +4,23 @@
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+  * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+- * License: GPL v2 or later (<A HREF="http://www.gnu.org/licenses/gpl.html">http://www.gnu.org/licenses/gpl.html</A>)
++ * License: LGPL v2.1 or later (<A HREF="http://www.gnu.org/licenses/lgpl.html">http://www.gnu.org/licenses/lgpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
+  *
+- * This program is distributed in the hope that it will be useful,
++ * This library is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
+  *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+ 
+ class rrdgraph
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000058.html">[Serverstats-devel] r124 - trunk
+</A></li>
+	<LI>Next message: <A HREF="000063.html">[Serverstats-devel] r126 - in trunk: includes sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#61">[ date ]</a>
+              <a href="thread.html#61">[ thread ]</a>
+              <a href="subject.html#61">[ subject ]</a>
+              <a href="author.html#61">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,619 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r114 - in trunk: . includes lang sources sources/traffic
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r114%20-%20in%20trunk%3A%20.%20includes%20lang%20sources%20sources/traffic&In-Reply-To=%3C200602191120.k1JBKmAP026200%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000041.html">
+   <LINK REL="Next"  HREF="000043.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r114 - in trunk: . includes lang sources sources/traffic</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r114%20-%20in%20trunk%3A%20.%20includes%20lang%20sources%20sources/traffic&In-Reply-To=%3C200602191120.k1JBKmAP026200%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r114 - in trunk: . includes lang sources sources/traffic">goliath at berlios.de
+       </A><BR>
+    <I>Sun Feb 19 12:20:48 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000041.html">[Serverstats-devel] r113 - in trunk: . config.sample
+</A></li>
+        <LI>Next message: <A HREF="000043.html">[Serverstats-devel] r115 - in trunk: . config.sample includes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#42">[ date ]</a>
+              <a href="thread.html#42">[ thread ]</a>
+              <a href="subject.html#42">[ subject ]</a>
+              <a href="author.html#42">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-02-19 12:20:28 +0100 (Sun, 19 Feb 2006)
+New Revision: 114
+
+Modified:
+   trunk/ROADMAP
+   trunk/detail.php
+   trunk/graph.php
+   trunk/includes/config.class.php
+   trunk/includes/functions.php
+   trunk/includes/lang.class.php
+   trunk/includes/logger.class.php
+   trunk/includes/logger_file.class.php
+   trunk/includes/logger_mail.class.php
+   trunk/includes/logger_none.class.php
+   trunk/includes/logger_syslog.class.php
+   trunk/includes/rrd.class.php
+   trunk/includes/rrdgraph.class.php
+   trunk/includes/source.class.php
+   trunk/includes/source_cached.class.php
+   trunk/includes/source_rrd.class.php
+   trunk/index.php
+   trunk/init.php
+   trunk/lang/de_DE.php
+   trunk/lang/en_US.php
+   trunk/lang/fr_FR.php
+   trunk/sources/apache.php
+   trunk/sources/cpu.php
+   trunk/sources/disk.php
+   trunk/sources/external.php
+   trunk/sources/load.php
+   trunk/sources/memory.php
+   trunk/sources/mysql.php
+   trunk/sources/ping.php
+   trunk/sources/ping_http.php
+   trunk/sources/traffic.php
+   trunk/sources/traffic/traffic.sh
+   trunk/sources/traffic_proc.php
+   trunk/sources/users.php
+   trunk/style.css
+   trunk/update.php
+Log:
+ * Updated all headers to include new Serverstats-URL
+ * Decided to include a simple configuration in 0.8 (updated ROADMAP)
+
+
+Modified: trunk/ROADMAP
+===================================================================
+--- trunk/ROADMAP	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/ROADMAP	2006-02-19 11:20:28 UTC (rev 114)
+@@ -1,13 +1,13 @@
+ 0.8:
+  [*] Monitor
+  [*] Ping
+- [*] Testing
++ [ ] Simple configuration
++     (script that uses some parameters and creates the complex config)
++ [ ] Testing
+ 0.9:
+  [ ] SNMP
+  [ ] Bugfixes
+  [ ] Cleanup
+- [ ] Simple configuration
+-     (script that uses some parameters and creates the complex config)
+  [ ] Testing
+ 1.0:
+  [ ] Documentation
+
+Modified: trunk/detail.php
+===================================================================
+--- trunk/detail.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/detail.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/graph.php
+===================================================================
+--- trunk/graph.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/graph.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/includes/config.class.php
+===================================================================
+--- trunk/includes/config.class.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/includes/config.class.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/includes/functions.php
+===================================================================
+--- trunk/includes/functions.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/includes/functions.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/includes/lang.class.php
+===================================================================
+--- trunk/includes/lang.class.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/includes/lang.class.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/includes/logger.class.php
+===================================================================
+--- trunk/includes/logger.class.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/includes/logger.class.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/includes/logger_file.class.php
+===================================================================
+--- trunk/includes/logger_file.class.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/includes/logger_file.class.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/includes/logger_mail.class.php
+===================================================================
+--- trunk/includes/logger_mail.class.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/includes/logger_mail.class.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/includes/logger_none.class.php
+===================================================================
+--- trunk/includes/logger_none.class.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/includes/logger_none.class.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/includes/logger_syslog.class.php
+===================================================================
+--- trunk/includes/logger_syslog.class.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/includes/logger_syslog.class.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/includes/rrd.class.php
+===================================================================
+--- trunk/includes/rrd.class.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/includes/rrd.class.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/includes/rrdgraph.class.php
+===================================================================
+--- trunk/includes/rrdgraph.class.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/includes/rrdgraph.class.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/includes/source.class.php
+===================================================================
+--- trunk/includes/source.class.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/includes/source.class.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/includes/source_cached.class.php
+===================================================================
+--- trunk/includes/source_cached.class.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/includes/source_cached.class.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/includes/source_rrd.class.php
+===================================================================
+--- trunk/includes/source_rrd.class.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/includes/source_rrd.class.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/index.php
+===================================================================
+--- trunk/index.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/index.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/init.php
+===================================================================
+--- trunk/init.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/init.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *      
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/lang/de_DE.php
+===================================================================
+--- trunk/lang/de_DE.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/lang/de_DE.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/lang/en_US.php
+===================================================================
+--- trunk/lang/en_US.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/lang/en_US.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/lang/fr_FR.php
+===================================================================
+--- trunk/lang/fr_FR.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/lang/fr_FR.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -5,7 +5,7 @@
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A> 
+  * French translation : S&#233;bastien Cramatte, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">s.cramatte at wanadoo.fr</A>
+  *
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/sources/apache.php
+===================================================================
+--- trunk/sources/apache.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/sources/apache.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -4,7 +4,7 @@
+  *
+  * Author: Andreas Korthaus, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">akorthaus at web.de</A>
+  * Enhancements: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 Andreas Korthaus
+
+Modified: trunk/sources/cpu.php
+===================================================================
+--- trunk/sources/cpu.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/sources/cpu.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -4,7 +4,7 @@
+  *
+  * Author: Andreas Korthaus, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">akorthaus at web.de</A>
+  * Enhancements/Bugfixes: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 Andreas Korthaus
+
+Modified: trunk/sources/disk.php
+===================================================================
+--- trunk/sources/disk.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/sources/disk.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/sources/external.php
+===================================================================
+--- trunk/sources/external.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/sources/external.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/sources/load.php
+===================================================================
+--- trunk/sources/load.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/sources/load.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/sources/memory.php
+===================================================================
+--- trunk/sources/memory.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/sources/memory.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/sources/mysql.php
+===================================================================
+--- trunk/sources/mysql.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/sources/mysql.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/sources/ping.php
+===================================================================
+--- trunk/sources/ping.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/sources/ping.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/sources/ping_http.php
+===================================================================
+--- trunk/sources/ping_http.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/sources/ping_http.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/sources/traffic/traffic.sh
+===================================================================
+--- trunk/sources/traffic/traffic.sh	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/sources/traffic/traffic.sh	2006-02-19 11:20:28 UTC (rev 114)
+@@ -2,7 +2,7 @@
+ # $Id$
+ #
+ # Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+-# Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++# Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+ # License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+ #
+ # Copyright (C) 2005 David Danier
+
+Modified: trunk/sources/traffic.php
+===================================================================
+--- trunk/sources/traffic.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/sources/traffic.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/sources/traffic_proc.php
+===================================================================
+--- trunk/sources/traffic_proc.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/sources/traffic_proc.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -1,7 +1,7 @@
+ &lt;?php
+ /**
+  * Author: Michael Richter, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">mr at osor.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 Michael Richter
+
+Modified: trunk/sources/users.php
+===================================================================
+--- trunk/sources/users.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/sources/users.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/style.css
+===================================================================
+--- trunk/style.css	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/style.css	2006-02-19 11:20:28 UTC (rev 114)
+@@ -2,7 +2,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/update.php
+===================================================================
+--- trunk/update.php	2006-02-19 11:10:59 UTC (rev 113)
++++ trunk/update.php	2006-02-19 11:20:28 UTC (rev 114)
+@@ -4,7 +4,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000041.html">[Serverstats-devel] r113 - in trunk: . config.sample
+</A></li>
+	<LI>Next message: <A HREF="000043.html">[Serverstats-devel] r115 - in trunk: . config.sample includes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#42">[ date ]</a>
+              <a href="thread.html#42">[ thread ]</a>
+              <a href="subject.html#42">[ subject ]</a>
+              <a href="author.html#42">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

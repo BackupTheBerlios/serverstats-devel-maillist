@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] Re: Serverstats / traffic_proc
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Re%3A%20Serverstats%20/%20traffic_proc&In-Reply-To=%3C444FCF25.5010308%40spuetz.ath.cx%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000068.html">
+   <LINK REL="Next"  HREF="000070.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] Re: Serverstats / traffic_proc</H1>
+    <B>Martin Spuetz</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Re%3A%20Serverstats%20/%20traffic_proc&In-Reply-To=%3C444FCF25.5010308%40spuetz.ath.cx%3E"
+       TITLE="[Serverstats-devel] Re: Serverstats / traffic_proc">mas at spuetz.ath.cx
+       </A><BR>
+    <I>Wed Apr 26 21:51:01 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000068.html">[Serverstats-devel] Re: Serverstats / traffic_proc
+</A></li>
+        <LI>Next message: <A HREF="000070.html">[Serverstats-devel] Re: Serverstats / traffic_proc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#69">[ date ]</a>
+              <a href="thread.html#69">[ thread ]</a>
+              <a href="subject.html#69">[ subject ]</a>
+              <a href="author.html#69">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>David Danier wrote:
+&gt;<i> Eigentlich ging es in der Email eigentlich mehr um den
+</I>&gt;<i> traffic_proc-Patch, aber gut, diskutieren wir gleich mal das
+</I>&gt;<i> Client/Server-Zeug. :)
+</I>
+Jetzt sind wir dann total off-topic.
+
+&gt;&gt;<i> serialisiertes Objekt ist ja ein bisschen evil, warum nicht einfach
+</I>&gt;&gt;<i> &#252;ber einen Webdienst, z.B. &#252;ber SOAP?
+</I>&gt;<i> 
+</I>&gt;<i> W&#252;rde ich auch eher f&#252;r ein Proof of Concept verwenden.
+</I>&gt;<i> 
+</I>&gt;<i> Sowas wie SOAP meinte ich mit &quot;gibt alle oder nur ausgew&#228;hlte Sourcen in
+</I>&gt;<i> XML kodiert zur&#252;ck&quot;. ;-)
+</I>
+Das w&#228;re ja nicht Sinn der Sache, mit SOAP l&#228;sst sich das Source-
+Objekt ganz normal verwenden, als wenn es ein &quot;lokales&quot; Objekt w&#228;re.
+Der XML-Kram passiert transparent im Hintergrund.
+
+&gt;<i> Weshalb ich zum Testen serialisierte Objekte vorgeschlagen hatte war
+</I>&gt;<i> auch, weil ich auf der Clientseite ja irgendwie die RRD-Dateien
+</I>&gt;<i> initialisieren muss. Das ist von Source zu Source unterschiedlich,
+</I>&gt;<i> weshalb jede Source eine eigene Methode daf&#252;r hat.
+</I>
+Das sollte mit einer Aggregation auch &#252;ber SOAP m&#246;glich sein.
+
+&gt;&gt;&gt;<i> [...] Netzwerkmount [...]
+</I>&gt;&gt;<i> M&#246;glich ja, aber nicht wirklich in gesch&#228;ftskritischen Bereichen
+</I>&gt;&gt;<i> einsetzbar. Ein robuster Webservice w&#252;rde da weitaus mehr
+</I>&gt;&gt;<i> M&#246;glichkeiten bieten, der Server m&#252;sste sich ja nicht nur auf das
+</I>&gt;&gt;<i> Auswerten von Performancedaten beschr&#228;nken, es k&#246;nnte auch eine Art
+</I>&gt;&gt;<i> Monitoring eingebaut werden.
+</I>&gt;<i> 
+</I>&gt;<i> Naja, im Vergleich zu dem, was ich im gesch&#228;ftskritischen Bereich schon
+</I>&gt;<i> gesehen habe w&#228;re so ein SSHFS-Mount wirklich wahnsinnig sicher, ja
+</I>&gt;<i> schon fast &#252;berdimensioniert. ;-)
+</I>
+Also zumindest in den Bereichen, indem ich Serverstats einsetzten
+m&#246;chte, w&#228;re das ein no-go.
+
+Bei Serverstats habe ich zur Zeit das gleiche Problem wie mit mrtg,
+f&#252;r jede Instanz muss ich die Adresse wechseln und mich dann auch
+immer wieder neu authentifizieren. Zudem kommt noch, dass ich auf
+allen Servern php installiert habe, aber nicht auf allen einen
+Webserver, bzw. das dann dort wieder nicht in die Policy passt. Beide
+Probleme w&#252;rde ein Webservice l&#246;sen.
+
+&gt;<i> Vor allem im Vergleich zum netcat (siehe zitierten Text) halte ich das
+</I>&gt;<i> f&#252;r eine einfachere und praktischere L&#246;sung ohne hierbei
+</I>&gt;<i> Sicherheitsprobleme aufzureissen (insofern man wirklich nur das
+</I>&gt;<i> Verzeichnis mit den RRD-Dateien mountet).
+</I>
+Ja, das stimmt. Die L&#246;sung mit netcat schlie&#223;t sich mich f&#252;r mich aus,
+ich finde, das verst&#246;&#223;t zu sehr gegen kiss (keep it simple, stupid).
+Aber ich kenne jetzt auch nicht die genaue Implementierung.
+
+&gt;<i> Im Vergleich zum SSHFS hat ein Webdienst au&#223;erdem erstmal den Nachteil
+</I>&gt;<i> offen im Netz zu stehen. Man muss erst einen Passwortschutz aktiveiern
+</I>&gt;<i> und es &#252;ber SSL laufen lassen. SSH hat beides schon aktiviert.
+</I>
+Jep, wenn man einen Webdienst auf jedem Client laufen l&#228;sst. Wenn man
+jetzt aber Serverstats in Client und Server aufteilt, k&#246;nnte man den
+Webdienst auf dem Server laufen lassen und die Clients schicken nur
+noch ihre Daten an den Server. Das w&#228;re f&#252;r mich die optimale L&#246;sung.
+
+Die Absicherung w&#228;re auch sehr einfach, der Webdienst l&#228;uft unter SSL,
+jeder Client bekommt einen Lizenzschl&#252;ssel, der dann bei der
+&#220;bertragung zur Identifizierung und zur Authentifizierung dient.
+
+Die Implementierung sollte ja auch nicht so schwierig sein, wird
+vielleicht etwas problematisch die Einzelinstanz und die
+Serverinstanzen auf Dauer unter einen Hut zu bringen - aber da stellt
+sich ja erstmal die Frage, ob du dir sowas &#252;berhaupt vorstellen
+kannst, oder ob dir das zu viel Client/Server ist?
+
+&gt;&gt;<i> Was h&#228;lst du von einem Webdienst?
+</I>&gt;<i> 
+</I>&gt;<i> Wie gesagt, eigentlich ist das so geplant. Allerdings fehlt mir derzeit
+</I>&gt;<i> etwas die Zeit (Umzug, viel Arbeit/unfertige Projekte).
+</I>&gt;<i> Falls du interessiert bist soetwas zu implementieren w&#252;rde ich dir einen
+</I>&gt;<i> SVN-Account anbieten. ;-)
+</I>
+Interesse schon, ich suche schon seit einiger Zeit nach einer
+Client/Server- Monitoring- L&#246;sung, aber Nagios, mrtg, cacti... sind
+alle oversized oder zu kompliziert. Und Serverstats ist halt PHP und
+damit werkel ich schon einige Zeit. Zur Zeit habe ich
+Abschlusspr&#252;fungen in den letzten Z&#252;gen und bin da sehr angespannt,
+aber im Mai bzw. Juni k&#246;nnte ich mir da schonwas vorstellen. Dazu
+w&#252;rde auch passen, dass wir auf der Arbeit je nach Arbeitsbelastung
+bis zu 20% unserer Arbeitszeit f&#252;r private Projekte nutzen k&#246;nnen -
+Chef hat sich da wohl von Google inspirieren lassen ;)
+
+Viele Gr&#252;&#223;e,
+Martin
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000068.html">[Serverstats-devel] Re: Serverstats / traffic_proc
+</A></li>
+	<LI>Next message: <A HREF="000070.html">[Serverstats-devel] Re: Serverstats / traffic_proc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#69">[ date ]</a>
+              <a href="thread.html#69">[ thread ]</a>
+              <a href="subject.html#69">[ subject ]</a>
+              <a href="author.html#69">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

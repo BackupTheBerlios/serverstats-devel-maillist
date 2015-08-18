@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r177 - trunk/sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2009-December/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r177%20-%20trunk/sources&In-Reply-To=%3C200912091036.04300.mailxbox2%40o2.pl%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000151.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r177 - trunk/sources</H1>
+    <B>Piotr Michalczyk</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r177%20-%20trunk/sources&In-Reply-To=%3C200912091036.04300.mailxbox2%40o2.pl%3E"
+       TITLE="[Serverstats-devel] r177 - trunk/sources">mailxbox2 at o2.pl
+       </A><BR>
+    <I>Wed Dec  9 10:36:04 CET 2009</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000151.html">[Serverstats-devel] r178 - in trunk: includes sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#150">[ date ]</a>
+              <a href="thread.html#150">[ thread ]</a>
+              <a href="subject.html#150">[ subject ]</a>
+              <a href="author.html#150">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: p_michalczyk
+Date: 2009-12-08 17:41:24 +0100 (Tue, 08 Dec 2009)
+New Revision: 177
+
+Modified:
+   trunk/sources/mysql.php
+Log:
+ * Differentiate between Queries (newer) and Questions (older) MySQL variables
+
+Modified: trunk/sources/mysql.php
+===================================================================
+--- trunk/sources/mysql.php	2009-11-27 16:31:19 UTC (rev 176)
++++ trunk/sources/mysql.php	2009-12-08 16:41:24 UTC (rev 177)
+@@ -29,6 +29,7 @@
+ 	private $host;
+ 	private $user;
+ 	private $password;
++	private $version;
+ 	
+ 	private $questions;
+ 	private $processcount;
+@@ -46,15 +47,36 @@
+ 		{
+ 			throw new Exception('Could not connect to database');
+ 		}
++		
++		// Version
++		$sql = &quot;SELECT version();&quot;;
++		$result = mysql_query($sql, $this-&gt;db);
++		$data = mysql_fetch_row($result);
++		$this-&gt;version = $data[0];
+ 	}
+ 	
+ 	public function refreshData()
+ 	{
+-		// Questions
+-		$sql = &quot;SHOW GLOBAL STATUS LIKE 'QUESTIONS';&quot;;
++		// Questions/Queries
++		// - 
+<A HREF="http://dev.mysql.com/doc/refman/5.0/en/server-status-variables.html#statvar_Queries">http://dev.mysql.com/doc/refman/5.0/en/server-status-variables.html#statvar_Queries</A>
++		// - 
+<A HREF="http://dev.mysql.com/doc/refman/5.1/en/server-status-variables.html#statvar_Queries">http://dev.mysql.com/doc/refman/5.1/en/server-status-variables.html#statvar_Queries</A>
++		if (version_compare($this-&gt;version, '5.1', '&gt;=')) { // 5.1.x and newer
++		    if (version_compare($this-&gt;version, '5.1.31', '&gt;=')) {
++			$sql = &quot;SHOW GLOBAL STATUS LIKE 'QUERIES';&quot;;
++		    } else {
++			$sql = &quot;SHOW GLOBAL STATUS LIKE 'QUESTIONS';&quot;;
++		    }
++		} else { // 5.0.x and older
++		    if (version_compare($this-&gt;version, '5.0.72', '&gt;=')) {
++			$sql = &quot;SHOW GLOBAL STATUS LIKE 'QUERIES';&quot;;
++		    } else {
++			$sql = &quot;SHOW GLOBAL STATUS LIKE 'QUESTIONS';&quot;;
++		    }
++		}
+ 		$result = mysql_query($sql, $this-&gt;db);
+ 		$data = mysql_fetch_row($result);
+ 		$questions = $data[1];
++		
+ 		// Processcount
+ 		$sql = &quot;SHOW PROCESSLIST&quot;;
+ 		$result = mysql_query($sql, $this-&gt;db);
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000151.html">[Serverstats-devel] r178 - in trunk: includes sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#150">[ date ]</a>
+              <a href="thread.html#150">[ thread ]</a>
+              <a href="subject.html#150">[ subject ]</a>
+              <a href="author.html#150">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

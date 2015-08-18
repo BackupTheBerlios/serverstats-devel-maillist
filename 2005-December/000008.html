@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r90 - trunk/sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r90%20-%20trunk/sources&In-Reply-To=%3C200512231457.jBNEvcjl011573%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000011.html">
+   <LINK REL="Next"  HREF="000009.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r90 - trunk/sources</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r90%20-%20trunk/sources&In-Reply-To=%3C200512231457.jBNEvcjl011573%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r90 - trunk/sources">goliath at berlios.de
+       </A><BR>
+    <I>Fri Dec 23 15:57:38 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000011.html">[Serverstats-devel] Re: Serverstats 0.8
+</A></li>
+        <LI>Next message: <A HREF="000009.html">[Serverstats-devel] r91 - trunk/sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#8">[ date ]</a>
+              <a href="thread.html#8">[ thread ]</a>
+              <a href="subject.html#8">[ subject ]</a>
+              <a href="author.html#8">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2005-12-23 15:57:02 +0100 (Fri, 23 Dec 2005)
+New Revision: 90
+
+Modified:
+   trunk/sources/ping.php
+Log:
+ * ping source (untested, final)
+
+
+Modified: trunk/sources/ping.php
+===================================================================
+--- trunk/sources/ping.php	2005-12-23 10:09:02 UTC (rev 89)
++++ trunk/sources/ping.php	2005-12-23 14:57:02 UTC (rev 90)
+@@ -25,23 +25,15 @@
+ 
+ class ping extends source
+ {
+-	private $hosts;
+-	private $data = array();
++	private $host;
++	private $ping_time;
+ 	
+ 	private $ping_exec;
+ 	private $ping_opts;
+ 	
+-	public function __construct($hosts, $ping_exec = '/bin/ping', $ping_opts = '-c 1')
++	public function __construct($host, $ping_opts = '-c 1', $ping_exec = '/bin/ping')
+ 	{
+-		if (is_string($hosts))
+-		{
+-			$hosts = array($hosts);
+-		}
+-		if (!is_array($hosts))
+-		{
+-			throw new Exception('$hosts not an array');
+-		}
+-		$this-&gt;hosts = $hosts;
++		$this-&gt;host = $host;
+ 		$this-&gt;ping_exec = $ping_exec;
+ 		$this-&gt;ping_opts = $ping_opts;
+ 	}
+@@ -54,33 +46,33 @@
+ 		{
+ 			$opt_string .= ' ' . escapeshellarg($opt);
+ 		}
+-		foreach ($this-&gt;hosts as $host)
++		$command = escapeshellcmd($this-&gt;ping_exec) . $opt_string . ' ' . $this-&gt;host;
++		$output = array();
++		$return = 0;
++		exec($command . ' 2&gt;&amp;1', $output, $return);
++		if ($return != 0)
+ 		{
+-			$command = escapeshellcmd($this-&gt;ping_exec) . $opt_string . ' ' . $host;
+-			exec($command . ' 2&gt;&amp;1', $output, $return);
+-			if ($return != 0)
++			throw new Exception('rrdtool (&quot;' . $command . '&quot;) finished with exitcode ' . $return . &quot;\n&quot; . implode(&quot;\n&quot;, $output));
++		}
++		foreach ($output as $line)
++		{
++			$matches = array();
++			if (preg_match('/^.*icmp_seq=.+ttl=.+time=([0-9\.]+) ms$/', $line, $matches))
+ 			{
+-				throw new Exception('rrdtool (&quot;' . $command . '&quot;) finished with exitcode ' . $return . &quot;\n&quot; . implode(&quot;\n&quot;, $output));
++				$this-&gt;ping_time = $matches[1];
++				break;
+ 			}
+-			foreach ($output as $line)
+-			{
+-				if (preg_match('/^.*icmp_seq=.+ttl=.+time=([0-9\.]+) ms$/', $line, $matches))
+-				{
+-					$this-&gt;data[$host] = $matches[1];
+-					break;
+-				}
+-			}
+ 		}
+ 	}
+ 	
+ 	public function initRRD(rrd $rrd)
+ 	{
+-		$rrd-&gt;addDatasource('read', 'GAUGE', null, 0);
++		$rrd-&gt;addDatasource('time', 'GAUGE', null, 0);
+ 	}
+ 	
+ 	public function updateRRD(rrd $rrd)
+ 	{
+-		$rrd-&gt;setValue('read', $this-&gt;stats_disk['sectors_read'] * $this-&gt;sector_size);
++		$rrd-&gt;setValue('time', $this-&gt;ping_time);
+ 	}
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000011.html">[Serverstats-devel] Re: Serverstats 0.8
+</A></li>
+	<LI>Next message: <A HREF="000009.html">[Serverstats-devel] r91 - trunk/sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#8">[ date ]</a>
+              <a href="thread.html#8">[ thread ]</a>
+              <a href="subject.html#8">[ subject ]</a>
+              <a href="author.html#8">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

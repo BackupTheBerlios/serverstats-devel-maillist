@@ -1,0 +1,229 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] Attribute Value Template on xml parameter
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Attribute%20Value%20Template%20on%20xml%20parameter&In-Reply-To=%3C44AB8BD2.8000603%40team23.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000127.html">
+   <LINK REL="Next"  HREF="000129.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] Attribute Value Template on xml parameter</H1>
+    <B>David Danier</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Attribute%20Value%20Template%20on%20xml%20parameter&In-Reply-To=%3C44AB8BD2.8000603%40team23.de%3E"
+       TITLE="[Serverstats-devel] Attribute Value Template on xml parameter">david.danier at team23.de
+       </A><BR>
+    <I>Wed Jul  5 11:52:18 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000127.html">[Serverstats-devel] Attribute Value Template on xml parameter
+</A></li>
+        <LI>Next message: <A HREF="000129.html">[Serverstats-devel] Attribute Value Template on xml parameter
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#128">[ date ]</a>
+              <a href="thread.html#128">[ thread ]</a>
+              <a href="subject.html#128">[ subject ]</a>
+              <a href="author.html#128">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> I believe that I found a really good mean to use variables and
+</I>&gt;<i> parameters from xml
+</I>&gt;<i> In Xforms we call this technic  &quot;Attribute Value Template&quot; (AVT) that
+</I>&gt;<i> consists to  mix xpath expression between &quot;{ }&quot;  chars and normal text
+</I>&gt;<i> [...]
+</I>&gt;<i> Look at the latest revision of xmlconfig2 branch  for source
+</I>
+I like the idea, but dislike to rebuild XSLT-features inside PHP to be
+used in XML-files.
+
+Besides this could be more powerful, for example it should be possible
+to delete the params after they were used (to be more flexible and not
+only limited to @name). That leads to the problem, that it may only be
+deleted after the last access.
+The access to the params could be more easily, too. For example they
+could be saved into an array that is extended with every child (like as
+push to a stack) and cleaned at the end of the parent element (stack
+pop). Then the access could just use the name.
+When doing so the current XML-elements might confuse people. Perhaps it
+would be the easiest to have only five elements:
+ * config (root)
+ * value (string, attr: name (optional), children: text)
+ * list (array, attr: name (optional), children: &lt;value&gt; and/or &lt;list&gt;)
+ * class (to load classes, attr: name, children: &lt;value&gt; and/or &lt;list&gt;)
+ * param (param used for the templates, attr: name, children: text)
+
+If name is omitted for &lt;value&gt; or &lt;list&gt; it is used like $array[] =
+&quot;something&quot;.
+
+Example:
+----------8&lt;-----------------------------------------------------------
+&lt;config&gt;
+	&lt;xi:include href=&quot;main.xml&quot; /&gt;
+	&lt;xi:include href=&quot;graph.xml&quot; /&gt;
+	&lt;xi:include href=&quot;sources.xml&quot; /&gt;
+	&lt;!-- .... --&gt;
+&lt;/config&gt;
+-----------------------------------------------------------&gt;8----------
+
+graph.xml:
+----------8&lt;-----------------------------------------------------------
+&lt;list name=&quot;graph&quot;&gt;
+	&lt;!-- .... --&gt;
+	&lt;list name=&quot;list&quot;&gt; &lt;!-- &quot;list&quot; sound silly here --&gt;
+		&lt;list&gt;
+			&lt;param name=&quot;source&quot;&gt;foobar&lt;/param&gt;
+			&lt;xi:include href=&quot;graph/foobar.xml&quot; /&gt;
+		&lt;/list&gt;
+	&lt;/list&gt;
+	&lt;!-- .... --&gt;
+&lt;/list&gt;
+-----------------------------------------------------------&gt;8----------
+
+Would create an graph.xml:
+----------8&lt;-----------------------------------------------------------
+&lt;list name=&quot;graph&quot;&gt;
+	&lt;!-- .... --&gt;
+	&lt;list name=&quot;list&quot;&gt; &lt;!-- &quot;list&quot; sound silly here --&gt;
+		&lt;list&gt;
+			&lt;param name=&quot;source&quot;&gt;foobar&lt;/param&gt;
+			&lt;value name=&quot;title&quot;&gt;foo {$source}&lt;/value&gt;
+			&lt;!-- .... --&gt;
+		&lt;/list&gt;
+	&lt;/list&gt;
+	&lt;!-- .... --&gt;
+&lt;/list&gt;
+-----------------------------------------------------------&gt;8----------
+
+Would be parsed into:
+----------8&lt;-----------------------------------------------------------
+&lt;list name=&quot;graph&quot;&gt;
+	&lt;!-- .... --&gt;
+	&lt;list name=&quot;list&quot;&gt; &lt;!-- &quot;list&quot; sound silly here --&gt;
+		&lt;list&gt;
+			&lt;value name=&quot;title&quot;&gt;foo foobar&lt;/value&gt;
+			&lt;!-- .... --&gt;
+		&lt;/list&gt;
+	&lt;/list&gt;
+	&lt;!-- .... --&gt;
+&lt;/list&gt;
+-----------------------------------------------------------&gt;8----------
+
+But this does not avoid the ploblem, that we have to rebuild some
+XSLT-features inside PHP, so perhaps it would be easier to just _use_ XSLT:
+
+Elements (+: added, -: deleted):
+ + template (used for templates, attr: name, children: any (&lt;param&gt;
+preferred))
+ - param (not used anymore, but should be a agreement to be used inside
+&lt;template&gt;
+
+graph.xml:
+----------8&lt;-----------------------------------------------------------
+&lt;list name=&quot;graph&quot;&gt;
+	&lt;!-- .... --&gt;
+	&lt;list name=&quot;list&quot;&gt; &lt;!-- &quot;list&quot; sound silly here --&gt;
+		&lt;template name=&quot;footest&quot;&gt;
+			&lt;param name=&quot;source&quot;&gt;foobar&lt;/param&gt;
+		&lt;/list&gt;
+	&lt;/list&gt;
+	&lt;!-- .... --&gt;
+&lt;/list&gt;
+-----------------------------------------------------------&gt;8----------
+
+templates.xsl:
+----------8&lt;-----------------------------------------------------------
+&lt;xsl:stylesheet
+        version=&quot;1.0&quot;
+        xmlns:xsl=&quot;<A HREF="http://www.w3.org/1999/XSL/Transform">http://www.w3.org/1999/XSL/Transform</A>&quot;&gt;
+
+&lt;xsl:template match=&quot;/config/list[@name='sources']&quot;&gt;
+        &lt;xsl:apply-templates select=&quot;template&quot; mode=&quot;source&quot;&gt;
+&lt;/xsl:template&gt;
+
+&lt;xsl:template match=&quot;/config/list[@name='graph']&quot;&gt;
+        &lt;xsl:apply-templates select=&quot;template&quot; mode=&quot;graph&quot;&gt;
+&lt;/xsl:template&gt;
+
+&lt;xsl:include href=&quot;foo.xsl&quot;/&gt;
+&lt;xsl:include href=&quot;bar.xsl&quot;/&gt;
+
+&lt;xsl:template match=&quot;*&quot;&gt;
+        &lt;xsl:copy&gt;
+		&lt;xsl:copy-of select=&quot;@*&quot; /&gt;
+		&lt;xsl:apply-templates /&gt;
+        &lt;/xsl:copy&gt;
+&lt;/xsl:template&gt;
+
+&lt;/xsl:stylesheet&gt;
+-----------------------------------------------------------&gt;8----------
+
+foo.xsl:
+----------8&lt;-----------------------------------------------------------
+&lt;xsl:stylesheet
+        version=&quot;1.0&quot;
+        xmlns:xsl=&quot;<A HREF="http://www.w3.org/1999/XSL/Transform">http://www.w3.org/1999/XSL/Transform</A>&quot;&gt;
+
+&lt;xsl:template match=&quot;template[@name='foo']&quot; mode=&quot;source&quot;&gt;
+        &lt;list name=&quot;{param[@name='name']}&quot;&gt;
+		&lt;!-- ... --&gt;
+	&lt;/list&gt;
+&lt;/xsl:template&gt;
+
+&lt;xsl:template match=&quot;template[@name='foo']&quot; mode=&quot;graph&quot;&gt;
+        &lt;list&gt;
+		&lt;value name=&quot;title&quot;&gt;foo &lt;xsl:value-of select=&quot;{param[@name='name']}&quot;
+/&gt;&lt;/value&gt;
+		&lt;!-- ... --&gt;
+	&lt;/list&gt;
+&lt;/xsl:template&gt;
+
+&lt;/xsl:stylesheet&gt;
+-----------------------------------------------------------&gt;8----------
+
+Some &lt;list&gt;-Elements could of course be replaced by elements that have
+more semantic (like: &lt;sources&gt;, &lt;source&gt;, &lt;graph&gt;, ...)...but I think to
+describe this here &lt;list&gt; is enough (and closer to the current config).
+
+So, what do you think?
+
+Greetings, David Danier
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 191 bytes
+Desc: OpenPGP digital signature
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060705/bb9b8102/attachment.pgp">https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060705/bb9b8102/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000127.html">[Serverstats-devel] Attribute Value Template on xml parameter
+</A></li>
+	<LI>Next message: <A HREF="000129.html">[Serverstats-devel] Attribute Value Template on xml parameter
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#128">[ date ]</a>
+              <a href="thread.html#128">[ thread ]</a>
+              <a href="subject.html#128">[ subject ]</a>
+              <a href="author.html#128">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

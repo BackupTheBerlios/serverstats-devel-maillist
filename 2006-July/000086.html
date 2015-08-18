@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r139 - in branches/xmlconfig: . test
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r139%20-%20in%20branches/xmlconfig%3A%20.%20test&In-Reply-To=%3C200607030936.k639acfi032737%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000111.html">
+   <LINK REL="Next"  HREF="000092.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r139 - in branches/xmlconfig: . test</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r139%20-%20in%20branches/xmlconfig%3A%20.%20test&In-Reply-To=%3C200607030936.k639acfi032737%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r139 - in branches/xmlconfig: . test">goliath at berlios.de
+       </A><BR>
+    <I>Mon Jul  3 11:36:38 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000111.html">[Serverstats-devel] Creation of groups of sources
+</A></li>
+        <LI>Next message: <A HREF="000092.html">[Serverstats-devel] r140 - in trunk: . config.sample includes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#86">[ date ]</a>
+              <a href="thread.html#86">[ thread ]</a>
+              <a href="subject.html#86">[ subject ]</a>
+              <a href="author.html#86">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-07-03 11:36:36 +0200 (Mon, 03 Jul 2006)
+New Revision: 139
+
+Added:
+   branches/xmlconfig/test/
+   branches/xmlconfig/test/pasexml.php
+   branches/xmlconfig/test/xmlconfig.class.php
+Log:
+ * added test-scripts (must be omitted when this branch gets merged into trunk)
+
+
+Added: branches/xmlconfig/test/pasexml.php
+===================================================================
+--- branches/xmlconfig/test/pasexml.php	2006-07-02 18:15:46 UTC (rev 138)
++++ branches/xmlconfig/test/pasexml.php	2006-07-03 09:36:36 UTC (rev 139)
+@@ -0,0 +1,16 @@
++&lt;?php
++header('content-type: text/plain');
++
++require_once('xmlconfig.class.php');
++
++$dom = new domDocument();
++$dom-&gt;load('../config.sample/xml/config.xml');
++$dom-&gt;Xinclude();
++
++$dom2 = new xmlconfig();
++$dom2-&gt;loadXML($dom-&gt;saveXML());
++
++print_r ($dom2-&gt;parse());
++
++?&gt;
++
+
+Added: branches/xmlconfig/test/xmlconfig.class.php
+===================================================================
+--- branches/xmlconfig/test/xmlconfig.class.php	2006-07-02 18:15:46 UTC (rev 138)
++++ branches/xmlconfig/test/xmlconfig.class.php	2006-07-03 09:36:36 UTC (rev 139)
+@@ -0,0 +1,118 @@
++&lt;?php
++
++class snmp  {
++	 public function __construct($host, $objects, $comunity='public') {
++   }
++   
++   static public function factory($args) { 
++   	
++   	  $objects = array();
++   	  
++   	  foreach ($args as $name=&gt;$value ) {
++   	  	switch ($name) {
++   	  		case 'host': 
++   	  			$host = $value;
++   	  			break;
++   	  		case 'comunity':
++   	  			$comunity = $value;		
++   	  			break;
++   	  		default:
++   	  			$objects[$name] = $value;
++   	  	}
++   	  }
++   	  
++   		return new snmp($host, $objects, $comunity);
++   }
++}
++
++
++class mem {
++	 public function __construct() {
++	 		print('mem');
++   }
++
++   static public function factory() { 
++   		return new mem();
++   }
++}
++
++
++class cpu  {
++	 public function __construct() {
++	 	print('cpu');
++   }
++
++   static public function factory() { 
++   		return new cpu();
++   }
++ 
++}
++
++class xmlconfig extends domDocument {
++
++   public function __construct() {
++           parent::__construct();
++   }
++   
++   public function __destruct() {
++           
++   }
++
++   private function __traverseParams($node, &amp;$config, &amp;$host='') {
++  	
++  	foreach ($node-&gt;childNodes as $child) {
++  		if ($child-&gt;nodeType!=1) continue;
++  			
++  			switch ($child-&gt;nodeName) {
++  				case 'host':
++  					$this-&gt;__traverseParams($child, $config, $child-&gt;getAttribute('id') );		
++  					break;
++  				case 'graph':
++						$this-&gt;__traverseParams($child, $config[ $host ]['graphs'][], $host);		
++						break;
++					case 'source':
++						$class = $child-&gt;getAttribute('type');
++						$args = array();
++						
++						$this-&gt;__traverseParams($child, $args, $host);		
++											
++						if (class_exists($class)) {
++							$args['host'] = $host;
++							$config [ $host ]['module'][] = call_user_func(array($class,'factory'), $args); 				
++						}
++						
++												
++						break;
++					case 'param':							
++						$name = $child-&gt;getAttribute('name');
++						if ($name=='') $name = count($config);
++						
++						if ($child-&gt;getAttributeNS('<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>','type')=='xsd:array') {
++							$this-&gt;__traverseParams($child, $config[ $name ], $host);
++						} else {
++							$config[ $name ] = $child-&gt;nodeValue;
++							$this-&gt;__traverseParams($child, $config, $host);
++						}
++						break;
++
++					default:
++						/*print $child-&gt;nodeName;*/
++						$this-&gt;__traverseParams($child, $config, $host);		
++						break;
++						
++  			}
++  	}
++
++	}
++
++
++  public function parse() {
++ 		 $result = array(); 	
++ 		  
++ 		 $this-&gt;__traverseParams ($this-&gt;documentElement, $result );
++     return $result;
++  }
++
++}
++
++?&gt;
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000111.html">[Serverstats-devel] Creation of groups of sources
+</A></li>
+	<LI>Next message: <A HREF="000092.html">[Serverstats-devel] r140 - in trunk: . config.sample includes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#86">[ date ]</a>
+              <a href="thread.html#86">[ thread ]</a>
+              <a href="subject.html#86">[ subject ]</a>
+              <a href="author.html#86">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

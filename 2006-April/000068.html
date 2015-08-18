@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] Re: Serverstats / traffic_proc
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Re%3A%20Serverstats%20/%20traffic_proc&In-Reply-To=%3C444F5C4A.5080503%40team23.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000067.html">
+   <LINK REL="Next"  HREF="000069.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] Re: Serverstats / traffic_proc</H1>
+    <B>David Danier</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Re%3A%20Serverstats%20/%20traffic_proc&In-Reply-To=%3C444F5C4A.5080503%40team23.de%3E"
+       TITLE="[Serverstats-devel] Re: Serverstats / traffic_proc">david.danier at team23.de
+       </A><BR>
+    <I>Wed Apr 26 13:40:58 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000067.html">[Serverstats-devel] Re: Serverstats / traffic_proc
+</A></li>
+        <LI>Next message: <A HREF="000069.html">[Serverstats-devel] Re: Serverstats / traffic_proc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#68">[ date ]</a>
+              <a href="thread.html#68">[ thread ]</a>
+              <a href="subject.html#68">[ subject ]</a>
+              <a href="author.html#68">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Eigentlich ging es in der Email eigentlich mehr um den
+traffic_proc-Patch, aber gut, diskutieren wir gleich mal das
+Client/Server-Zeug. :)
+
+&gt;<i> serialisiertes Objekt ist ja ein bisschen evil, warum nicht einfach
+</I>&gt;<i> &#252;ber einen Webdienst, z.B. &#252;ber SOAP?
+</I>
+W&#252;rde ich auch eher f&#252;r ein Proof of Concept verwenden.
+
+Sowas wie SOAP meinte ich mit &quot;gibt alle oder nur ausgew&#228;hlte Sourcen in
+XML kodiert zur&#252;ck&quot;. ;-)
+(Allerdings hab ich mich mit SOAP noch nicht wirklich besch&#228;ftigt)
+
+Weshalb ich zum Testen serialisierte Objekte vorgeschlagen hatte war
+auch, weil ich auf der Clientseite ja irgendwie die RRD-Dateien
+initialisieren muss. Das ist von Source zu Source unterschiedlich,
+weshalb jede Source eine eigene Methode daf&#252;r hat.
+Wenn ich nun erstmal einfach serialisier hab ich keine Probleme damit
+neue Methoden (zum Speichern und Laden der Daten) einf&#252;gen muss.
+(Wie gesagt: Das geht her in die Richtung eines PoC)
+
+&gt;&gt;<i> [...] Netzwerkmount [...]
+</I>&gt;<i> M&#246;glich ja, aber nicht wirklich in gesch&#228;ftskritischen Bereichen
+</I>&gt;<i> einsetzbar. Ein robuster Webservice w&#252;rde da weitaus mehr
+</I>&gt;<i> M&#246;glichkeiten bieten, der Server m&#252;sste sich ja nicht nur auf das
+</I>&gt;<i> Auswerten von Performancedaten beschr&#228;nken, es k&#246;nnte auch eine Art
+</I>&gt;<i> Monitoring eingebaut werden.
+</I>
+Naja, im Vergleich zu dem, was ich im gesch&#228;ftskritischen Bereich schon
+gesehen habe w&#228;re so ein SSHFS-Mount wirklich wahnsinnig sicher, ja
+schon fast &#252;berdimensioniert. ;-)
+Vor allem im Vergleich zum netcat (siehe zitierten Text) halte ich das
+f&#252;r eine einfachere und praktischere L&#246;sung ohne hierbei
+Sicherheitsprobleme aufzureissen (insofern man wirklich nur das
+Verzeichnis mit den RRD-Dateien mountet).
+Im Vergleich zum SSHFS hat ein Webdienst au&#223;erdem erstmal den Nachteil
+offen im Netz zu stehen. Man muss erst einen Passwortschutz aktiveiern
+und es &#252;ber SSL laufen lassen. SSH hat beides schon aktiviert.
+
+Aber ich wei&#223;, was du meinst und stimm dir vollkommen zu.
+
+&gt;<i> Was h&#228;lst du von einem Webdienst?
+</I>
+Wie gesagt, eigentlich ist das so geplant. Allerdings fehlt mir derzeit
+etwas die Zeit (Umzug, viel Arbeit/unfertige Projekte).
+Falls du interessiert bist soetwas zu implementieren w&#252;rde ich dir einen
+SVN-Account anbieten. ;-)
+
+Viele Gr&#252;&#223;e, David Danier
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 191 bytes
+Desc: OpenPGP digital signature
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060426/ec91da3e/attachment.pgp">https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060426/ec91da3e/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000067.html">[Serverstats-devel] Re: Serverstats / traffic_proc
+</A></li>
+	<LI>Next message: <A HREF="000069.html">[Serverstats-devel] Re: Serverstats / traffic_proc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#68">[ date ]</a>
+              <a href="thread.html#68">[ thread ]</a>
+              <a href="subject.html#68">[ subject ]</a>
+              <a href="author.html#68">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

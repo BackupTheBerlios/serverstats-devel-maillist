@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] Monitoring testen, Version 0.8
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-January/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Monitoring%20testen%2C%20Version%200.8&In-Reply-To=%3C43DB2499.3060700%40team23.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000030.html">
+   <LINK REL="Next"  HREF="000032.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] Monitoring testen, Version 0.8</H1>
+    <B>David Danier</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Monitoring%20testen%2C%20Version%200.8&In-Reply-To=%3C43DB2499.3060700%40team23.de%3E"
+       TITLE="[Serverstats-devel] Monitoring testen, Version 0.8">david.danier at team23.de
+       </A><BR>
+    <I>Sat Jan 28 09:00:25 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000030.html">[Serverstats-devel] r104 - trunk
+</A></li>
+        <LI>Next message: <A HREF="000032.html">[Serverstats-devel] r105 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#31">[ date ]</a>
+              <a href="thread.html#31">[ thread ]</a>
+              <a href="subject.html#31">[ subject ]</a>
+              <a href="author.html#31">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Ich hab das Monitoring mal im SVN eingebaut. Um das sinnvoll zu
+implementieren und keinen unn&#246;tigen Ballast mitzuschleppen musste ich
+leider einen gro&#223;en Teil des bisherigen Aufbaus &#252;berdenken und &#228;ndern.
+Das betrifft:
+ * updateRRD() ist aus den Sourcen verschwunden, stattdessen m&#252;ssen die
+Sourcen &#252;ber fetchValues() einen Array mit allen Werten zur&#252;ckgeben. So
+konnen die Werte auch f&#252;r andere Zwecke als ein RRD-Update verwendet werden
+   (ich frag mich grad, wieso das nicht &quot;getValues&quot; hei&#223;t...)
+ * Die source-Klasse beinhaltet nun keine Methoden mehr die RRD-Dinge
+enthalten, stattdessen wird ein eigenes Interface hierf&#252;r benutzt. Es
+kann also Sourcen geben, die keine RRD-Dateien erzeugen.
+
+Die &#196;nderungen haben zur Folge, dass bestehende Source-Klassen nicht
+mehr funktionieren werden, da die Methode updateRRD() wegf&#228;llt. Ich
+denke alle Klassen auf der Webseite kann man an die &#196;nderungen anpassen,
+wenn Version 0.8 ansteht. Gleichzeitig w&#252;rde ich dann einf&#252;hren, dass
+man angeben kann, f&#252;r welche Serverstats-Version die Klasse geschrieben
+wurde.
+
+W&#228;re nett, wenn jemand das Monitoring testen k&#246;nnte. Bei mir klappt
+bisher alles gut. Wenn keine Probleme auftreten w&#252;rde ich Version 0.8
+gerne m&#246;glichst bald freigeben. Auch da einige Bugfixes im SVN auf die
+Freigabe warten.
+
+Viele Gr&#252;&#223;e, David Danier
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: OpenPGP digital signature
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060128/84d20103/attachment.pgp">https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060128/84d20103/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000030.html">[Serverstats-devel] r104 - trunk
+</A></li>
+	<LI>Next message: <A HREF="000032.html">[Serverstats-devel] r105 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#31">[ date ]</a>
+              <a href="thread.html#31">[ thread ]</a>
+              <a href="subject.html#31">[ subject ]</a>
+              <a href="author.html#31">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

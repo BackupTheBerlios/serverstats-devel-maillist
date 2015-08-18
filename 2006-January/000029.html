@@ -1,0 +1,175 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r103 - trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-January/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r103%20-%20trunk&In-Reply-To=%3C200601231242.k0NCgl79011347%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000028.html">
+   <LINK REL="Next"  HREF="000030.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r103 - trunk</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r103%20-%20trunk&In-Reply-To=%3C200601231242.k0NCgl79011347%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r103 - trunk">goliath at berlios.de
+       </A><BR>
+    <I>Mon Jan 23 13:42:47 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000028.html">[Serverstats-devel] r102 - trunk
+</A></li>
+        <LI>Next message: <A HREF="000030.html">[Serverstats-devel] r104 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#29">[ date ]</a>
+              <a href="thread.html#29">[ thread ]</a>
+              <a href="subject.html#29">[ subject ]</a>
+              <a href="author.html#29">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-01-23 13:41:45 +0100 (Mon, 23 Jan 2006)
+New Revision: 103
+
+Modified:
+   trunk/update.php
+Log:
+ * Added some nice(?) comments :)
+
+
+Modified: trunk/update.php
+===================================================================
+--- trunk/update.php	2006-01-23 12:36:07 UTC (rev 102)
++++ trunk/update.php	2006-01-23 12:41:45 UTC (rev 103)
+@@ -44,7 +44,9 @@
+ 		{
+ 			throw new Exception('Source &quot;' . $sourcename . '&quot; not instanceof source');
+ 		}
++		// Init the source
+ 		$source-&gt;init();
++		// Init/load cache if needed
+ 		if ($source instanceof source_cached)
+ 		{
+ 			if (file_exists($cachefile))
+@@ -58,18 +60,24 @@
+ 				$source-&gt;initCache();
+ 			}
+ 		}
++		// Refresh data
+ 		$source-&gt;refreshData();
++		// Save cache (if needed)
+ 		if ($source instanceof source_cached)
+ 		{
+ 			$cache = serialize($source-&gt;getCache());
+ 			file_put_contents($cachefile, $cache);
+ 			unset($cache);
+ 		}
++		// Receive values
+ 		$sourcevalues = $source-&gt;fetchValues();
++		// If the source needs an RRD: create and update it
+ 		if ($source instanceof source_rrd)
+ 		{
++			// Needed vars
+ 			$rrdfile = RRDPATH . $sourcename . '.rrd';
+ 			$sourcerrd = new rrd($config['main']['rrdtool'], $rrdfile);
++			// Create RRD-file if it does not exist
+ 			if (!file_exists($rrdfile))
+ 			{
+ 				if ($sourcerrd-&gt;checkVersion('&lt;', '1.2'))
+@@ -94,6 +102,7 @@
+ 				}
+ 				$sourcerrd-&gt;create();
+ 			}
++			// Update RRD-file
+ 			echo &quot;\tUpdating RRD-file&quot; . PHP_EOL;
+ 			$config['log']['logger']-&gt;logString(logger::INFO, 'Updating source &quot;' . $sourcename . '&quot;');
+ 			foreach ($sourcevalues as $valuename =&gt; $value)
+@@ -102,32 +111,39 @@
+ 			}
+ 			$sourcerrd-&gt;update();
+ 		}
+-		// TODO: Only send warnings once
++		// If the source is monitored: check all values
+ 		if (isset($config['monitor'][$sourcename]))
+ 		{
++			// Needed vars
+ 			$monitorcachefile = CACHEPATH . $sourcename . '.monitor.sav';
+ 			$monitorcache = array();
++			// Load cache if needed
+ 			if (file_exists($monitorcachefile))
+ 			{
+ 				$monitorcache = unserialize(file_get_contents($monitorcachefile));
+ 			}
++			// Check all values
+ 			echo &quot;\tMonitoring values&quot; . PHP_EOL;
+ 			foreach ($config['monitor'][$sourcename] as $rulenum =&gt; $rule)
+ 			{
++				// Init cache if needed
+ 				if (!isset($monitorcache[$rulenum]))
+ 				{
+ 					$monitorcache[$rulenum] = false;
+ 				}
+ 				$matches = array();
+-				if (preg_match('/^([a-zA-Z0-9_]+)\s*(&gt;=?|&lt;=?)\s*(.*)$/', $rule, $matches))
++				// Test if we have a valid test
++				if (preg_match('/^([a-zA-Z0-9_]+)\s*(&gt;=?|&lt;=?|!?=)\s*(.*)$/', $rule, $matches))
+ 				{
+ 					$name = $matches[1];
+ 					$operator = $matches[2];
+ 					$limit = $matches[3];
++					// Test if we know the datasource
+ 					if (!isset($sourcevalues[$name]))
+ 					{
+ 						throw new Exception(&quot;Invalid datasource in rule: $rule ($sourcename)&quot;);
+ 					}
++					// Test if limit is hit
+ 					if (value_compare($sourcevalues[$name], $limit, $operator))
+ 					{
+ 						echo &quot;\t\tLimit hit: $rule ($sourcename)&quot; . PHP_EOL;
+@@ -142,11 +158,13 @@
+ 						$monitorcache[$rulenum] = false;
+ 					}
+ 				}
++				// Handle invalid rules
+ 				else
+ 				{
+ 					throw new Exception(&quot;Invalid rule: $rule ($sourcename)&quot;);
+ 				}
+ 			}
++			// Save Cache
+ 			file_put_contents($monitorcachefile, serialize($monitorcache));
+ 		}
+ 	}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000028.html">[Serverstats-devel] r102 - trunk
+</A></li>
+	<LI>Next message: <A HREF="000030.html">[Serverstats-devel] r104 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#29">[ date ]</a>
+              <a href="thread.html#29">[ thread ]</a>
+              <a href="subject.html#29">[ subject ]</a>
+              <a href="author.html#29">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

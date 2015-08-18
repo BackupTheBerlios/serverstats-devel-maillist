@@ -1,0 +1,2349 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r115 - in trunk: . config.sample includes
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r115%20-%20in%20trunk%3A%20.%20config.sample%20includes&In-Reply-To=%3C200602191322.k1JDMvqX020679%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000042.html">
+   <LINK REL="Next"  HREF="000045.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r115 - in trunk: . config.sample includes</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r115%20-%20in%20trunk%3A%20.%20config.sample%20includes&In-Reply-To=%3C200602191322.k1JDMvqX020679%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r115 - in trunk: . config.sample includes">goliath at berlios.de
+       </A><BR>
+    <I>Sun Feb 19 14:22:57 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000042.html">[Serverstats-devel] r114 - in trunk: . includes lang sources sources/traffic
+</A></li>
+        <LI>Next message: <A HREF="000045.html">[Serverstats-devel] r115 - in trunk: . config.sample includes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#43">[ date ]</a>
+              <a href="thread.html#43">[ thread ]</a>
+              <a href="subject.html#43">[ subject ]</a>
+              <a href="author.html#43">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-02-19 14:22:46 +0100 (Sun, 19 Feb 2006)
+New Revision: 115
+
+Added:
+   trunk/config.sample/simple.php
+   trunk/includes/simpleconfig.class.php
+Modified:
+   trunk/ROADMAP
+   trunk/config.sample/graph.php
+   trunk/config.sample/log.php
+   trunk/config.sample/main.php
+   trunk/config.sample/monitor.php
+   trunk/config.sample/rra.php
+   trunk/config.sample/sources.php
+Log:
+ * Simple configuration added
+ * Changed Serverstats-URL in config (missed it last time)
+
+
+Modified: trunk/ROADMAP
+===================================================================
+--- trunk/ROADMAP	2006-02-19 11:20:28 UTC (rev 114)
++++ trunk/ROADMAP	2006-02-19 13:22:46 UTC (rev 115)
+@@ -1,7 +1,7 @@
+ 0.8:
+  [*] Monitor
+  [*] Ping
+- [ ] Simple configuration
++ [*] Simple configuration
+      (script that uses some parameters and creates the complex config)
+  [ ] Testing
+ 0.9:
+
+Modified: trunk/config.sample/graph.php
+===================================================================
+--- trunk/config.sample/graph.php	2006-02-19 11:20:28 UTC (rev 114)
++++ trunk/config.sample/graph.php	2006-02-19 13:22:46 UTC (rev 115)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+@@ -27,467 +27,475 @@
+ $config['width'] = 500;
+ $config['height'] = 150;
+ $config['usecache'] = true;
++
+ // List of all Graphs
+-$config['list'] = array(
+-    array(
+-        'title' =&gt; 'Users logged in',
+-        'lowerLimit' =&gt; 0,
+-        'altAutoscaleMax' =&gt; true,
+-        'content' =&gt; array(
+-            array(
+-                'type' =&gt; 'AREA',
+-                'source' =&gt; 'users',
+-                'ds' =&gt; 'users',
+-                'cf' =&gt; 'AVERAGE',
+-                'legend' =&gt; 'users logged in',
+-                'color' =&gt; '4444DD'
+-            )
+-        )
+-    ),
+-    array(
+-        'title' =&gt; 'Load',
+-        'lowerLimit' =&gt; 0,
+-        'altAutoscaleMax' =&gt; true,
+-        'content' =&gt; array(
+-            array(
+-                'type' =&gt; 'COMMENT',
+-                'text' =&gt; 'average number of tasks in the queue\:\n'
+-            ),
+-            array(
+-                'type' =&gt; 'LINE',
+-                'source' =&gt; 'load',
+-                'ds' =&gt; '1min',
+-                'cf' =&gt; 'AVERAGE',
+-                'legend' =&gt; '1 minute',
+-                'width' =&gt; 1,
+-                'color' =&gt; 'FFDD00'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'load_1min',
+-                'cf' =&gt; 'LAST',
+-                'format' =&gt; '  cur\: %01.2lf'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'load_1min',
+-                'cf' =&gt; 'MAXIMUM',
+-                'format' =&gt; 'max\: %01.2lf'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'load_1min',
+-                'cf' =&gt; 'MINIMUM',
+-                'format' =&gt; 'min\: %01.2lf'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'load_1min',
+-                'cf' =&gt; 'AVERAGE',
+-                'format' =&gt; 'avg\: %01.2lf\n'
+-            ),
+-            array(
+-                'type' =&gt; 'LINE',
+-                'source' =&gt; 'load',
+-                'ds' =&gt; '5min',
+-                'cf' =&gt; 'AVERAGE',
+-                'legend' =&gt; '5 minutes',
+-                'width' =&gt; 1,
+-                'color' =&gt; 'FF8800'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'load_5min',
+-                'cf' =&gt; 'LAST',
+-                'format' =&gt; ' cur\: %01.2lf'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'load_5min',
+-                'cf' =&gt; 'MAXIMUM',
+-                'format' =&gt; 'max\: %01.2lf'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'load_5min',
+-                'cf' =&gt; 'MINIMUM',
+-                'format' =&gt; 'min\: %01.2lf'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'load_5min',
+-                'cf' =&gt; 'AVERAGE',
+-                'format' =&gt; 'avg\: %01.2lf\n'
+-            ),
+-            array(
+-                'type' =&gt; 'LINE',
+-                'source' =&gt; 'load',
+-                'ds' =&gt; '15min',
+-                'cf' =&gt; 'AVERAGE',
+-                'legend' =&gt; '15 minutes',
+-                'width' =&gt; 1,
+-                'color' =&gt; 'FF0000'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'load_15min',
+-                'cf' =&gt; 'LAST',
+-                'format' =&gt; 'cur\: %01.2lf'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'load_15min',
+-                'cf' =&gt; 'MAXIMUM',
+-                'format' =&gt; 'max\: %01.2lf'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'load_15min',
+-                'cf' =&gt; 'MINIMUM',
+-                'format' =&gt; 'min\: %01.2lf'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'load_15min',
+-                'cf' =&gt; 'AVERAGE',
+-                'format' =&gt; 'avg\: %01.2lf\n'
+-            )
+-        )
+-    ),
+-    array(
+-        'title' =&gt; 'Memory',
+-        'lowerLimit' =&gt; 0,
+-        'altAutoscaleMax' =&gt; true,
+-        'content' =&gt; array(
+-            array(
+-                'type' =&gt; 'DEF',
+-                'source' =&gt; 'mem',
+-                'ds' =&gt; 'MemTotal',
+-                'cf' =&gt; 'AVERAGE',
+-                'name' =&gt; 'total'
+-            ),
+-            array(
+-                'type' =&gt; 'CDEF',
+-                'expression' =&gt; 'total,1024,/,1024,/',
+-                'name' =&gt; 'total_mb'
+-            ),
+-            array(
+-                'type' =&gt; 'DEF',
+-                'source' =&gt; 'mem',
+-                'ds' =&gt; 'MemFree',
+-                'cf' =&gt; 'AVERAGE',
+-                'name' =&gt; 'free'
+-            ),
+-            array(
+-                'type' =&gt; 'CDEF',
+-                'expression' =&gt; 'free,1024,/,1024,/',
+-                'name' =&gt; 'free_mb'
+-            ),
+-            array(
+-                'type' =&gt; 'DEF',
+-                'source' =&gt; 'mem',
+-                'ds' =&gt; 'Cached',
+-                'cf' =&gt; 'AVERAGE',
+-                'name' =&gt; 'cached'
+-            ),
+-            array(
+-                'type' =&gt; 'CDEF',
+-                'expression' =&gt; 'cached,1024,/,1024,/',
+-                'name' =&gt; 'cached_mb'
+-            ),
+-            array(
+-                'type' =&gt; 'AREA',
+-                'name' =&gt; 'total',
+-                'legend' =&gt; 'total',
+-                'color' =&gt; 'FFFFCC'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'total_mb',
+-                'cf' =&gt; 'LAST',
+-                'format' =&gt; ' cur\: %01.2lf MB\n'
+-            ),
+-            array(
+-                'type' =&gt; 'AREA',
+-                'name' =&gt; 'free',
+-                'legend' =&gt; 'free',
+-                'color' =&gt; 'FF0000'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'free_mb',
+-                'cf' =&gt; 'LAST',
+-                'format' =&gt; '   cur\: %01.2lf MB'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'free_mb',
+-                'cf' =&gt; 'MINIMUM',
+-                'format' =&gt; 'min\: %01.2lf MB'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'free_mb',
+-                'cf' =&gt; 'MAXIMUM',
+-                'format' =&gt; 'max\: %01.2lf MB'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'free_mb',
+-                'cf' =&gt; 'AVERAGE',
+-                'format' =&gt; 'avg\: %01.2lf MB\n'
+-            ),
+-            array(
+-                'type' =&gt; 'STACK',
+-                'name' =&gt; 'cached',
+-                'legend' =&gt; 'cached',
+-                'color' =&gt; 'EEDD22'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'cached_mb',
+-                'cf' =&gt; 'LAST',
+-                'format' =&gt; 'cur\: %01.2lf MB'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'cached_mb',
+-                'cf' =&gt; 'MINIMUM',
+-                'format' =&gt; 'min\: %01.2lf MB'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'cached_mb',
+-                'cf' =&gt; 'MAXIMUM',
+-                'format' =&gt; 'max\: %01.2lf MB'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'cached_mb',
+-                'cf' =&gt; 'AVERAGE',
+-                'format' =&gt; 'avg\: %01.2lf MB'
+-            ),
+-            array(
+-                'type' =&gt; 'LINE',
+-                'width' =&gt; 1,
+-                'name' =&gt; 'total',
+-                'color' =&gt; '000000'
+-            )
+-        )
+-    ),
+-    array(
+-        'title' =&gt; 'Swap',
+-        'lowerLimit' =&gt; 0,
+-        'altAutoscaleMax' =&gt; true,
+-        'content' =&gt; array(
+-            array(
+-                'type' =&gt; 'DEF',
+-                'source' =&gt; 'mem',
+-                'ds' =&gt; 'SwapTotal',
+-                'cf' =&gt; 'AVERAGE',
+-                'name' =&gt; 'total'
+-            ),
+-            array(
+-                'type' =&gt; 'CDEF',
+-                'expression' =&gt; 'total,1024,/,1024,/',
+-                'name' =&gt; 'total_mb'
+-            ),
+-            array(
+-                'type' =&gt; 'DEF',
+-                'source' =&gt; 'mem',
+-                'ds' =&gt; 'SwapFree',
+-                'cf' =&gt; 'AVERAGE',
+-                'name' =&gt; 'free'
+-            ),
+-            array(
+-                'type' =&gt; 'CDEF',
+-                'expression' =&gt; 'free,1024,/,1024,/',
+-                'name' =&gt; 'free_mb'
+-            ),
+-            array(
+-                'type' =&gt; 'DEF',
+-                'source' =&gt; 'mem',
+-                'ds' =&gt; 'SwapCached',
+-                'cf' =&gt; 'AVERAGE',
+-                'name' =&gt; 'cached'
+-            ),
+-            array(
+-                'type' =&gt; 'CDEF',
+-                'expression' =&gt; 'cached,1024,/,1024,/',
+-                'name' =&gt; 'cached_mb'
+-            ),
+-            array(
+-                'type' =&gt; 'AREA',
+-                'name' =&gt; 'total',
+-                'legend' =&gt; 'total',
+-                'color' =&gt; 'FFFFCC'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'total_mb',
+-                'cf' =&gt; 'LAST',
+-                'format' =&gt; ' cur\: %01.2lf MB\n'
+-            ),
+-            array(
+-                'type' =&gt; 'AREA',
+-                'name' =&gt; 'free',
+-                'legend' =&gt; 'free',
+-                'color' =&gt; 'FF0000'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'free_mb',
+-                'cf' =&gt; 'LAST',
+-                'format' =&gt; '   cur\: %01.2lf MB'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'free_mb',
+-                'cf' =&gt; 'MINIMUM',
+-                'format' =&gt; 'min\: %01.2lf MB'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'free_mb',
+-                'cf' =&gt; 'MAXIMUM',
+-                'format' =&gt; 'max\: %01.2lf MB'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'free_mb',
+-                'cf' =&gt; 'AVERAGE',
+-                'format' =&gt; 'avg\: %01.2lf MB\n'
+-            ),
+-            array(
+-                'type' =&gt; 'STACK',
+-                'name' =&gt; 'cached',
+-                'legend' =&gt; 'cached',
+-                'color' =&gt; 'EEDD22'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'cached_mb',
+-                'cf' =&gt; 'LAST',
+-                'format' =&gt; 'cur\: %01.2lf MB'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'cached_mb',
+-                'cf' =&gt; 'MINIMUM',
+-                'format' =&gt; 'min\: %01.2lf MB'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'cached_mb',
+-                'cf' =&gt; 'MAXIMUM',
+-                'format' =&gt; 'max\: %01.2lf MB'
+-            ),
+-            array(
+-                'type' =&gt; 'GPRINT',
+-                'name' =&gt; 'cached_mb',
+-                'cf' =&gt; 'AVERAGE',
+-                'format' =&gt; 'avg\: %01.2lf MB'
+-            ),
+-            array(
+-                'type' =&gt; 'LINE',
+-                'width' =&gt; 1,
+-                'name' =&gt; 'total',
+-                'color' =&gt; '000000'
+-            )
+-        )
+-    ),
+-    array(
+-        'title' =&gt; 'CPU usage',
+-        'upperLimit' =&gt; 100,
+-        'lowerLimit' =&gt; 0,
+-        'altAutoscaleMax' =&gt; true,
+-        'content' =&gt; array(
+-            array(
+-                'type' =&gt; 'AREA',
+-                'source' =&gt; 'cpu',
+-                'ds' =&gt; 'cpu_system',
+-                'cf' =&gt; 'AVERAGE',
+-                'legend' =&gt; 'System',
+-                'color' =&gt; 'FF0000'
+-            ),
+-            array(
+-                'type' =&gt; 'AREA',
+-                'source' =&gt; 'cpu',
+-                'ds' =&gt; 'cpu_user',
+-                'cf' =&gt; 'AVERAGE',
+-                'legend' =&gt; 'User',
+-                'color' =&gt; '00FF00',
+-				'stacked' =&gt; true
+-            ),
+-            array(
+-                'type' =&gt; 'AREA',
+-                'source' =&gt; 'cpu',
+-                'ds' =&gt; 'cpu_nice',
+-                'cf' =&gt; 'AVERAGE',
+-                'legend' =&gt; 'Nice',
+-                'color' =&gt; '0000FF',
+-				'stacked' =&gt; true
+-            ),
+-            array(
+-                'type' =&gt; 'AREA',
+-                'source' =&gt; 'cpu',
+-                'ds' =&gt; 'cpu_idle',
+-                'cf' =&gt; 'AVERAGE',
+-                'legend' =&gt; 'Idle',
+-                'color' =&gt; 'FFFF00',
+-				'stacked' =&gt; true
+-            )
+-        )
+-    ),
+-    array(
+-        'title' =&gt; 'Processes',
+-        'lowerLimit' =&gt; 0,
+-        'altAutoscaleMax' =&gt; true,
+-        'content' =&gt; array(
+-            array(
+-                'type' =&gt; 'AREA',
+-                'source' =&gt; 'load',
+-                'ds' =&gt; 'tasks',
+-                'cf' =&gt; 'AVERAGE',
+-                'legend' =&gt; 'number of processes',
+-                'color' =&gt; 'FFDD00'
+-            ),
+-            array(
+-                'type' =&gt; 'AREA',
+-                'source' =&gt; 'load',
+-                'ds' =&gt; 'running',
+-                'cf' =&gt; 'AVERAGE',
+-                'legend' =&gt; 'running processes',
+-                'color' =&gt; 'FF0000'
+-            )
+-        )
+-    ),
+-    array(
+-        'title' =&gt; 'Traffic (eth0)',
+-        'lowerLimit' =&gt; 0,
+-        'altAutoscaleMax' =&gt; true,
+-        'content' =&gt; array(
+-            array(
+-                'type' =&gt; 'LINE',
+-                'source' =&gt; 'traffic_proc',
+-                'ds' =&gt; 'eth0_rbytes',
+-                'cf' =&gt; 'AVERAGE',
+-                'legend' =&gt; 'Download Bytes/s',
+-                'width' =&gt; 1,
+-                'color' =&gt; '0002A3'
+-            ),
+-            array(
+-                'type' =&gt; 'LINE',
+-                'source' =&gt; 'traffic_proc',
+-                'ds' =&gt; 'eth0_tbytes',
+-                'cf' =&gt; 'AVERAGE',
+-                'legend' =&gt; 'Upload Bytes/s',
+-                'width' =&gt; 1,
+-                'color' =&gt; '00A302'
+-            )
+-        )
+-    )
++$config['list'] = array();
++
++// Add graphs using the simple configuration
++simpleconfig::graph($config, $GLOBALS['simple']);
++
++// Add own graphs (examples, like those used in the simple-config)
++/*
++$config['list'][] = array(
++	'title' =&gt; 'Users logged in',
++	'lowerLimit' =&gt; 0,
++	'altAutoscaleMax' =&gt; true,
++	'content' =&gt; array(
++		array(
++			'type' =&gt; 'AREA',
++			'source' =&gt; 'users',
++			'ds' =&gt; 'users',
++			'cf' =&gt; 'AVERAGE',
++			'legend' =&gt; 'users logged in',
++			'color' =&gt; '4444DD'
++		)
++	)
+ );
++$config['list'][] = array(
++	'title' =&gt; 'Load',
++	'lowerLimit' =&gt; 0,
++	'altAutoscaleMax' =&gt; true,
++	'content' =&gt; array(
++		array(
++			'type' =&gt; 'COMMENT',
++			'text' =&gt; 'average number of tasks in the queue\:\n'
++		),
++		array(
++			'type' =&gt; 'LINE',
++			'source' =&gt; 'load',
++			'ds' =&gt; '1min',
++			'cf' =&gt; 'AVERAGE',
++			'legend' =&gt; '1 minute',
++			'width' =&gt; 1,
++			'color' =&gt; 'FFDD00'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'load_1min',
++			'cf' =&gt; 'LAST',
++			'format' =&gt; '  cur\: %01.2lf'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'load_1min',
++			'cf' =&gt; 'MAXIMUM',
++			'format' =&gt; 'max\: %01.2lf'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'load_1min',
++			'cf' =&gt; 'MINIMUM',
++			'format' =&gt; 'min\: %01.2lf'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'load_1min',
++			'cf' =&gt; 'AVERAGE',
++			'format' =&gt; 'avg\: %01.2lf\n'
++		),
++		array(
++			'type' =&gt; 'LINE',
++			'source' =&gt; 'load',
++			'ds' =&gt; '5min',
++			'cf' =&gt; 'AVERAGE',
++			'legend' =&gt; '5 minutes',
++			'width' =&gt; 1,
++			'color' =&gt; 'FF8800'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'load_5min',
++			'cf' =&gt; 'LAST',
++			'format' =&gt; ' cur\: %01.2lf'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'load_5min',
++			'cf' =&gt; 'MAXIMUM',
++			'format' =&gt; 'max\: %01.2lf'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'load_5min',
++			'cf' =&gt; 'MINIMUM',
++			'format' =&gt; 'min\: %01.2lf'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'load_5min',
++			'cf' =&gt; 'AVERAGE',
++			'format' =&gt; 'avg\: %01.2lf\n'
++		),
++		array(
++			'type' =&gt; 'LINE',
++			'source' =&gt; 'load',
++			'ds' =&gt; '15min',
++			'cf' =&gt; 'AVERAGE',
++			'legend' =&gt; '15 minutes',
++			'width' =&gt; 1,
++			'color' =&gt; 'FF0000'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'load_15min',
++			'cf' =&gt; 'LAST',
++			'format' =&gt; 'cur\: %01.2lf'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'load_15min',
++			'cf' =&gt; 'MAXIMUM',
++			'format' =&gt; 'max\: %01.2lf'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'load_15min',
++			'cf' =&gt; 'MINIMUM',
++			'format' =&gt; 'min\: %01.2lf'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'load_15min',
++			'cf' =&gt; 'AVERAGE',
++			'format' =&gt; 'avg\: %01.2lf\n'
++		)
++	)
++);
++$config['list'][] = array(
++	'title' =&gt; 'Memory',
++	'lowerLimit' =&gt; 0,
++	'altAutoscaleMax' =&gt; true,
++	'content' =&gt; array(
++		array(
++			'type' =&gt; 'DEF',
++			'source' =&gt; 'mem',
++			'ds' =&gt; 'MemTotal',
++			'cf' =&gt; 'AVERAGE',
++			'name' =&gt; 'total'
++		),
++		array(
++			'type' =&gt; 'CDEF',
++			'expression' =&gt; 'total,1024,/,1024,/',
++			'name' =&gt; 'total_mb'
++		),
++		array(
++			'type' =&gt; 'DEF',
++			'source' =&gt; 'mem',
++			'ds' =&gt; 'MemFree',
++			'cf' =&gt; 'AVERAGE',
++			'name' =&gt; 'free'
++		),
++		array(
++			'type' =&gt; 'CDEF',
++			'expression' =&gt; 'free,1024,/,1024,/',
++			'name' =&gt; 'free_mb'
++		),
++		array(
++			'type' =&gt; 'DEF',
++			'source' =&gt; 'mem',
++			'ds' =&gt; 'Cached',
++			'cf' =&gt; 'AVERAGE',
++			'name' =&gt; 'cached'
++		),
++		array(
++			'type' =&gt; 'CDEF',
++			'expression' =&gt; 'cached,1024,/,1024,/',
++			'name' =&gt; 'cached_mb'
++		),
++		array(
++			'type' =&gt; 'AREA',
++			'name' =&gt; 'total',
++			'legend' =&gt; 'total',
++			'color' =&gt; 'FFFFCC'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'total_mb',
++			'cf' =&gt; 'LAST',
++			'format' =&gt; ' cur\: %01.2lf MB\n'
++		),
++		array(
++			'type' =&gt; 'AREA',
++			'name' =&gt; 'free',
++			'legend' =&gt; 'free',
++			'color' =&gt; 'FF0000'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'free_mb',
++			'cf' =&gt; 'LAST',
++			'format' =&gt; '   cur\: %01.2lf MB'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'free_mb',
++			'cf' =&gt; 'MINIMUM',
++			'format' =&gt; 'min\: %01.2lf MB'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'free_mb',
++			'cf' =&gt; 'MAXIMUM',
++			'format' =&gt; 'max\: %01.2lf MB'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'free_mb',
++			'cf' =&gt; 'AVERAGE',
++			'format' =&gt; 'avg\: %01.2lf MB\n'
++		),
++		array(
++			'type' =&gt; 'STACK',
++			'name' =&gt; 'cached',
++			'legend' =&gt; 'cached',
++			'color' =&gt; 'EEDD22'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'cached_mb',
++			'cf' =&gt; 'LAST',
++			'format' =&gt; 'cur\: %01.2lf MB'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'cached_mb',
++			'cf' =&gt; 'MINIMUM',
++			'format' =&gt; 'min\: %01.2lf MB'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'cached_mb',
++			'cf' =&gt; 'MAXIMUM',
++			'format' =&gt; 'max\: %01.2lf MB'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'cached_mb',
++			'cf' =&gt; 'AVERAGE',
++			'format' =&gt; 'avg\: %01.2lf MB'
++		),
++		array(
++			'type' =&gt; 'LINE',
++			'width' =&gt; 1,
++			'name' =&gt; 'total',
++			'color' =&gt; '000000'
++		)
++	)
++);
++$config['list'][] = array(
++	'title' =&gt; 'Swap',
++	'lowerLimit' =&gt; 0,
++	'altAutoscaleMax' =&gt; true,
++	'content' =&gt; array(
++		array(
++			'type' =&gt; 'DEF',
++			'source' =&gt; 'mem',
++			'ds' =&gt; 'SwapTotal',
++			'cf' =&gt; 'AVERAGE',
++			'name' =&gt; 'total'
++		),
++		array(
++			'type' =&gt; 'CDEF',
++			'expression' =&gt; 'total,1024,/,1024,/',
++			'name' =&gt; 'total_mb'
++		),
++		array(
++			'type' =&gt; 'DEF',
++			'source' =&gt; 'mem',
++			'ds' =&gt; 'SwapFree',
++			'cf' =&gt; 'AVERAGE',
++			'name' =&gt; 'free'
++		),
++		array(
++			'type' =&gt; 'CDEF',
++			'expression' =&gt; 'free,1024,/,1024,/',
++			'name' =&gt; 'free_mb'
++		),
++		array(
++			'type' =&gt; 'DEF',
++			'source' =&gt; 'mem',
++			'ds' =&gt; 'SwapCached',
++			'cf' =&gt; 'AVERAGE',
++			'name' =&gt; 'cached'
++		),
++		array(
++			'type' =&gt; 'CDEF',
++			'expression' =&gt; 'cached,1024,/,1024,/',
++			'name' =&gt; 'cached_mb'
++		),
++		array(
++			'type' =&gt; 'AREA',
++			'name' =&gt; 'total',
++			'legend' =&gt; 'total',
++			'color' =&gt; 'FFFFCC'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'total_mb',
++			'cf' =&gt; 'LAST',
++			'format' =&gt; ' cur\: %01.2lf MB\n'
++		),
++		array(
++			'type' =&gt; 'AREA',
++			'name' =&gt; 'free',
++			'legend' =&gt; 'free',
++			'color' =&gt; 'FF0000'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'free_mb',
++			'cf' =&gt; 'LAST',
++			'format' =&gt; '   cur\: %01.2lf MB'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'free_mb',
++			'cf' =&gt; 'MINIMUM',
++			'format' =&gt; 'min\: %01.2lf MB'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'free_mb',
++			'cf' =&gt; 'MAXIMUM',
++			'format' =&gt; 'max\: %01.2lf MB'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'free_mb',
++			'cf' =&gt; 'AVERAGE',
++			'format' =&gt; 'avg\: %01.2lf MB\n'
++		),
++		array(
++			'type' =&gt; 'STACK',
++			'name' =&gt; 'cached',
++			'legend' =&gt; 'cached',
++			'color' =&gt; 'EEDD22'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'cached_mb',
++			'cf' =&gt; 'LAST',
++			'format' =&gt; 'cur\: %01.2lf MB'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'cached_mb',
++			'cf' =&gt; 'MINIMUM',
++			'format' =&gt; 'min\: %01.2lf MB'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'cached_mb',
++			'cf' =&gt; 'MAXIMUM',
++			'format' =&gt; 'max\: %01.2lf MB'
++		),
++		array(
++			'type' =&gt; 'GPRINT',
++			'name' =&gt; 'cached_mb',
++			'cf' =&gt; 'AVERAGE',
++			'format' =&gt; 'avg\: %01.2lf MB'
++		),
++		array(
++			'type' =&gt; 'LINE',
++			'width' =&gt; 1,
++			'name' =&gt; 'total',
++			'color' =&gt; '000000'
++		)
++	)
++);
++$config['list'][] = array(
++	'title' =&gt; 'CPU usage',
++	'upperLimit' =&gt; 100,
++	'lowerLimit' =&gt; 0,
++	'altAutoscaleMax' =&gt; true,
++	'content' =&gt; array(
++		array(
++			'type' =&gt; 'AREA',
++			'source' =&gt; 'cpu',
++			'ds' =&gt; 'cpu_system',
++			'cf' =&gt; 'AVERAGE',
++			'legend' =&gt; 'System',
++			'color' =&gt; 'FF0000'
++		),
++		array(
++			'type' =&gt; 'AREA',
++			'source' =&gt; 'cpu',
++			'ds' =&gt; 'cpu_user',
++			'cf' =&gt; 'AVERAGE',
++			'legend' =&gt; 'User',
++			'color' =&gt; '00FF00',
++			'stacked' =&gt; true
++		),
++		array(
++			'type' =&gt; 'AREA',
++			'source' =&gt; 'cpu',
++			'ds' =&gt; 'cpu_nice',
++			'cf' =&gt; 'AVERAGE',
++			'legend' =&gt; 'Nice',
++			'color' =&gt; '0000FF',
++			'stacked' =&gt; true
++		),
++		array(
++			'type' =&gt; 'AREA',
++			'source' =&gt; 'cpu',
++			'ds' =&gt; 'cpu_idle',
++			'cf' =&gt; 'AVERAGE',
++			'legend' =&gt; 'Idle',
++			'color' =&gt; 'FFFF00',
++			'stacked' =&gt; true
++		)
++	)
++);
++$config['list'][] = array(
++	'title' =&gt; 'Processes',
++	'lowerLimit' =&gt; 0,
++	'altAutoscaleMax' =&gt; true,
++	'content' =&gt; array(
++		array(
++			'type' =&gt; 'AREA',
++			'source' =&gt; 'load',
++			'ds' =&gt; 'tasks',
++			'cf' =&gt; 'AVERAGE',
++			'legend' =&gt; 'number of processes',
++			'color' =&gt; 'FFDD00'
++		),
++		array(
++			'type' =&gt; 'AREA',
++			'source' =&gt; 'load',
++			'ds' =&gt; 'running',
++			'cf' =&gt; 'AVERAGE',
++			'legend' =&gt; 'running processes',
++			'color' =&gt; 'FF0000'
++		)
++	)
++);
++$config['list'][] = array(
++	'title' =&gt; 'Traffic (eth0)',
++	'lowerLimit' =&gt; 0,
++	'altAutoscaleMax' =&gt; true,
++	'content' =&gt; array(
++		array(
++			'type' =&gt; 'LINE',
++			'source' =&gt; 'traffic_proc',
++			'ds' =&gt; 'eth0_rbytes',
++			'cf' =&gt; 'AVERAGE',
++			'legend' =&gt; 'Download Bytes/s',
++			'width' =&gt; 1,
++			'color' =&gt; '0002A3'
++		),
++		array(
++			'type' =&gt; 'LINE',
++			'source' =&gt; 'traffic_proc',
++			'ds' =&gt; 'eth0_tbytes',
++			'cf' =&gt; 'AVERAGE',
++			'legend' =&gt; 'Upload Bytes/s',
++			'width' =&gt; 1,
++			'color' =&gt; '00A302'
++		)
++	)
++);
++*/
++
+ // Define what Graphes we want in the detail view (detail.php)
+ $config['types'] = array(
+ //	array('title' =&gt; 'Hour', 'period' =&gt; 3600), // only useful if you have a small step
+
+Modified: trunk/config.sample/log.php
+===================================================================
+--- trunk/config.sample/log.php	2006-02-19 11:20:28 UTC (rev 114)
++++ trunk/config.sample/log.php	2006-02-19 13:22:46 UTC (rev 115)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/config.sample/main.php
+===================================================================
+--- trunk/config.sample/main.php	2006-02-19 11:20:28 UTC (rev 114)
++++ trunk/config.sample/main.php	2006-02-19 13:22:46 UTC (rev 115)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/config.sample/monitor.php
+===================================================================
+--- trunk/config.sample/monitor.php	2006-02-19 11:20:28 UTC (rev 114)
++++ trunk/config.sample/monitor.php	2006-02-19 13:22:46 UTC (rev 115)
+@@ -3,7 +3,7 @@
+  * $Id: sources.php 82 2005-12-14 11:35:04Z akorthaus $
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Modified: trunk/config.sample/rra.php
+===================================================================
+--- trunk/config.sample/rra.php	2006-02-19 11:20:28 UTC (rev 114)
++++ trunk/config.sample/rra.php	2006-02-19 13:22:46 UTC (rev 115)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+
+Added: trunk/config.sample/simple.php
+===================================================================
+--- trunk/config.sample/simple.php	2006-02-19 11:20:28 UTC (rev 114)
++++ trunk/config.sample/simple.php	2006-02-19 13:22:46 UTC (rev 115)
+@@ -0,0 +1,114 @@
++&lt;?php
++/**
++ * $Id$
++ *
++ * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
++ * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
++ *
++ * Copyright (C) 2005 David Danier
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++$config['used'] = true; // is the simple config used
++$config['modules'] = array(
++	'apache' =&gt; array(
++		'used' =&gt; false,
++		'hosts' =&gt; array('localhost'),
++		'graphs' =&gt; array(
++			'requests' =&gt; array('used' =&gt; true, 'title' =&gt; 'Apache: Requests/s (%s)')
++		)
++	),
++	'cpu' =&gt; array(
++		'used' =&gt; true,
++		'graphs' =&gt; array(
++			'usage' =&gt; array('used' =&gt; true, 'title' =&gt; 'CPU usage')
++		)
++	),
++	'disk' =&gt; array(
++		'used' =&gt; false,
++		'disks' =&gt; array('hda'),
++		'graphs' =&gt; array(
++			'iorate' =&gt; array('used' =&gt; true, 'title' =&gt; 'IO-Rate (%s)')
++		)
++	),
++	'load' =&gt; array(
++		'used' =&gt; true,
++		'graphs' =&gt; array(
++			'load' =&gt; array('used' =&gt; true, 'title' =&gt; 'Load'),
++			'processes' =&gt; array('used' =&gt; true, 'title' =&gt; 'Processes')
++		)
++	),
++	'memory' =&gt; array(
++		'used' =&gt; true,
++		'graphs' =&gt; array(
++			'memory' =&gt; array('used' =&gt; true, 'title' =&gt; 'Memory'),
++			'swap' =&gt; array('used' =&gt; true, 'title' =&gt; 'Swap')
++		)
++	),
++	'mysql' =&gt; array(
++		'used' =&gt; false,
++		'host' =&gt; 'localhost',
++		'user' =&gt; 'somebody',
++		'password' =&gt; 'something',
++		'graphs' =&gt; array(
++			'questions' =&gt; array('used' =&gt; true, 'title' =&gt; 'MySQL: questions per second'),
++			'processes' =&gt; array('used' =&gt; true, 'title' =&gt; 'MySQL: query count (&quot;SHOW PROCESSLIST&quot;)')
++		)
++	),
++	'ping' =&gt; array(
++		'used' =&gt; false,
++		'hosts' =&gt; array('www.google.com'),
++		'graphs' =&gt; array(
++			'combined' =&gt; array('used' =&gt; true, 'title' =&gt; 'Ping'),
++			'single' =&gt; array('used' =&gt; false, 'title' =&gt; 'Ping (%s)')
++		)
++	),
++	'ping_http' =&gt; array(
++		'used' =&gt; false,
++		'hosts' =&gt; array('www.google.com'),
++		'graphs' =&gt; array(
++			'combined' =&gt; array('used' =&gt; true, 'title' =&gt; 'HTTP-Ping'),
++			'single' =&gt; array('used' =&gt; true, 'title' =&gt; 'HTTP-Ping (%s)')
++		)
++	),
++	'traffic' =&gt; array(
++		'used' =&gt; false,
++		'chains' =&gt; array('WWW'),
++		'graphs' =&gt; array(
++			'combined_bps' =&gt; array('used' =&gt; true, 'title' =&gt; 'Traffic (bps)'),
++			'single_bps' =&gt; array('used' =&gt; false, 'title' =&gt; '%s-Traffic (bps)'),
++			'combined_count' =&gt; array('used' =&gt; true, 'title' =&gt; 'Traffic (count)'),
++			'single_count' =&gt; array('used' =&gt; false, 'title' =&gt; '%s-Traffic (count)')
++		)
++	),
++	'traffic_proc' =&gt; array(
++		'used' =&gt; true,
++		'interfaces' =&gt; array('eth0'),
++		'graphs' =&gt; array(
++			'combined_bps' =&gt; array('used' =&gt; false, 'title' =&gt; 'Traffic'),
++			'single_bps' =&gt; array('used' =&gt; true, 'title' =&gt; 'Traffic (%s)')
++		)
++	),
++	'users' =&gt; array(
++		'used' =&gt; true,
++		'graphs' =&gt; array(
++			'logged_in' =&gt; array('used' =&gt; true, 'title' =&gt; 'Users logged in')
++		)
++	)
++);
++
++?&gt;
+
+
+Property changes on: trunk/config.sample/simple.php
+___________________________________________________________________
+Name: svn:keywords
+   + LastChangedDate LastChangedRevision LastChangedBy HeadURL Id
+
+Modified: trunk/config.sample/sources.php
+===================================================================
+--- trunk/config.sample/sources.php	2006-02-19 11:20:28 UTC (rev 114)
++++ trunk/config.sample/sources.php	2006-02-19 13:22:46 UTC (rev 115)
+@@ -3,7 +3,7 @@
+  * $Id$
+  *
+  * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
+  * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+  *
+  * Copyright (C) 2005 David Danier
+@@ -24,10 +24,17 @@
+  */
+ 
+ // Define the sources, read the sourcefiles for the needed details
++
++// Add sources using the simple configuration
++simpleconfig::sources($config, $GLOBALS['simple']);
++
++// Add own sources (examples, like those used in the simple-config)
++/*
+ $config['cpu']['module'] = new cpu();
+ $config['mem']['module'] = new memory();
+ $config['load']['module'] = new load();
+ $config['users']['module'] = new users();
+ $config['traffic_proc']['module'] = new traffic_proc('eth0');
++*/
+ 
+ ?&gt;
+
+Added: trunk/includes/simpleconfig.class.php
+===================================================================
+--- trunk/includes/simpleconfig.class.php	2006-02-19 11:20:28 UTC (rev 114)
++++ trunk/includes/simpleconfig.class.php	2006-02-19 13:22:46 UTC (rev 115)
+@@ -0,0 +1,1079 @@
++&lt;?php
++/**
++ * $Id$
++ *
++ * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
++ * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
++ *
++ * Copyright (C) 2005 David Danier
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++class simpleconfig
++{
++	public static function escapeDsName($name)
++	{
++		return preg_replace('/[^a-zA-Z0-9_]/', '_', $name);
++	}
++	
++	public static function graph(&amp;$config, $simpleconfig)
++	{
++		if (!$simpleconfig['used'])
++		{
++			return;
++		}
++		foreach ($simpleconfig['modules'] as $module =&gt; $modconf)
++		{
++			if (!$modconf['used'])
++			{
++				continue;
++			}
++			switch ($module)
++			{
++				case 'apache':
++					foreach ($modconf['hosts'] as $host)
++					{
++						foreach ($modconf['graphs'] as $graph =&gt; $graphconf)
++						{
++							if (!$graphconf['used'])
++							{
++								continue;
++							}
++							switch ($graph)
++							{
++								case 'requests':
++									$config['list'][] = array(
++										'title' =&gt; sprintf($graphconf['title'], $host),
++										'lowerLimit' =&gt; 0,
++										'altAutoscaleMax' =&gt; true,
++										'content' =&gt; array(
++											array(
++												'type' =&gt; 'LINE',
++												'source' =&gt; $module . '_' . self::escapeDsName($host),
++												'ds' =&gt; 'requestsps',
++												'cf' =&gt; 'AVERAGE',
++												'legend' =&gt; 'Requests/s',
++												'color' =&gt; '7FD180'
++											)
++										)
++									);
++									break;
++							}
++						}
++					}
++					break;
++				case 'cpu':
++					foreach ($modconf['graphs'] as $graph =&gt; $graphconf)
++					{
++						if (!$graphconf['used'])
++						{
++							continue;
++						}
++						switch ($graph)
++						{
++							case 'usage':
++								$config['list'][] = array(
++									'title' =&gt; $graphconf['title'],
++									'upperLimit' =&gt; 100,
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'content' =&gt; array(
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; $module,
++											'ds' =&gt; 'cpu_system',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'System',
++											'color' =&gt; 'FF0000'
++										),
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; $module,
++											'ds' =&gt; 'cpu_user',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'User',
++											'color' =&gt; '00FF00',
++											'stacked' =&gt; true
++										),
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; $module,
++											'ds' =&gt; 'cpu_nice',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'Nice',
++											'color' =&gt; '0000FF',
++											'stacked' =&gt; true
++										),
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; $module,
++											'ds' =&gt; 'cpu_idle',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'Idle',
++											'color' =&gt; 'FFFF00',
++											'stacked' =&gt; true
++										)
++									)
++								);
++								break;
++						}
++					}
++					break;
++				case 'disk':
++					foreach ($modconf['disks'] as $disk)
++					{
++						foreach ($modconf['graphs'] as $graph =&gt; $graphconf)
++						{
++							if (!$graphconf['used'])
++							{
++								continue;
++							}
++							switch ($graph)
++							{
++								case 'iorate':
++									$config['list'][] = array(
++										'title' =&gt; sprintf($graphconf['title'], $disk),
++										'lowerLimit' =&gt; 0,
++										'altAutoscaleMax' =&gt; true,
++										'verticalLabel' =&gt; 'byte/s',
++										'content' =&gt; array(
++											array(
++												'type' =&gt; 'LINE',
++												'source' =&gt; $module . '_' . self::escapeDsName($disk),
++												'ds' =&gt; 'readps',
++												'cf' =&gt; 'AVERAGE',
++												'legend' =&gt; 'read',
++												'color' =&gt; 'FF0000'
++											),
++											array(
++												'type' =&gt; 'LINE',
++												'source' =&gt; $module . '_' . self::escapeDsName($disk),
++												'ds' =&gt; 'writeps',
++												'cf' =&gt; 'AVERAGE',
++												'legend' =&gt; 'write',
++												'color' =&gt; 'EEEE00'
++											)
++										)
++									);
++									break;
++							}
++						}
++					}
++					break;
++				case 'load':
++					foreach ($modconf['graphs'] as $graph =&gt; $graphconf)
++					{
++						if (!$graphconf['used'])
++						{
++							continue;
++						}
++						switch ($graph)
++						{
++							case 'load':
++								$config['list'][] = array(
++									'title' =&gt; $graphconf['title'],
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'content' =&gt; array(
++										array(
++											'type' =&gt; 'COMMENT',
++											'text' =&gt; 'average number of tasks in the queue\:\n'
++										),
++										array(
++											'type' =&gt; 'LINE',
++											'source' =&gt; $module,
++											'ds' =&gt; '1min',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; '1 minute',
++											'width' =&gt; 1,
++											'color' =&gt; 'FFDD00'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'load_1min',
++											'cf' =&gt; 'LAST',
++											'format' =&gt; '  cur\: %01.2lf'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'load_1min',
++											'cf' =&gt; 'MAXIMUM',
++											'format' =&gt; 'max\: %01.2lf'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'load_1min',
++											'cf' =&gt; 'MINIMUM',
++											'format' =&gt; 'min\: %01.2lf'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'load_1min',
++											'cf' =&gt; 'AVERAGE',
++											'format' =&gt; 'avg\: %01.2lf\n'
++										),
++										array(
++											'type' =&gt; 'LINE',
++											'source' =&gt; $module,
++											'ds' =&gt; '5min',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; '5 minutes',
++											'width' =&gt; 1,
++											'color' =&gt; 'FF8800'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'load_5min',
++											'cf' =&gt; 'LAST',
++											'format' =&gt; ' cur\: %01.2lf'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'load_5min',
++											'cf' =&gt; 'MAXIMUM',
++											'format' =&gt; 'max\: %01.2lf'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'load_5min',
++											'cf' =&gt; 'MINIMUM',
++											'format' =&gt; 'min\: %01.2lf'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'load_5min',
++											'cf' =&gt; 'AVERAGE',
++											'format' =&gt; 'avg\: %01.2lf\n'
++										),
++										array(
++											'type' =&gt; 'LINE',
++											'source' =&gt; $module,
++											'ds' =&gt; '15min',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; '15 minutes',
++											'width' =&gt; 1,
++											'color' =&gt; 'FF0000'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'load_15min',
++											'cf' =&gt; 'LAST',
++											'format' =&gt; 'cur\: %01.2lf'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'load_15min',
++											'cf' =&gt; 'MAXIMUM',
++											'format' =&gt; 'max\: %01.2lf'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'load_15min',
++											'cf' =&gt; 'MINIMUM',
++											'format' =&gt; 'min\: %01.2lf'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'load_15min',
++											'cf' =&gt; 'AVERAGE',
++											'format' =&gt; 'avg\: %01.2lf\n'
++										)
++									)
++								);
++								break;
++							case 'processes':
++								$config['list'][] = array(
++									'title' =&gt; $graphconf['title'],
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'content' =&gt; array(
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; $module,
++											'ds' =&gt; 'tasks',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'number of processes',
++											'color' =&gt; 'FFDD00'
++										),
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; $module,
++											'ds' =&gt; 'running',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'running processes',
++											'color' =&gt; 'FF0000'
++										)
++									)
++								);
++								break;
++						}
++					}
++					break;
++				case 'memory':
++					foreach ($modconf['graphs'] as $graph =&gt; $graphconf)
++					{
++						if (!$graphconf['used'])
++						{
++							continue;
++						}
++						switch ($graph)
++						{
++							case 'memory':
++								$config['list'][] = array(
++									'title' =&gt; $graphconf['title'],
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'content' =&gt; array(
++										array(
++											'type' =&gt; 'DEF',
++											'source' =&gt; $module,
++											'ds' =&gt; 'MemTotal',
++											'cf' =&gt; 'AVERAGE',
++											'name' =&gt; 'total'
++										),
++										array(
++											'type' =&gt; 'CDEF',
++											'expression' =&gt; 'total,1024,/,1024,/',
++											'name' =&gt; 'total_mb'
++										),
++										array(
++											'type' =&gt; 'DEF',
++											'source' =&gt; $module,
++											'ds' =&gt; 'MemFree',
++											'cf' =&gt; 'AVERAGE',
++											'name' =&gt; 'free'
++										),
++										array(
++											'type' =&gt; 'CDEF',
++											'expression' =&gt; 'free,1024,/,1024,/',
++											'name' =&gt; 'free_mb'
++										),
++										array(
++											'type' =&gt; 'DEF',
++											'source' =&gt; $module,
++											'ds' =&gt; 'Cached',
++											'cf' =&gt; 'AVERAGE',
++											'name' =&gt; 'cached'
++										),
++										array(
++											'type' =&gt; 'CDEF',
++											'expression' =&gt; 'cached,1024,/,1024,/',
++											'name' =&gt; 'cached_mb'
++										),
++										array(
++											'type' =&gt; 'AREA',
++											'name' =&gt; 'total',
++											'legend' =&gt; 'total',
++											'color' =&gt; 'FFFFCC'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'total_mb',
++											'cf' =&gt; 'LAST',
++											'format' =&gt; ' cur\: %01.2lf MB\n'
++										),
++										array(
++											'type' =&gt; 'AREA',
++											'name' =&gt; 'free',
++											'legend' =&gt; 'free',
++											'color' =&gt; 'FF0000'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'free_mb',
++											'cf' =&gt; 'LAST',
++											'format' =&gt; '   cur\: %01.2lf MB'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'free_mb',
++											'cf' =&gt; 'MINIMUM',
++											'format' =&gt; 'min\: %01.2lf MB'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'free_mb',
++											'cf' =&gt; 'MAXIMUM',
++											'format' =&gt; 'max\: %01.2lf MB'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'free_mb',
++											'cf' =&gt; 'AVERAGE',
++											'format' =&gt; 'avg\: %01.2lf MB\n'
++										),
++										array(
++											'type' =&gt; 'STACK',
++											'name' =&gt; 'cached',
++											'legend' =&gt; 'cached',
++											'color' =&gt; 'EEDD22'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'cached_mb',
++											'cf' =&gt; 'LAST',
++											'format' =&gt; 'cur\: %01.2lf MB'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'cached_mb',
++											'cf' =&gt; 'MINIMUM',
++											'format' =&gt; 'min\: %01.2lf MB'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'cached_mb',
++											'cf' =&gt; 'MAXIMUM',
++											'format' =&gt; 'max\: %01.2lf MB'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'cached_mb',
++											'cf' =&gt; 'AVERAGE',
++											'format' =&gt; 'avg\: %01.2lf MB'
++										),
++										array(
++											'type' =&gt; 'LINE',
++											'width' =&gt; 1,
++											'name' =&gt; 'total',
++											'color' =&gt; '000000'
++										)
++									)
++								);
++								break;
++							case 'swap':
++								$config['list'][] = array(
++									'title' =&gt; $graphconf['title'],
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'content' =&gt; array(
++										array(
++											'type' =&gt; 'DEF',
++											'source' =&gt; $module,
++											'ds' =&gt; 'SwapTotal',
++											'cf' =&gt; 'AVERAGE',
++											'name' =&gt; 'total'
++										),
++										array(
++											'type' =&gt; 'CDEF',
++											'expression' =&gt; 'total,1024,/,1024,/',
++											'name' =&gt; 'total_mb'
++										),
++										array(
++											'type' =&gt; 'DEF',
++											'source' =&gt; $module,
++											'ds' =&gt; 'SwapFree',
++											'cf' =&gt; 'AVERAGE',
++											'name' =&gt; 'free'
++										),
++										array(
++											'type' =&gt; 'CDEF',
++											'expression' =&gt; 'free,1024,/,1024,/',
++											'name' =&gt; 'free_mb'
++										),
++										array(
++											'type' =&gt; 'DEF',
++											'source' =&gt; $module,
++											'ds' =&gt; 'SwapCached',
++											'cf' =&gt; 'AVERAGE',
++											'name' =&gt; 'cached'
++										),
++										array(
++											'type' =&gt; 'CDEF',
++											'expression' =&gt; 'cached,1024,/,1024,/',
++											'name' =&gt; 'cached_mb'
++										),
++										array(
++											'type' =&gt; 'AREA',
++											'name' =&gt; 'total',
++											'legend' =&gt; 'total',
++											'color' =&gt; 'FFFFCC'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'total_mb',
++											'cf' =&gt; 'LAST',
++											'format' =&gt; ' cur\: %01.2lf MB\n'
++										),
++										array(
++											'type' =&gt; 'AREA',
++											'name' =&gt; 'free',
++											'legend' =&gt; 'free',
++											'color' =&gt; 'FF0000'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'free_mb',
++											'cf' =&gt; 'LAST',
++											'format' =&gt; '   cur\: %01.2lf MB'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'free_mb',
++											'cf' =&gt; 'MINIMUM',
++											'format' =&gt; 'min\: %01.2lf MB'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'free_mb',
++											'cf' =&gt; 'MAXIMUM',
++											'format' =&gt; 'max\: %01.2lf MB'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'free_mb',
++											'cf' =&gt; 'AVERAGE',
++											'format' =&gt; 'avg\: %01.2lf MB\n'
++										),
++										array(
++											'type' =&gt; 'STACK',
++											'name' =&gt; 'cached',
++											'legend' =&gt; 'cached',
++											'color' =&gt; 'EEDD22'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'cached_mb',
++											'cf' =&gt; 'LAST',
++											'format' =&gt; 'cur\: %01.2lf MB'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'cached_mb',
++											'cf' =&gt; 'MINIMUM',
++											'format' =&gt; 'min\: %01.2lf MB'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'cached_mb',
++											'cf' =&gt; 'MAXIMUM',
++											'format' =&gt; 'max\: %01.2lf MB'
++										),
++										array(
++											'type' =&gt; 'GPRINT',
++											'name' =&gt; 'cached_mb',
++											'cf' =&gt; 'AVERAGE',
++											'format' =&gt; 'avg\: %01.2lf MB'
++										),
++										array(
++											'type' =&gt; 'LINE',
++											'width' =&gt; 1,
++											'name' =&gt; 'total',
++											'color' =&gt; '000000'
++										)
++									)
++								);
++								break;
++						}
++					}
++					break;
++				case 'mysql':
++					foreach ($modconf['graphs'] as $graph =&gt; $graphconf)
++					{
++						if (!$graphconf['used'])
++						{
++							continue;
++						}
++						switch ($graph)
++						{
++							case 'questions':
++								$config['list'][] = array(
++									'title' =&gt; $graphconf['title'],
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'content' =&gt; array(
++										array(
++											'type' =&gt; 'LINE',
++											'source' =&gt; $module,
++											'ds' =&gt; 'questionsps',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'questions/s',
++											'width' =&gt; 1,
++											'color' =&gt; '00A302'
++										)
++									)
++								);
++								break;
++							case 'processes':
++								$config['list'][] = array(
++									'title' =&gt; $graphconf['title'],
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'content' =&gt; array(
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; $module,
++											'ds' =&gt; 'processcount',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'number of queries',
++											'color' =&gt; '7FD180'
++										)
++									)
++								);
++								break;
++						}
++					}
++					break;
++				case 'ping':
++					foreach ($modconf['hosts'] as $host)
++					{
++						foreach ($modconf['graphs'] as $graph =&gt; $graphconf)
++						{
++							if (!$graphconf['used'])
++							{
++								continue;
++							}
++							switch ($graph)
++							{
++								case 'single':
++									$config['list'][] = array(
++										'title' =&gt; sprintf($graphconf['title'], $host),
++										'lowerLimit' =&gt; 0,
++										'altAutoscaleMax' =&gt; true,
++										'content' =&gt; array(
++											array(
++												'type' =&gt; 'LINE',
++												'source' =&gt; $module . '_' . self::escapeDsName($host),
++												'ds' =&gt; 'time',
++												'cf' =&gt; 'AVERAGE',
++												'legend' =&gt; $host,
++												'color' =&gt; '7FD180'
++											)
++										)
++									);
++									break;
++							}
++						}
++					}
++					foreach ($modconf['graphs'] as $graph =&gt; $graphconf)
++					{
++						if (!$graphconf['used'])
++						{
++							continue;
++						}
++						switch ($graph)
++						{
++							case 'combined':
++								$content = array();
++								srand(0);
++								foreach ($modconf['hosts'] as $host)
++								{
++									$content[] = array(
++										'type' =&gt; 'LINE',
++										'width' =&gt; 2,
++										'source' =&gt; $module . '_' . self::escapeDsName($host),
++										'ds' =&gt; 'time',
++										'cf' =&gt; 'AVERAGE',
++										'legend' =&gt; $host . '\n',
++										'color' =&gt; sprintf('%02X%02X%02X', rand(0, 255), rand(0, 255), rand(0, 255))
++									);
++								}
++								$config['list'][] = array(
++									'title' =&gt; $graphconf['title'],
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'content' =&gt; $content
++								);
++								break;
++						}
++					}
++					break;
++				case 'ping_http':
++					foreach ($modconf['hosts'] as $host)
++					{
++						foreach ($modconf['graphs'] as $graph =&gt; $graphconf)
++						{
++							if (!$graphconf['used'])
++							{
++								continue;
++							}
++							switch ($graph)
++							{
++								case 'single':
++									$config['list'][] = array(
++										'title' =&gt; sprintf($graphconf['title'], $host),
++										'lowerLimit' =&gt; 0,
++										'altAutoscaleMax' =&gt; true,
++										'content' =&gt; array(
++											array(
++												'type' =&gt; 'AREA',
++												'source' =&gt; $module . '_' . self::escapeDsName($host),
++												'ds' =&gt; 'open',
++												'cf' =&gt; 'AVERAGE',
++												'legend' =&gt; 'open connection\n',
++												'color' =&gt; '994400'
++											),
++											array(
++												'type' =&gt; 'AREA',
++												'stacked' =&gt; true,
++												'source' =&gt; $module . '_' . self::escapeDsName($host),
++												'ds' =&gt; 'send',
++												'cf' =&gt; 'AVERAGE',
++												'legend' =&gt; 'send request\n',
++												'color' =&gt; '999900'
++											),
++											array(
++												'type' =&gt; 'AREA',
++												'stacked' =&gt; true,
++												'source' =&gt; $module . '_' . self::escapeDsName($host),
++												'ds' =&gt; 'receive',
++												'cf' =&gt; 'AVERAGE',
++												'legend' =&gt; 'receive response\n',
++												'color' =&gt; '449900'
++											),
++											array(
++												'type' =&gt; 'AREA',
++												'stacked' =&gt; true,
++												'source' =&gt; $module . '_' . self::escapeDsName($host),
++												'ds' =&gt; 'close',
++												'cf' =&gt; 'AVERAGE',
++												'legend' =&gt; 'close connection\n',
++												'color' =&gt; '444400'
++											),
++											array(
++												'type' =&gt; 'LINE',
++												'source' =&gt; $module . '_' . self::escapeDsName($host),
++												'ds' =&gt; 'time',
++												'cf' =&gt; 'AVERAGE',
++												'legend' =&gt; 'total',
++												'color' =&gt; 'FF0000'
++											)
++										)
++									);
++									break;
++							}
++						}
++					}
++					foreach ($modconf['graphs'] as $graph =&gt; $graphconf)
++					{
++						if (!$graphconf['used'])
++						{
++							continue;
++						}
++						switch ($graph)
++						{
++							case 'combined':
++								$content = array();
++								srand(0);
++								foreach ($modconf['hosts'] as $host)
++								{
++									$content[] = array(
++										'type' =&gt; 'LINE',
++										'width' =&gt; 2,
++										'source' =&gt; $module . '_' . self::escapeDsName($host),
++										'ds' =&gt; 'time',
++										'cf' =&gt; 'AVERAGE',
++										'legend' =&gt; $host . '\n',
++										'color' =&gt; sprintf('%02X%02X%02X', rand(0, 255), rand(0, 255), rand(0, 255))
++									);
++								}
++								$config['list'][] = array(
++									'title' =&gt; $graphconf['title'],
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'content' =&gt; $content
++								);
++								break;
++						}
++					}
++					break;
++				case 'traffic':
++					foreach ($modconf['chains'] as $chain)
++					{
++						foreach ($modconf['graphs'] as $graph =&gt; $graphconf)
++						{
++							if (!$graphconf['used'])
++							{
++								continue;
++							}
++							switch ($graph)
++							{
++								case 'single_bps':
++									$config['list'][] = array(
++										'title' =&gt; sprintf($graphconf['title'], $chain),
++										'lowerLimit' =&gt; 0,
++										'altAutoscaleMax' =&gt; true,
++										'content' =&gt; array(
++											array(
++												'type' =&gt; 'LINE',
++												'source' =&gt; $module . '_' . self::escapeDsName($chain),
++												'ds' =&gt; 'bps',
++												'cf' =&gt; 'AVERAGE',
++												'legend' =&gt; $chain,
++												'width' =&gt; 1,
++												'color' =&gt; '7FD180'
++											)
++										)
++									);
++									break;
++								case 'single_count':
++									$config['list'][] = array(
++										'title' =&gt; sprintf($graphconf['title'], $chain),
++										'lowerLimit' =&gt; 0,
++										'altAutoscaleMax' =&gt; true,
++										'content' =&gt; array(
++											array(
++												'type' =&gt; 'LINE',
++												'source' =&gt; $module . '_' . self::escapeDsName($chain),
++												'ds' =&gt; 'traffic',
++												'cf' =&gt; 'AVERAGE',
++												'legend' =&gt; $chain,
++												'width' =&gt; 1,
++												'color' =&gt; '7FD180'
++											)
++										)
++									);
++									break;
++							}
++						}
++					}
++					foreach ($modconf['graphs'] as $graph =&gt; $graphconf)
++					{
++						if (!$graphconf['used'])
++						{
++							continue;
++						}
++						switch ($graph)
++						{
++							case 'combined_bps':
++								$content = array();
++								srand(0);
++								foreach ($modconf['chains'] as $chain)
++								{
++									$content[] = array(
++										'type' =&gt; 'LINE',
++										'source' =&gt; $module . '_' . self::escapeDsName($chain),
++										'ds' =&gt; 'bps',
++										'cf' =&gt; 'AVERAGE',
++										'legend' =&gt; $chain,
++										'color' =&gt; sprintf('%02X%02X%02X', rand(0, 255), rand(0, 255), rand(0, 255))
++									);
++								}
++								$config['list'][] = array(
++									'title' =&gt; $graphconf['title'],
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'content' =&gt; $content
++								);
++								break;
++							case 'combined_count':
++								$content = array();
++								srand(0);
++								foreach ($modconf['chains'] as $chain)
++								{
++									$content[] = array(
++										'type' =&gt; 'LINE',
++										'source' =&gt; $module . '_' . self::escapeDsName($chain),
++										'ds' =&gt; 'traffic',
++										'cf' =&gt; 'AVERAGE',
++										'legend' =&gt; $chain,
++										'color' =&gt; sprintf('%02X%02X%02X', rand(0, 255), rand(0, 255), rand(0, 255))
++									);
++								}
++								$config['list'][] = array(
++									'title' =&gt; $graphconf['title'],
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'content' =&gt; $content
++								);
++								break;
++						}
++					}
++					break;
++				case 'traffic_proc':
++					foreach ($modconf['interfaces'] as $interface)
++					{
++						foreach ($modconf['graphs'] as $graph =&gt; $graphconf)
++						{
++							if (!$graphconf['used'])
++							{
++								continue;
++							}
++							switch ($graph)
++							{
++								case 'single_bps':
++									$config['list'][] = array(
++										'title' =&gt; sprintf($graphconf['title'], $interface),
++										'lowerLimit' =&gt; 0,
++										'altAutoscaleMax' =&gt; true,
++										'content' =&gt; array(
++											array(
++												'type' =&gt; 'LINE',
++												'source' =&gt; $module . '_' . self::escapeDsName($interface),
++												'ds' =&gt; $interface . '_rbytes',
++												'cf' =&gt; 'AVERAGE',
++												'legend' =&gt; 'Download Bytes/s',
++												'color' =&gt; '0002A3'
++											),
++											array(
++												'type' =&gt; 'LINE',
++												'source' =&gt; $module . '_' . self::escapeDsName($interface),
++												'ds' =&gt; $interface . '_tbytes',
++												'cf' =&gt; 'AVERAGE',
++												'legend' =&gt; 'Upload Bytes/s',
++												'color' =&gt; '00A302'
++											)
++										)
++									);
++									break;
++							}
++						}
++					}
++					foreach ($modconf['graphs'] as $graph =&gt; $graphconf)
++					{
++						if (!$graphconf['used'])
++						{
++							continue;
++						}
++						switch ($graph)
++						{
++							case 'combined_bps':
++								$content = array();
++								srand(0);
++								foreach ($modconf['interfaces'] as $interface)
++								{
++									$content[] = array(
++											'type' =&gt; 'LINE',
++											'source' =&gt; $module . '_' . self::escapeDsName($interface),
++											'ds' =&gt; $interface . '_rbytes',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'Download Bytes/s (' . $interface . ')',
++											'color' =&gt; sprintf('%02X%02X%02X', rand(0, 255), rand(0, 255), rand(0, 255))
++									);
++									$content[] = array(
++											'type' =&gt; 'LINE',
++											'source' =&gt; $module . '_' . self::escapeDsName($interface),
++											'ds' =&gt; $interface . '_tbytes',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'Upload Bytes/s (' . $interface . ')\n',
++											'color' =&gt; sprintf('%02X%02X%02X', rand(0, 255), rand(0, 255), rand(0, 255))
++									);
++								}
++								$config['list'][] = array(
++									'title' =&gt; $graphconf['title'],
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'content' =&gt; $content
++								);
++								break;
++						}
++					}
++					break;
++				case 'users':
++					foreach ($modconf['graphs'] as $graph =&gt; $graphconf)
++					{
++						if (!$graphconf['used'])
++						{
++							continue;
++						}
++						switch ($graph)
++						{
++							case 'logged_in':
++								$config['list'][] = array(
++									'title' =&gt; $graphconf['title'],
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'content' =&gt; array(
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; $module,
++											'ds' =&gt; 'users',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'Users logged in',
++											'color' =&gt; '4444DD'
++										)
++									)
++								);
++								break;
++						}
++					}
++					break;
++			}
++		}
++	}
++	
++	public static function sources(&amp;$config, $simpleconfig)
++	{
++		if (!$simpleconfig['used'])
++		{
++			return;
++		}
++		foreach ($simpleconfig['modules'] as $module =&gt; $modconf)
++		{
++			if (!$modconf['used'])
++			{
++				continue;
++			}
++			switch ($module)
++			{
++				case 'apache':
++					foreach ($modconf['hosts'] as $host)
++					{
++						$config[$module . '_' . self::escapeDsName($host)]['module'] = new apache('<A HREF="http://">http://</A>' . $host . '/server-status?auto');
++					}
++					break;
++				case 'cpu':
++					$config[$module]['module'] = new cpu();
++					break;
++				case 'disk':
++					foreach ($modconf['disks'] as $disk)
++					{
++						$config[$module . '_' . self::escapeDsName($disk)]['module'] = new disk($disk);
++					}
++					break;
++				case 'load':
++					$config[$module]['module'] = new load();
++					break;
++				case 'memory':
++					$config[$module]['module'] = new memory();
++					break;
++				case 'mysql':
++					$config[$module]['module'] = new mysql($modconf['user'], $modconf['password'], $modconf['host']);
++					break;
++				case 'ping':
++					foreach ($modconf['hosts'] as $host)
++					{
++						$config[$module . '_' . self::escapeDsName($host)]['module'] = new ping($host);
++					}
++					break;
++				case 'ping_http':
++					foreach ($modconf['hosts'] as $host)
++					{
++						$config[$module . '_' . self::escapeDsName($host)]['module'] = new ping_http($host);
++					}
++					break;
++				case 'traffic':
++					foreach ($modconf['chains'] as $chain)
++					{
++						$config[$module . '_' . self::escapeDsName($chain)]['module'] = new traffic($chain);
++					}
++					break;
++				case 'traffic_proc':
++					foreach ($modconf['interfaces'] as $interface)
++					{
++						$config[$module . '_' . self::escapeDsName($interface)]['module'] = new traffic_proc($interface);
++					}
++					break;
++				case 'users':
++					$config[$module]['module'] = new users();
++					break;
++			}
++		}
++	}
++}
++
++?&gt;
+
+
+Property changes on: trunk/includes/simpleconfig.class.php
+___________________________________________________________________
+Name: svn:keywords
+   + LastChangedDate LastChangedRevision LastChangedBy HeadURL Id
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000042.html">[Serverstats-devel] r114 - in trunk: . includes lang sources sources/traffic
+</A></li>
+	<LI>Next message: <A HREF="000045.html">[Serverstats-devel] r115 - in trunk: . config.sample includes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#43">[ date ]</a>
+              <a href="thread.html#43">[ thread ]</a>
+              <a href="subject.html#43">[ subject ]</a>
+              <a href="author.html#43">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

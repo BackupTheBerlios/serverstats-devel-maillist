@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r117 - in trunk: includes sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r117%20-%20in%20trunk%3A%20includes%20sources&In-Reply-To=%3C200602191438.k1JEcSPI018678%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000044.html">
+   <LINK REL="Next"  HREF="000047.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r117 - in trunk: includes sources</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r117%20-%20in%20trunk%3A%20includes%20sources&In-Reply-To=%3C200602191438.k1JEcSPI018678%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r117 - in trunk: includes sources">goliath at berlios.de
+       </A><BR>
+    <I>Sun Feb 19 15:38:28 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000044.html">[Serverstats-devel] r116 - in trunk: config.sample doc
+</A></li>
+        <LI>Next message: <A HREF="000047.html">[Serverstats-devel] r118 - tags
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#46">[ date ]</a>
+              <a href="thread.html#46">[ thread ]</a>
+              <a href="subject.html#46">[ subject ]</a>
+              <a href="author.html#46">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-02-19 15:38:24 +0100 (Sun, 19 Feb 2006)
+New Revision: 117
+
+Modified:
+   trunk/includes/simpleconfig.class.php
+   trunk/sources/ping_http.php
+   trunk/sources/traffic.php
+Log:
+ * Changed some colors (simpleconfig)
+ * Bugfix: traffic-source did not use new API
+ * Bugfix: ping_http throws Exception on error now
+
+
+Modified: trunk/includes/simpleconfig.class.php
+===================================================================
+--- trunk/includes/simpleconfig.class.php	2006-02-19 13:31:51 UTC (rev 116)
++++ trunk/includes/simpleconfig.class.php	2006-02-19 14:38:24 UTC (rev 117)
+@@ -674,7 +674,6 @@
+ 								{
+ 									$content[] = array(
+ 										'type' =&gt; 'LINE',
+-										'width' =&gt; 2,
+ 										'source' =&gt; $module . '_' . self::escapeDsName($host),
+ 										'ds' =&gt; 'time',
+ 										'cf' =&gt; 'AVERAGE',
+@@ -715,7 +714,7 @@
+ 												'ds' =&gt; 'open',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'open connection\n',
+-												'color' =&gt; '994400'
++												'color' =&gt; 'DEE100'
+ 											),
+ 											array(
+ 												'type' =&gt; 'AREA',
+@@ -724,7 +723,7 @@
+ 												'ds' =&gt; 'send',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'send request\n',
+-												'color' =&gt; '999900'
++												'color' =&gt; '665B00'
+ 											),
+ 											array(
+ 												'type' =&gt; 'AREA',
+@@ -733,7 +732,7 @@
+ 												'ds' =&gt; 'receive',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'receive response\n',
+-												'color' =&gt; '449900'
++												'color' =&gt; '534BEF'
+ 											),
+ 											array(
+ 												'type' =&gt; 'AREA',
+@@ -742,7 +741,7 @@
+ 												'ds' =&gt; 'close',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'close connection\n',
+-												'color' =&gt; '444400'
++												'color' =&gt; '060085'
+ 											),
+ 											array(
+ 												'type' =&gt; 'LINE',
+@@ -750,7 +749,7 @@
+ 												'ds' =&gt; 'time',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'total',
+-												'color' =&gt; 'FF0000'
++												'color' =&gt; 'CD0000'
+ 											)
+ 										)
+ 									);
+@@ -773,7 +772,6 @@
+ 								{
+ 									$content[] = array(
+ 										'type' =&gt; 'LINE',
+-										'width' =&gt; 2,
+ 										'source' =&gt; $module . '_' . self::escapeDsName($host),
+ 										'ds' =&gt; 'time',
+ 										'cf' =&gt; 'AVERAGE',
+@@ -814,7 +812,6 @@
+ 												'ds' =&gt; 'bps',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; $chain,
+-												'width' =&gt; 1,
+ 												'color' =&gt; '7FD180'
+ 											)
+ 										)
+@@ -832,7 +829,6 @@
+ 												'ds' =&gt; 'traffic',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; $chain,
+-												'width' =&gt; 1,
+ 												'color' =&gt; '7FD180'
+ 											)
+ 										)
+
+Modified: trunk/sources/ping_http.php
+===================================================================
+--- trunk/sources/ping_http.php	2006-02-19 13:31:51 UTC (rev 116)
++++ trunk/sources/ping_http.php	2006-02-19 14:38:24 UTC (rev 117)
+@@ -49,9 +49,7 @@
+ 		$socket = @fsockopen($this-&gt;host, $this-&gt;port, $errno, $errstr, $this-&gt;timeout);
+ 		if (!is_resource($socket))
+ 		{
+-			// don't log time, use default-value (undefined)
+-			$this-&gt;ping_time = 'U';
+-			return;
++			throw new Exception('Could not open connection');
+ 		}
+ 		$timer['open'] = microtime(true);
+ 		socket_set_timeout($socket, $this-&gt;timeout);
+
+Modified: trunk/sources/traffic.php
+===================================================================
+--- trunk/sources/traffic.php	2006-02-19 13:31:51 UTC (rev 116)
++++ trunk/sources/traffic.php	2006-02-19 14:38:24 UTC (rev 117)
+@@ -60,7 +60,7 @@
+ 		$rrd-&gt;addDatasource('bps', 'DERIVE', null, 0);
+ 	}
+ 	
+-	public function updateRRD(rrd $rrd)
++	public function fetchValues()
+ 	{
+ 		$values = array();
+ 		$values['traffic'] = $this-&gt;traffic;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000044.html">[Serverstats-devel] r116 - in trunk: config.sample doc
+</A></li>
+	<LI>Next message: <A HREF="000047.html">[Serverstats-devel] r118 - tags
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#46">[ date ]</a>
+              <a href="thread.html#46">[ thread ]</a>
+              <a href="subject.html#46">[ subject ]</a>
+              <a href="author.html#46">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r91 - trunk/sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r91%20-%20trunk/sources&In-Reply-To=%3C200512231514.jBNFEljF014610%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000008.html">
+   <LINK REL="Next"  HREF="000010.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r91 - trunk/sources</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r91%20-%20trunk/sources&In-Reply-To=%3C200512231514.jBNFEljF014610%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r91 - trunk/sources">goliath at berlios.de
+       </A><BR>
+    <I>Fri Dec 23 16:14:47 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000008.html">[Serverstats-devel] r90 - trunk/sources
+</A></li>
+        <LI>Next message: <A HREF="000010.html">[Serverstats-devel] r92 - trunk/sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#9">[ date ]</a>
+              <a href="thread.html#9">[ thread ]</a>
+              <a href="subject.html#9">[ subject ]</a>
+              <a href="author.html#9">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2005-12-23 16:14:45 +0100 (Fri, 23 Dec 2005)
+New Revision: 91
+
+Modified:
+   trunk/sources/ping.php
+Log:
+ * ping source:
+   - tested (works)
+   - added timeout to ping-options (1 second)
+
+
+Modified: trunk/sources/ping.php
+===================================================================
+--- trunk/sources/ping.php	2005-12-23 14:57:02 UTC (rev 90)
++++ trunk/sources/ping.php	2005-12-23 15:14:45 UTC (rev 91)
+@@ -31,7 +31,7 @@
+ 	private $ping_exec;
+ 	private $ping_opts;
+ 	
+-	public function __construct($host, $ping_opts = '-c 1', $ping_exec = '/bin/ping')
++	public function __construct($host, $ping_opts = '-c 1 -W 1', $ping_exec = '/bin/ping')
+ 	{
+ 		$this-&gt;host = $host;
+ 		$this-&gt;ping_exec = $ping_exec;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000008.html">[Serverstats-devel] r90 - trunk/sources
+</A></li>
+	<LI>Next message: <A HREF="000010.html">[Serverstats-devel] r92 - trunk/sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#9">[ date ]</a>
+              <a href="thread.html#9">[ thread ]</a>
+              <a href="subject.html#9">[ subject ]</a>
+              <a href="author.html#9">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

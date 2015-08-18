@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r131 - trunk/includes
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-June/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r131%20-%20trunk/includes&In-Reply-To=%3C200606300838.k5U8cUMZ030017%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000078.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r131 - trunk/includes</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r131%20-%20trunk/includes&In-Reply-To=%3C200606300838.k5U8cUMZ030017%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r131 - trunk/includes">goliath at berlios.de
+       </A><BR>
+    <I>Fri Jun 30 10:38:30 CEST 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000078.html">[Serverstats-devel] r132 - in trunk: includes sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#77">[ date ]</a>
+              <a href="thread.html#77">[ thread ]</a>
+              <a href="subject.html#77">[ subject ]</a>
+              <a href="author.html#77">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-06-30 10:38:28 +0200 (Fri, 30 Jun 2006)
+New Revision: 131
+
+Modified:
+   trunk/includes/rrd.class.php
+Log:
+ * rrd::escapeDsName() now tries to shorten names that are too long
+
+
+Modified: trunk/includes/rrd.class.php
+===================================================================
+--- trunk/includes/rrd.class.php	2006-05-15 09:07:52 UTC (rev 130)
++++ trunk/includes/rrd.class.php	2006-06-30 08:38:28 UTC (rev 131)
+@@ -509,7 +509,17 @@
+ 	
+ 	public static function escapeDsName($name)
+ 	{
+-		return preg_replace('/[^a-zA-Z0-9_]/', '_', $name);
++		// escape
++		$name = preg_replace('/[^a-zA-Z0-9_]/', '_', $name);
++		if (strlen($name) &gt; 19)
++		{
++			$name = str_replace('_', '', $name);
++			if (strlen($name) &gt; 19)
++			{
++				throw new Exception('Your datasource-name is to long');
++			}
++		}
++		return $name;
+ 	}
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000078.html">[Serverstats-devel] r132 - in trunk: includes sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#77">[ date ]</a>
+              <a href="thread.html#77">[ thread ]</a>
+              <a href="subject.html#77">[ subject ]</a>
+              <a href="author.html#77">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

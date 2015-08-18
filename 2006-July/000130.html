@@ -1,0 +1,218 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] Attribute Value Template on xml parameter
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Attribute%20Value%20Template%20on%20xml%20parameter&In-Reply-To=%3C44ABC37F.8000709%40team23.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000129.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] Attribute Value Template on xml parameter</H1>
+    <B>David Danier</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Attribute%20Value%20Template%20on%20xml%20parameter&In-Reply-To=%3C44ABC37F.8000709%40team23.de%3E"
+       TITLE="[Serverstats-devel] Attribute Value Template on xml parameter">david.danier at team23.de
+       </A><BR>
+    <I>Wed Jul  5 15:49:51 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000129.html">[Serverstats-devel] Attribute Value Template on xml parameter
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#130">[ date ]</a>
+              <a href="thread.html#130">[ thread ]</a>
+              <a href="subject.html#130">[ subject ]</a>
+              <a href="author.html#130">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;&gt;<i> I like the idea, but dislike to rebuild XSLT-features inside PHP to be
+</I>&gt;&gt;<i> used in XML-files.
+</I>&gt;<i> What do you mean  ??? I don't have rebuild nothing whith a php 5.1 it's ok
+</I>
+You rebuild the usage of XPath like it is done inside or XLST.
+(&quot;{foo/bar}&quot; is executed as an XPath expression)
+
+&gt;&gt;<i> Besides this could be more powerful, for example it should be possible
+</I>&gt;&gt;<i> to delete the params after they were used (to be more flexible and not
+</I>&gt;&gt;<i> only limited to @name). That leads to the problem, that it may only be
+</I>&gt;&gt;<i> deleted after the last access.
+</I>&gt;&gt;<i>   
+</I>&gt;<i> This is not limited to @name ... This an xpath expression  that use as
+</I>&gt;<i> context node the current node
+</I>
+It is limited to existing, valid elements inside the XML-tree. So if you
+want to have more complex parameters it's not possible to do something
+like that:
+--------8&lt;----------------------------------------------------
+	&lt;param name=&quot;foo&quot;&gt;
+		&lt;list name=&quot;bar&quot;&gt;
+			&lt;value name=&quot;xx1&quot;&gt;yy1&lt;/value&gt;
+			&lt;value name=&quot;xx2&quot;&gt;yy2&lt;/value&gt;
+			&lt;value name=&quot;xx3&quot;&gt;yy3&lt;/value&gt;
+		&lt;/list&gt;
+		&lt;value name=&quot;xxx&quot;&gt;yyy&lt;/value&gt;
+	&lt;/param&gt;
+----------------------------------------------------&gt;8--------
+
+If you want to use this with AVT (&quot;{../param[@name='foo']}&quot;), the
+&lt;param&gt; stays inside the original document, which may lead to invalid
+XML-documents.
+So you are somehow limited to existing parameters like @name, which
+might be a problem if you want to have complex parameters.
+
+&gt;&gt;<i> [...]
+</I>&gt;&gt;<i>  * config (root)
+</I>&gt;&gt;<i>  * value (string, attr: name (optional), children: text)
+</I>&gt;&gt;<i>  * list (array, attr: name (optional), children: &lt;value&gt; and/or &lt;list&gt;)
+</I>&gt;&gt;<i>  * class (to load classes, attr: name, children: &lt;value&gt; and/or &lt;list&gt;)
+</I>&gt;&gt;<i>  * param (param used for the templates, attr: name, children: text)
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> If name is omitted for &lt;value&gt; or &lt;list&gt; it is used like $array[] =
+</I>&gt;&gt;<i> &quot;something&quot;.
+</I>&gt;<i> I'm not sure ...
+</I>&gt;<i> I think that is more complicate like this ...
+</I>
+Thats mostly the same as yours, only the elements are renamed (array and
+value splited into 2 elements, param renamed) and a new element &quot;param&quot;
+is added.
+&lt;sources&gt; for example is nothing more like &lt;list name=&quot;sources&quot;&gt; and can
+be some alias for that...as said later:
+&gt;<i> Some &lt;list&gt;-Elements could of course be replaced by elements that have
+</I>&gt;<i> more semantic (like: &lt;sources&gt;, &lt;source&gt;, &lt;graph&gt;, ...)...but I think
+</I>&gt;<i> to describe this here &lt;list&gt; is enough (and closer to the current
+</I>&gt;<i> config).
+</I>
+&gt;<i> I must use  xpointer  to only insert childs and not parent node 
+</I>&gt;<i> (template nodename is useless)
+</I>
+I don't really understand, what you are trying to say here. :/
+
+&gt;<i> avt must be used into attribute not into text element
+</I>&gt;<i> <A HREF="http://www.dpawson.co.uk/xsl/sect2/N1575.html">http://www.dpawson.co.uk/xsl/sect2/N1575.html</A>
+</I>
+Why don't create something dirrefern, perhaps more flexible or
+appropriate? :)
+I was not talking about AVT here....
+
+As written before I said we could use some kind of stack that lists all
+&lt;param&gt;-elements defined below all 'ancestor-or-self'. So you don't have
+to use some XPath to point to them, they are just there and you can
+access them. And you could delete the &lt;param&gt;-elements when they are not
+needed anymore....
+
+Example:
+--------8&lt;----------------------------------------------------
+&lt;foo&gt;
+	&lt;bar&gt;
+		&lt;param name=&quot;foo1&quot;&gt;bar&lt;/param&gt;
+		&lt;bla&gt;
+			&lt;param name=&quot;foo2&quot;&gt;bar&lt;/param&gt;
+		&lt;/bla&gt;
+		&lt;fasl /&gt;
+	&lt;/bar&gt;
+&lt;/foo&gt;
+----------------------------------------------------&gt;8--------
+
+Now, let's iterate over the elements (&lt;param&gt; excluded, does nothing
+special):
+&lt;foo&gt;: stack is empty
+&lt;bar&gt;: stack is filled with param &quot;foo1&quot;
+&lt;bla&gt;: stack is filled with params &quot;foo1&quot; and &quot;foo2&quot;
+&lt;/bla&gt;: param &quot;foo2&quot; is deleted from the document (not used anymore)
+&lt;fasl&gt;: stack is filled with param &quot;foo1&quot;
+&lt;/bar&gt;: param &quot;foo1&quot; is deleted
+&lt;/foo&gt;: nothing exciting
+
+&gt;&gt;<i> But this does not avoid the ploblem, that we have to rebuild some
+</I>&gt;&gt;<i> XSLT-features inside PHP, so perhaps it would be easier to just _use_
+</I>&gt;&gt;<i> XSLT:
+</I>&gt;<i> Explain ... ??? Why you want to rebuild XSLT ?
+</I>
+Your rebuilding (/implement) the AVT-feature of XSLT inside PHP.
+
+&gt;&gt;<i> Some &lt;list&gt;-Elements could of course be replaced by elements that have
+</I>&gt;&gt;<i> more semantic (like: &lt;sources&gt;, &lt;source&gt;, &lt;graph&gt;, ...)...but I think to
+</I>&gt;&gt;<i> describe this here &lt;list&gt; is enough (and closer to the current config).
+</I>&gt;&gt;<i>   
+</I>&gt;<i> It's always better to use xml inside namespace ...
+</I>
+Sure, omitted this to have less to write.
+
+&gt;<i> ... and define type using
+</I>&gt;<i> standard like rdf or w3c schema
+</I>
+Half true. It's always the best to use a language that fits your needs
+and is simple and small by doing so (KISS).
+If there are appropriate standards, fine, but if not it's most of the
+time better to write something new than having to fight with some
+existing standards that only fit at some place (and in the worst case
+have to combine many of them). (The main feature of XML is the &quot;X&quot;)
+
+The only things you are currently using are:
+ * xinclude (which are in my examples, too)
+ * xsi:type (which I replaced with an own element)
+ * AVT (which I think is not flexible enough, but you can convince me of
+the opposide)
+
+&gt;<i> This is why my xml files seems to be a little complicate  but with
+</I>&gt;<i> xforms it's easier to parse and manipulate as this.
+</I>
+Why?
+If you have the elements &lt;source&gt;, &lt;sources&gt;, &lt;graph&gt;, ... it should be
+nearly the same.
+Of course the whole template-stuff (using XSLT or my &lt;param&gt;) could not
+be easily changed with such an editor.
+
+So we have two (or three) possible solutions:
+ * extend the AVT-thing to be able to delete the nodes it loads the
+values to get more complex parameters working (perhaps have some
+&lt;delete&gt;-element)
+ * use one of the ideas I write about
+ * convince me, that AVT is enough (and that there are no cases where
+the only possiblity to set a value-attribute is not enough)
+
+I don't see how the SimpleConfig-stuff could be included into XML-config
+(means: replaced by some XML-app) easily with only AVT.
+Perhaps we could allow xinclude, AVT and create some
+XSLT/&lt;template&gt;-stuff like I proposed to replace SimpleConfig?
+
+Greetings, David Danier
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 191 bytes
+Desc: OpenPGP digital signature
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060705/1776cb26/attachment.pgp">https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060705/1776cb26/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000129.html">[Serverstats-devel] Attribute Value Template on xml parameter
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#130">[ date ]</a>
+              <a href="thread.html#130">[ thread ]</a>
+              <a href="subject.html#130">[ subject ]</a>
+              <a href="author.html#130">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

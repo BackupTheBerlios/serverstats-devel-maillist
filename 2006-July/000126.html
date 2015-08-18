@@ -1,0 +1,387 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r161 - in branches/xmlconfig2: ajax config.sample config.sample/xml config.sample/xml/templates includes
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r161%20-%20in%20branches/xmlconfig2%3A%20ajax%20config.sample%20config.sample/xml%20config.sample/xml/templates%20includes&In-Reply-To=%3C200607041545.k64Fjb3W018910%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000125.html">
+   <LINK REL="Next"  HREF="000127.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r161 - in branches/xmlconfig2: ajax config.sample config.sample/xml config.sample/xml/templates includes</H1>
+    <B>scramatte at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r161%20-%20in%20branches/xmlconfig2%3A%20ajax%20config.sample%20config.sample/xml%20config.sample/xml/templates%20includes&In-Reply-To=%3C200607041545.k64Fjb3W018910%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r161 - in branches/xmlconfig2: ajax config.sample config.sample/xml config.sample/xml/templates includes">scramatte at berlios.de
+       </A><BR>
+    <I>Tue Jul  4 17:45:37 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000125.html">[Serverstats-devel] r160 - in branches/xmlconfig2/config.sample/xml: . templates
+</A></li>
+        <LI>Next message: <A HREF="000127.html">[Serverstats-devel] Attribute Value Template on xml parameter
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#126">[ date ]</a>
+              <a href="thread.html#126">[ thread ]</a>
+              <a href="subject.html#126">[ subject ]</a>
+              <a href="author.html#126">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: scramatte
+Date: 2006-07-04 17:45:34 +0200 (Tue, 04 Jul 2006)
+New Revision: 161
+
+Added:
+   branches/xmlconfig2/config.sample/clean.xsl
+Modified:
+   branches/xmlconfig2/ajax/index.php
+   branches/xmlconfig2/ajax/tree.xml
+   branches/xmlconfig2/ajax/tree.xsl
+   branches/xmlconfig2/config.sample/xml.php
+   branches/xmlconfig2/config.sample/xml/graphs.xml
+   branches/xmlconfig2/config.sample/xml/sources.xml
+   branches/xmlconfig2/config.sample/xml/templates/ucd-snmp-mib-load-graph.xml
+   branches/xmlconfig2/includes/xmlconfig.class.php
+Log:
+Attribute Value Template (AVT) implementation on xml config parameter
+&lt;param name=&quot;&quot; value=&quot;{any_xpath_expression}_world{other_xpath_expression}&quot; /&gt;
+
+
+
+Modified: branches/xmlconfig2/ajax/index.php
+===================================================================
+--- branches/xmlconfig2/ajax/index.php	2006-07-04 13:36:06 UTC (rev 160)
++++ branches/xmlconfig2/ajax/index.php	2006-07-04 15:45:34 UTC (rev 161)
+@@ -64,7 +64,7 @@
+ 			  }
+  			}
+ 
+-			//loadgraphs ('home.php');
++			loadgraphs ('graphs.php?filter=');
+ 		}
+ 
+ 		
+
+Modified: branches/xmlconfig2/ajax/tree.xml
+===================================================================
+--- branches/xmlconfig2/ajax/tree.xml	2006-07-04 13:36:06 UTC (rev 160)
++++ branches/xmlconfig2/ajax/tree.xml	2006-07-04 15:45:34 UTC (rev 161)
+@@ -1,10 +1,15 @@
+ &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
+ &lt;node xmlns=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;&gt;
+-	&lt;title&gt;Zone 1&lt;/title&gt;
+-	&lt;filter&gt;none&lt;/filter&gt;
++	&lt;title&gt;All&lt;/title&gt;
++	&lt;filter /&gt;
+ 	&lt;node&gt;
+-		&lt;title&gt;Zone 2&lt;/title&gt;
++		&lt;title&gt;VPS&lt;/title&gt;
+ 		&lt;filter&gt;groupby:vps&lt;/filter&gt;
++		&lt;node&gt;
++			&lt;title&gt;127.0.0.1&lt;/title&gt;
++	                &lt;filter&gt;host:127.0.0.1&lt;/filter&gt;
++		&lt;/node&gt;
++
+ 	&lt;/node&gt;
+ &lt;/node&gt;
+ 
+
+Modified: branches/xmlconfig2/ajax/tree.xsl
+===================================================================
+--- branches/xmlconfig2/ajax/tree.xsl	2006-07-04 13:36:06 UTC (rev 160)
++++ branches/xmlconfig2/ajax/tree.xsl	2006-07-04 15:45:34 UTC (rev 161)
+@@ -17,7 +17,7 @@
+ &lt;/xsl:template&gt;
+ 
+ &lt;xsl:template match=&quot;stats:node&quot;&gt;
+-        &lt;li&gt;&lt;a href=&quot;javascript:loadgraphs('graphs.php?filter={stats:filter}');&quot; class=&quot;file&quot;&gt;&lt;xsl:value-of select=&quot;stats:title&quot; /&gt;&lt;/a&gt;
++        &lt;li class=&quot;open&quot;&gt;&lt;a href=&quot;javascript:loadgraphs('graphs.php?filter={stats:filter}');&quot; class=&quot;file&quot;&gt;&lt;xsl:value-of select=&quot;stats:title&quot; /&gt;&lt;/a&gt;
+ 	&lt;xsl:if test=&quot;stats:node&quot;&gt;
+ 	&lt;ul&gt;
+ 		&lt;xsl:apply-templates/&gt;
+
+Added: branches/xmlconfig2/config.sample/clean.xsl
+===================================================================
+--- branches/xmlconfig2/config.sample/clean.xsl	2006-07-04 13:36:06 UTC (rev 160)
++++ branches/xmlconfig2/config.sample/clean.xsl	2006-07-04 15:45:34 UTC (rev 161)
+@@ -0,0 +1,22 @@
++&lt;xsl:stylesheet xmlns:xsl=&quot;<A HREF="http://www.w3.org/1999/XSL/Transform">http://www.w3.org/1999/XSL/Transform</A>&quot; version=&quot;1.0&quot; xmlns:stats=&quot;urn:serverstats&quot; &gt;
++&lt;xsl:output method=&quot;xml&quot; omit-xml-declaration=&quot;yes&quot; indent=&quot;yes&quot; encoding=&quot;utf-8&quot; version=&quot;1.0&quot; /&gt;
++&lt;xsl:strip-space elements=&quot;*&quot; /&gt;
++&lt;xsl:param name=&quot;source&quot; /&gt;
++&lt;xsl:template match=&quot;@*|*|text()&quot;&gt;
++        &lt;xsl:copy-of select=&quot;.&quot; /&gt;
++&lt;/xsl:template&gt;
++
++&lt;xsl:template match=&quot;*&quot; /&gt;
++
++&lt;xsl:template match=&quot;/&quot; &gt;
++	&lt;xsl:apply-templates /&gt;
++&lt;/xsl:template&gt;
++
++&lt;xsl:template match=&quot;stats:*&quot;&gt;
++        &lt;xsl:copy&gt;
++		&lt;xsl:copy-of select=&quot;@*&quot; /&gt;
++		&lt;xsl:apply-templates /&gt;
++        &lt;/xsl:copy&gt;
++&lt;/xsl:template&gt;
++
++&lt;/xsl:stylesheet&gt;
+
+Modified: branches/xmlconfig2/config.sample/xml/graphs.xml
+===================================================================
+--- branches/xmlconfig2/config.sample/xml/graphs.xml	2006-07-04 13:36:06 UTC (rev 160)
++++ branches/xmlconfig2/config.sample/xml/graphs.xml	2006-07-04 15:45:34 UTC (rev 161)
+@@ -1,4 +1,6 @@
+ &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
+ &lt;graphs xmlns=&quot;urn:serverstats&quot; xmlns:stats=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;&gt;
+-	&lt;xi:include href=&quot;templates/ucd-snmp-mib-load-graph.xml&quot;	/&gt;
++	&lt;graph name=&quot;snmp1&quot;&gt;
++		&lt;xi:include href=&quot;templates/ucd-snmp-mib-load-graph.xml#xmlns(s=urn:serverstats)xpointer(/s:template/*)&quot; /&gt;
++	&lt;/graph&gt;
+ &lt;/graphs&gt;
+
+Modified: branches/xmlconfig2/config.sample/xml/sources.xml
+===================================================================
+--- branches/xmlconfig2/config.sample/xml/sources.xml	2006-07-04 13:36:06 UTC (rev 160)
++++ branches/xmlconfig2/config.sample/xml/sources.xml	2006-07-04 15:45:34 UTC (rev 161)
+@@ -1,7 +1,7 @@
+ &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
+ &lt;sources xmlns=&quot;urn:serverstats&quot; xmlns:stats=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;  &gt;
+ 	&lt;source type=&quot;cpu&quot; id=&quot;cpu2&quot; /&gt;
+-	&lt;source type=&quot;snmp&quot; id=&quot;snmp1&quot;&gt;
++	&lt;source type=&quot;snmp&quot; id=&quot;snmp1_load&quot;&gt;
+ 		&lt;param name=&quot;host&quot;&gt;127.0.0.1&lt;/param&gt;
+ 		&lt;xi:include href=&quot;templates/ucd-snmp-mib-load.xml#xmlns(s=urn:serverstats)xpointer(/s:template/*)&quot; /&gt;
+ 	&lt;/source&gt;
+
+Modified: branches/xmlconfig2/config.sample/xml/templates/ucd-snmp-mib-load-graph.xml
+===================================================================
+--- branches/xmlconfig2/config.sample/xml/templates/ucd-snmp-mib-load-graph.xml	2006-07-04 13:36:06 UTC (rev 160)
++++ branches/xmlconfig2/config.sample/xml/templates/ucd-snmp-mib-load-graph.xml	2006-07-04 15:45:34 UTC (rev 161)
+@@ -1,6 +1,6 @@
+ &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
+-&lt;graph xmlns=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot;  xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;&gt;
+-				&lt;param name=&quot;title&quot;&gt;Load&lt;/param&gt;
++&lt;template xmlns=&quot;urn:serverstats&quot; xmlns:s=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot;  xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;&gt;
++				&lt;param name=&quot;title&quot; value=&quot;Load {../@name}&quot; /&gt;
+ 				&lt;param name=&quot;lowerLimit&quot;&gt;0&lt;/param&gt;
+ 				&lt;param name=&quot;altAutoscaleMax&quot;&gt;true&lt;/param&gt;
+ 				&lt;param name=&quot;content&quot; xsi:type=&quot;xsd:array&quot;&gt;
+@@ -10,7 +10,7 @@
+ 						&lt;/param&gt;
+ 						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
+ 							&lt;param name=&quot;type&quot;&gt;LINE&lt;/param&gt;
+-							&lt;param name=&quot;source&quot;&gt;load&lt;/param&gt;
++p							&lt;param name=&quot;source&quot; value=&quot;{../../../@name}_load&quot; /&gt;
+ 							&lt;param name=&quot;ds&quot;&gt;1min&lt;/param&gt;
+ 							&lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
+ 							&lt;param name=&quot;legend&quot;&gt;1 minute&lt;/param&gt;
+@@ -19,29 +19,29 @@
+ 						&lt;/param&gt;
+ 						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
+ 							&lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
+-							&lt;param name=&quot;name&quot;&gt;load_1min&lt;/param&gt;
++							&lt;param name=&quot;name&quot; value=&quot;{../../../@name}_load_1min&quot; /&gt;
+ 							&lt;param name=&quot;cf&quot;&gt;LAST&lt;/param&gt;
+ 							&lt;param name=&quot;format&quot;&gt;  cur\: %01.2lf&lt;/param&gt;
+ 						&lt;/param&gt;
+ 						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
+ 							&lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
+-							&lt;param name=&quot;name&quot;&gt;load_1min&lt;/param&gt;
++							&lt;param name=&quot;name&quot; value=&quot;{../../../@name}_load_1min&quot; /&gt;
+ 							&lt;param name=&quot;cf&quot;&gt;MAXIMUM&lt;/param&gt;
+ 							&lt;param name=&quot;format&quot;&gt;  max\: %01.2lf&lt;/param&gt;
+ 						&lt;/param&gt;
+ 						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
+ 							&lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
+-							&lt;param name=&quot;name&quot;&gt;load_1min&lt;/param&gt;
++							&lt;param name=&quot;name&quot; value=&quot;{../../../@name}_load_1min&quot; /&gt;
+ 							&lt;param name=&quot;cf&quot;&gt;MINIMUM&lt;/param&gt;
+ 							&lt;param name=&quot;format&quot;&gt;  min\: %01.2lf&lt;/param&gt;
+ 						&lt;/param&gt;
+ 						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
+ 							&lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
+-							&lt;param name=&quot;name&quot;&gt;load_1min&lt;/param&gt;
++							&lt;param name=&quot;name&quot; value=&quot;{../../../@name}_load_1min&quot; /&gt;
+ 							&lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
+ 							&lt;param name=&quot;format&quot;&gt;  avg\: %01.2lf\n&lt;/param&gt;
+ 						&lt;/param&gt;
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
++                                                &lt;!--param xsi:type=&quot;xsd:array&quot;&gt;
+                                                         &lt;param name=&quot;type&quot;&gt;LINE&lt;/param&gt;
+                                                         &lt;param name=&quot;source&quot;&gt;load&lt;/param&gt;
+                                                         &lt;param name=&quot;ds&quot;&gt;5min&lt;/param&gt;
+@@ -108,9 +108,9 @@
+                                                         &lt;param name=&quot;name&quot;&gt;load_15min&lt;/param&gt;
+                                                         &lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
+                                                         &lt;param name=&quot;format&quot;&gt;  avg\: %01.2lf&lt;/param&gt;
+-                                                &lt;/param&gt;
++                                                &lt;/param--&gt;
+ 
+ 
+ 
+ 				&lt;/param&gt;
+-&lt;/graph&gt;
++&lt;/template&gt;
+
+Modified: branches/xmlconfig2/config.sample/xml.php
+===================================================================
+--- branches/xmlconfig2/config.sample/xml.php	2006-07-04 13:36:06 UTC (rev 160)
++++ branches/xmlconfig2/config.sample/xml.php	2006-07-04 15:45:34 UTC (rev 161)
+@@ -24,17 +24,54 @@
+  */
+ 
+ //$config['used'] = true; // is the simple config used
++$xslt = new XSLTProcessor();
+ 
+ $dom = new domDocument();
+ $dom-&gt;load(CONFIGPATH . 'xml/config.xml');
+ $dom-&gt;Xinclude();
+ 
++function avt($matches) {
++		extract($GLOBALS);               
++ 
++		$entries = $xp-&gt;evaluate($matches[1], $child);
++	        if ($entries instanceof DOMNodeList) {
++			return $entries-&gt;item(0)-&gt;nodeValue;
++		} else {
++	                return $entries;
++		}
++        }
+ 
+-$xmlconfig = xmlconfig::read($dom);
+-//print_r ($xmlconfig);
++function __traversedom ( $node ) {
++	global $child, $xml, $xp;
+ 
++	foreach ($node-&gt;childNodes as $child) {
++		if ($child-&gt;nodeType!=1) continue;
++
++		$value = $child-&gt;getAttribute('value');
++		if ($value) {
++			$child-&gt;removeAttribute('value');
++			$xp = new domxpath($child-&gt;ownerDocument);
++			$result = preg_replace_callback('/\{([^\}]+)\}/','avt', $value);
++			$child-&gt;appendChild($child-&gt;ownerDocument-&gt;createTextNode($result));
++		}
++
++		__traversedom ($child);
++	}
++}
++
++$xsl = new domDocument();
++$xsl -&gt; load(CONFIGPATH . 'clean.xsl');
++$xslt -&gt; importStylesheet($xsl);
++
++$xml = $xslt -&gt; transformToDoc($dom);
++
++__traversedom ($xml-&gt;documentElement);
++
++$xmlconfig = xmlconfig::read($xml);
+ $config['modules'] = $xmlconfig['modules'];
+ $config['graphs'] = $xmlconfig['graphs'];
+ $config['used'] = true;
+ 
++//print_r($xmlconfig);
++
+ ?&gt;
+
+Modified: branches/xmlconfig2/includes/xmlconfig.class.php
+===================================================================
+--- branches/xmlconfig2/includes/xmlconfig.class.php	2006-07-04 13:36:06 UTC (rev 160)
++++ branches/xmlconfig2/includes/xmlconfig.class.php	2006-07-04 15:45:34 UTC (rev 161)
+@@ -10,19 +10,23 @@
+ 
+    private static function __traverseParams($node, &amp;$config) {
+   	foreach ($node-&gt;childNodes as $child) {
++		//echo $child-&gt;nodeName . $child-&gt;nodeType;
+   		if ($child-&gt;nodeType!=1) continue;
+   			
+   			switch ($child-&gt;nodeName) {
+-  				case 'graph':
++					case 'main':
++						 self::__traverseParams($child, $config['main']);
++						break;
++  					case 'graph':
+ 						self::__traverseParams($child, $config['graphs'][]);		
+ 						break;
+-					case 'source':
++					case 'source':					
+ 						$id = $child-&gt;getAttribute('id');
+ 						$class = $child-&gt;getAttribute('type');
+ 						$args = null;
+-						
++												
++
+ 						self::__traverseParams($child, $args);		
+-											
+ 						if (class_exists($class)) {
+ 							$config['modules'][ $id ] = call_user_func(array($class,'factory'), $args); 				
+ 						}
+@@ -33,7 +37,7 @@
+ 						$name = $child-&gt;getAttribute('name');
+ 						if ($name=='') $name = count($config);
+ 						
+-					if ($child-&gt;getAttributeNS('<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>','type')=='xsd:array') {
++						if ($child-&gt;getAttributeNS('<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>','type')=='xsd:array') {
+ 							self::__traverseParams($child, $config[ $name ]);
+ 						} else {
+ 							$config[ $name ] = $child-&gt;nodeValue;
+@@ -43,6 +47,7 @@
+ 						break;
+ 
+ 					default:
++						//print $child-&gt;nodeName;
+ 						self::__traverseParams($child, $config);		
+ 						break;
+ 						
+@@ -59,6 +64,7 @@
+                         return;
+                 }
+ 
++		
+ 		foreach ($xmlconfig['graphs'] as $graph =&gt; $graphconf) 
+ 		{
+ 			 $config['list'][] = $graphconf;
+@@ -77,7 +83,6 @@
+ 		foreach ($xmlconfig['modules'] as $module =&gt; $modconf)
+ 		{
+ 			$config[ $module ]['module'] = $modconf;
+-			//print_r ($modconf);
+ 
+ 		}
+ 	}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000125.html">[Serverstats-devel] r160 - in branches/xmlconfig2/config.sample/xml: . templates
+</A></li>
+	<LI>Next message: <A HREF="000127.html">[Serverstats-devel] Attribute Value Template on xml parameter
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#126">[ date ]</a>
+              <a href="thread.html#126">[ thread ]</a>
+              <a href="subject.html#126">[ subject ]</a>
+              <a href="author.html#126">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

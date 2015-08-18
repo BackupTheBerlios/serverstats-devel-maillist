@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] XmlConfig + Ajax demo ...
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20XmlConfig%20%2B%20Ajax%20demo%20...&In-Reply-To=%3C44A94814.4090100%40wanadoo.fr%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000101.html">
+   <LINK REL="Next"  HREF="000110.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] XmlConfig + Ajax demo ...</H1>
+    <B>S&#233;bastien CRAMATTE</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20XmlConfig%20%2B%20Ajax%20demo%20...&In-Reply-To=%3C44A94814.4090100%40wanadoo.fr%3E"
+       TITLE="[Serverstats-devel] XmlConfig + Ajax demo ...">s.cramatte at wanadoo.fr
+       </A><BR>
+    <I>Mon Jul  3 18:38:44 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000101.html">[Serverstats-devel] XmlConfig + Ajax demo ...
+</A></li>
+        <LI>Next message: <A HREF="000110.html">[Serverstats-devel] XmlConfig + Ajax demo ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#107">[ date ]</a>
+              <a href="thread.html#107">[ thread ]</a>
+              <a href="subject.html#107">[ subject ]</a>
+              <a href="author.html#107">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>David Danier a &#233;crit :
+&gt;&gt;&gt;<i> Looks really nice.
+</I>&gt;&gt;&gt;<i> What I don't like about AJAX is the dependency on JS. This can be some
+</I>&gt;&gt;&gt;<i> addon, but should not be the only way to browse the tree/graphs.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>       
+</I>&gt;&gt;<i> We must move with the times ... ;)
+</I>&gt;&gt;<i> Ajax is fashion,  I use it with my xforms engine and works very well !
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> But Serverstats is not about fashion, it is about KISS (&quot;keep it small
+</I>&gt;<i> and simple&quot;). Thats the reason why I created Serverstats (Cacti was so
+</I>&gt;<i> bloated) and I think that should stay one of the main goals.
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>Good answer ...
+&gt;<i> So, like I said: JS can extend the script, but it should not be the only
+</I>&gt;<i> way to navigate through graphs. Perhaps some JS could take the layout,
+</I>&gt;<i> add AJAX to it, but keep the current html intact.
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>ok
+&gt;<i> I like AJAX and love to use websites that take advantage of it, but I
+</I>&gt;<i> dislike creating webpages that are not browseable without JS. Perhaps
+</I>&gt;<i> thats one of the things you care about if you start having a
+</I>&gt;<i> community[1] of webdevs and always need to tell them: &quot;Don't use JS
+</I>&gt;<i> here, you will keep 35%[2] of your possible visitors from using your
+</I>&gt;<i> homepage&quot;.
+</I>&gt;<i> [1] <A HREF="http://www.webmasterpro.de/">http://www.webmasterpro.de/</A> (german)
+</I>&gt;<i> [2] according to the statistics calculated by all users (about 122000)
+</I>&gt;<i> of the Flashcounter (<A HREF="http://fc.webmasterpro.de/">http://fc.webmasterpro.de/</A>)
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> I've just test  with this little update and seems that not works :( ...
+</I>&gt;&gt;<i> I've missed a thing ?
+</I>&gt;&gt;<i> Tree must have possibility to &quot;group by&quot; to organize all hosts and graphs.
+</I>&gt;&gt;<i> [...example...]
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> Your example works here.
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> On the page detail.php.  I've got a warning message in the menu :
+</I>&gt;&gt;<i> [...]
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> This is fixed now, forgot to load $tree and $filter inside detail.php.
+</I>&gt;<i>   
+</I>ok
+&gt;<i>   
+</I>&gt;&gt;<i> So what about  xmlconfig ? when do you think that you could include it
+</I>&gt;&gt;<i> to the main trunk ?
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> xmlconfig seems to work, but currently it's only an addon to the
+</I>&gt;<i> configuration. I don't know how far it is possible, but I thought it was
+</I>&gt;<i> meant to replace the old configuration?
+</I>&gt;<i>   
+</I>Have you comited the xmlconfig somewhere in the new trunk ?
+&gt;<i> Besides the xmlconfig only makes real sense if we have a working editor
+</I>&gt;<i> for it. It's not very usable and intuitive to edit XML-files with a
+</I>&gt;<i> text-editor (At least not the format you suggested). Perhaps thats the
+</I>&gt;<i> problem of the old config-format, too...but it has worked so far. :)
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>As I can tell you, I think to use Xforms
+
+&gt;<i> Greetings, David Danier
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000101.html">[Serverstats-devel] XmlConfig + Ajax demo ...
+</A></li>
+	<LI>Next message: <A HREF="000110.html">[Serverstats-devel] XmlConfig + Ajax demo ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#107">[ date ]</a>
+              <a href="thread.html#107">[ thread ]</a>
+              <a href="subject.html#107">[ subject ]</a>
+              <a href="author.html#107">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

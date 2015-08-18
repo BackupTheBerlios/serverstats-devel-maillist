@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r93 - in trunk: includes sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r93%20-%20in%20trunk%3A%20includes%20sources&In-Reply-To=%3C200512251507.jBPF7rpC028975%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000010.html">
+   <LINK REL="Next"  HREF="000013.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r93 - in trunk: includes sources</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r93%20-%20in%20trunk%3A%20includes%20sources&In-Reply-To=%3C200512251507.jBPF7rpC028975%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r93 - in trunk: includes sources">goliath at berlios.de
+       </A><BR>
+    <I>Sun Dec 25 16:07:53 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000010.html">[Serverstats-devel] r92 - trunk/sources
+</A></li>
+        <LI>Next message: <A HREF="000013.html">[Serverstats-devel] r94 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#12">[ date ]</a>
+              <a href="thread.html#12">[ thread ]</a>
+              <a href="subject.html#12">[ subject ]</a>
+              <a href="author.html#12">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2005-12-25 16:07:49 +0100 (Sun, 25 Dec 2005)
+New Revision: 93
+
+Modified:
+   trunk/includes/logger_syslog.class.php
+   trunk/sources/external.php
+   trunk/sources/ping_service.php
+Log:
+ * typos
+ * logger_syslog should now use $facility LOG_USER if no facility is set (if-clause used wrong variable to check if facility was set)
+
+
+Modified: trunk/includes/logger_syslog.class.php
+===================================================================
+--- trunk/includes/logger_syslog.class.php	2005-12-23 16:15:26 UTC (rev 92)
++++ trunk/includes/logger_syslog.class.php	2005-12-25 15:07:49 UTC (rev 93)
+@@ -32,7 +32,7 @@
+ 		{
+ 			$options = LOG_ODELAY || LOG_PID;
+ 		}
+-		if (!isset($options))
++		if (!isset($facility))
+ 		{
+ 			$facility = LOG_USER;
+ 		}
+
+Modified: trunk/sources/external.php
+===================================================================
+--- trunk/sources/external.php	2005-12-23 16:15:26 UTC (rev 92)
++++ trunk/sources/external.php	2005-12-25 15:07:49 UTC (rev 93)
+@@ -28,14 +28,14 @@
+ 	private $command;
+ 	private $datarows;
+ 	private $data;
+-
++	
+ 	private $dsdef = array();
+ 	
+ 	public function __construct($command)
+ 	{
+ 		$this-&gt;command = $command;
+ 	}
+-
++	
+ 	public function addDatasourceDefinition($name, $type = 'GAUGE', $heartbeat = null, $min = 'U', $max = 'U')
+ 	{
+ 		$this-&gt;dsdef[$name] = array(
+
+Modified: trunk/sources/ping_service.php
+===================================================================
+--- trunk/sources/ping_service.php	2005-12-23 16:15:26 UTC (rev 92)
++++ trunk/sources/ping_service.php	2005-12-25 15:07:49 UTC (rev 93)
+@@ -56,7 +56,7 @@
+ 			socket_set_blocking($socket, true); // just to be sure
+ 			if (feof($socket))
+ 			{
+-				throw new Exception('Connection closed while sending commands');
++				throw new Exception('Connection closed while sending command');
+ 			}
+ 			fwrite($socket, $this-&gt;command);
+ 			fgetc($socket); // read one char
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000010.html">[Serverstats-devel] r92 - trunk/sources
+</A></li>
+	<LI>Next message: <A HREF="000013.html">[Serverstats-devel] r94 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#12">[ date ]</a>
+              <a href="thread.html#12">[ thread ]</a>
+              <a href="subject.html#12">[ subject ]</a>
+              <a href="author.html#12">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,257 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] Attribute Value Template on xml parameter
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Attribute%20Value%20Template%20on%20xml%20parameter&In-Reply-To=%3C44ABB611.3070904%40wanadoo.fr%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000128.html">
+   <LINK REL="Next"  HREF="000130.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] Attribute Value Template on xml parameter</H1>
+    <B>S&#233;bastien CRAMATTE</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Attribute%20Value%20Template%20on%20xml%20parameter&In-Reply-To=%3C44ABB611.3070904%40wanadoo.fr%3E"
+       TITLE="[Serverstats-devel] Attribute Value Template on xml parameter">s.cramatte at wanadoo.fr
+       </A><BR>
+    <I>Wed Jul  5 14:52:33 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000128.html">[Serverstats-devel] Attribute Value Template on xml parameter
+</A></li>
+        <LI>Next message: <A HREF="000130.html">[Serverstats-devel] Attribute Value Template on xml parameter
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#129">[ date ]</a>
+              <a href="thread.html#129">[ thread ]</a>
+              <a href="subject.html#129">[ subject ]</a>
+              <a href="author.html#129">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>David Danier a &#233;crit :
+&gt;&gt;<i> I believe that I found a really good mean to use variables and
+</I>&gt;&gt;<i> parameters from xml
+</I>&gt;&gt;<i> In Xforms we call this technic  &quot;Attribute Value Template&quot; (AVT) that
+</I>&gt;&gt;<i> consists to  mix xpath expression between &quot;{ }&quot;  chars and normal text
+</I>&gt;&gt;<i> [...]
+</I>&gt;&gt;<i> Look at the latest revision of xmlconfig2 branch  for source
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> I like the idea, but dislike to rebuild XSLT-features inside PHP to be
+</I>&gt;<i> used in XML-files.
+</I>&gt;<i>   
+</I>What do you mean  ??? I don't have rebuild nothing whith a php 5.1 it's ok
+&gt;<i> Besides this could be more powerful, for example it should be possible
+</I>&gt;<i> to delete the params after they were used (to be more flexible and not
+</I>&gt;<i> only limited to @name). That leads to the problem, that it may only be
+</I>&gt;<i> deleted after the last access.
+</I>&gt;<i>   
+</I>This is not limited to @name ... This an xpath expression  that use as 
+context node the current node
+
+&gt;<i> The access to the params could be more easily, too. For example they
+</I>&gt;<i> could be saved into an array that is extended with every child (like as
+</I>&gt;<i> push to a stack) and cleaned at the end of the parent element (stack
+</I>&gt;<i> pop). Then the access could just use the name.
+</I>&gt;<i> When doing so the current XML-elements might confuse people. Perhaps it
+</I>&gt;<i> would be the easiest to have only five elements:
+</I>&gt;<i>  * config (root)
+</I>&gt;<i>  * value (string, attr: name (optional), children: text)
+</I>&gt;<i>  * list (array, attr: name (optional), children: &lt;value&gt; and/or &lt;list&gt;)
+</I>&gt;<i>  * class (to load classes, attr: name, children: &lt;value&gt; and/or &lt;list&gt;)
+</I>&gt;<i>  * param (param used for the templates, attr: name, children: text)
+</I>&gt;<i>
+</I>&gt;<i> If name is omitted for &lt;value&gt; or &lt;list&gt; it is used like $array[] =
+</I>&gt;<i> &quot;something&quot;.
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>I'm not sure ...
+I think that is more complicate like this ...
+ 
+In my example I use only    xpointer + xinclude + xpath   (available by 
+default with libxml2 )
+I must use  xpointer  to only insert childs and not parent node  
+(template nodename is useless)
+
+xsl is used to clean the result tree due to a php bug (xinclude make  
+node of type 19 that aren't supported)
+
+&gt;<i> Example:
+</I>&gt;<i> ----------8&lt;-----------------------------------------------------------
+</I>&gt;<i> &lt;config&gt;
+</I>&gt;<i> 	&lt;xi:include href=&quot;main.xml&quot; /&gt;
+</I>&gt;<i> 	&lt;xi:include href=&quot;graph.xml&quot; /&gt;
+</I>&gt;<i> 	&lt;xi:include href=&quot;sources.xml&quot; /&gt;
+</I>&gt;<i> 	&lt;!-- .... --&gt;
+</I>&gt;<i> &lt;/config&gt;
+</I>&gt;<i> -----------------------------------------------------------&gt;8----------
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;<i> graph.xml:
+</I>&gt;<i> ----------8&lt;-----------------------------------------------------------
+</I>&gt;<i> &lt;list name=&quot;graph&quot;&gt;
+</I>&gt;<i> 	&lt;!-- .... --&gt;
+</I>&gt;<i> 	&lt;list name=&quot;list&quot;&gt; &lt;!-- &quot;list&quot; sound silly here --&gt;
+</I>&gt;<i> 		&lt;list&gt;
+</I>&gt;<i> 			&lt;param name=&quot;source&quot;&gt;foobar&lt;/param&gt;
+</I>&gt;<i> 			&lt;xi:include href=&quot;graph/foobar.xml&quot; /&gt;
+</I>&gt;<i> 		&lt;/list&gt;
+</I>&gt;<i> 	&lt;/list&gt;
+</I>&gt;<i> 	&lt;!-- .... --&gt;
+</I>&gt;<i> &lt;/list&gt;
+</I>&gt;<i> -----------------------------------------------------------&gt;8----------
+</I>&gt;<i>
+</I>&gt;<i> Would create an graph.xml:
+</I>&gt;<i> ----------8&lt;-----------------------------------------------------------
+</I>&gt;<i> &lt;list name=&quot;graph&quot;&gt;
+</I>&gt;<i> 	&lt;!-- .... --&gt;
+</I>&gt;<i> 	&lt;list name=&quot;list&quot;&gt; &lt;!-- &quot;list&quot; sound silly here --&gt;
+</I>&gt;<i> 		&lt;list&gt;
+</I>&gt;<i> 			&lt;param name=&quot;source&quot;&gt;foobar&lt;/param&gt;
+</I>&gt;<i> 			&lt;value name=&quot;title&quot;&gt;foo {$source}&lt;/value&gt;
+</I>&gt;<i> 			&lt;!-- .... --&gt;
+</I>&gt;<i> 		&lt;/list&gt;
+</I>&gt;<i> 	&lt;/list&gt;
+</I>&gt;<i> 	&lt;!-- .... --&gt;
+</I>&gt;<i> &lt;/list&gt;
+</I>&gt;<i>   
+</I>avt must be used into attribute not into text element
+<A HREF="http://www.dpawson.co.uk/xsl/sect2/N1575.html">http://www.dpawson.co.uk/xsl/sect2/N1575.html</A>
+
+&gt;<i> -----------------------------------------------------------&gt;8----------
+</I>&gt;<i>
+</I>&gt;<i> Would be parsed into:
+</I>&gt;<i> ----------8&lt;-----------------------------------------------------------
+</I>&gt;<i> &lt;list name=&quot;graph&quot;&gt;
+</I>&gt;<i> 	&lt;!-- .... --&gt;
+</I>&gt;<i> 	&lt;list name=&quot;list&quot;&gt; &lt;!-- &quot;list&quot; sound silly here --&gt;
+</I>&gt;<i> 		&lt;list&gt;
+</I>&gt;<i> 			&lt;value name=&quot;title&quot;&gt;foo foobar&lt;/value&gt;
+</I>&gt;<i> 			&lt;!-- .... --&gt;
+</I>&gt;<i> 		&lt;/list&gt;
+</I>&gt;<i> 	&lt;/list&gt;
+</I>&gt;<i> 	&lt;!-- .... --&gt;
+</I>&gt;<i> &lt;/list&gt;
+</I>&gt;<i> -----------------------------------------------------------&gt;8----------
+</I>&gt;<i>
+</I>&gt;<i> But this does not avoid the ploblem, that we have to rebuild some
+</I>&gt;<i> XSLT-features inside PHP, so perhaps it would be easier to just _use_ XSLT:
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>Explain ... ??? Why you want to rebuild XSLT ?
+&gt;<i> Elements (+: added, -: deleted):
+</I>&gt;<i>  + template (used for templates, attr: name, children: any (&lt;param&gt;
+</I>&gt;<i> preferred))
+</I>&gt;<i>  - param (not used anymore, but should be a agreement to be used inside
+</I>&gt;<i> &lt;template&gt;
+</I>&gt;<i>
+</I>&gt;<i> graph.xml:
+</I>&gt;<i> ----------8&lt;-----------------------------------------------------------
+</I>&gt;<i> &lt;list name=&quot;graph&quot;&gt;
+</I>&gt;<i> 	&lt;!-- .... --&gt;
+</I>&gt;<i> 	&lt;list name=&quot;list&quot;&gt; &lt;!-- &quot;list&quot; sound silly here --&gt;
+</I>&gt;<i> 		&lt;template name=&quot;footest&quot;&gt;
+</I>&gt;<i> 			&lt;param name=&quot;source&quot;&gt;foobar&lt;/param&gt;
+</I>&gt;<i> 		&lt;/list&gt;
+</I>&gt;<i> 	&lt;/list&gt;
+</I>&gt;<i> 	&lt;!-- .... --&gt;
+</I>&gt;<i> &lt;/list&gt;
+</I>&gt;<i> -----------------------------------------------------------&gt;8----------
+</I>&gt;<i>
+</I>&gt;<i> templates.xsl:
+</I>&gt;<i> ----------8&lt;-----------------------------------------------------------
+</I>&gt;<i> &lt;xsl:stylesheet
+</I>&gt;<i>         version=&quot;1.0&quot;
+</I>&gt;<i>         xmlns:xsl=&quot;<A HREF="http://www.w3.org/1999/XSL/Transform">http://www.w3.org/1999/XSL/Transform</A>&quot;&gt;
+</I>&gt;<i>
+</I>&gt;<i> &lt;xsl:template match=&quot;/config/list[@name='sources']&quot;&gt;
+</I>&gt;<i>         &lt;xsl:apply-templates select=&quot;template&quot; mode=&quot;source&quot;&gt;
+</I>&gt;<i> &lt;/xsl:template&gt;
+</I>&gt;<i>
+</I>&gt;<i> &lt;xsl:template match=&quot;/config/list[@name='graph']&quot;&gt;
+</I>&gt;<i>         &lt;xsl:apply-templates select=&quot;template&quot; mode=&quot;graph&quot;&gt;
+</I>&gt;<i> &lt;/xsl:template&gt;
+</I>&gt;<i>
+</I>&gt;<i> &lt;xsl:include href=&quot;foo.xsl&quot;/&gt;
+</I>&gt;<i> &lt;xsl:include href=&quot;bar.xsl&quot;/&gt;
+</I>&gt;<i>
+</I>&gt;<i> &lt;xsl:template match=&quot;*&quot;&gt;
+</I>&gt;<i>         &lt;xsl:copy&gt;
+</I>&gt;<i> 		&lt;xsl:copy-of select=&quot;@*&quot; /&gt;
+</I>&gt;<i> 		&lt;xsl:apply-templates /&gt;
+</I>&gt;<i>         &lt;/xsl:copy&gt;
+</I>&gt;<i> &lt;/xsl:template&gt;
+</I>&gt;<i>
+</I>&gt;<i> &lt;/xsl:stylesheet&gt;
+</I>&gt;<i> -----------------------------------------------------------&gt;8----------
+</I>&gt;<i>
+</I>&gt;<i> foo.xsl:
+</I>&gt;<i> ----------8&lt;-----------------------------------------------------------
+</I>&gt;<i> &lt;xsl:stylesheet
+</I>&gt;<i>         version=&quot;1.0&quot;
+</I>&gt;<i>         xmlns:xsl=&quot;<A HREF="http://www.w3.org/1999/XSL/Transform">http://www.w3.org/1999/XSL/Transform</A>&quot;&gt;
+</I>&gt;<i>
+</I>&gt;<i> &lt;xsl:template match=&quot;template[@name='foo']&quot; mode=&quot;source&quot;&gt;
+</I>&gt;<i>         &lt;list name=&quot;{param[@name='name']}&quot;&gt;
+</I>&gt;<i> 		&lt;!-- ... --&gt;
+</I>&gt;<i> 	&lt;/list&gt;
+</I>&gt;<i> &lt;/xsl:template&gt;
+</I>&gt;<i>
+</I>&gt;<i> &lt;xsl:template match=&quot;template[@name='foo']&quot; mode=&quot;graph&quot;&gt;
+</I>&gt;<i>         &lt;list&gt;
+</I>&gt;<i> 		&lt;value name=&quot;title&quot;&gt;foo &lt;xsl:value-of select=&quot;{param[@name='name']}&quot;
+</I>&gt;<i> /&gt;&lt;/value&gt;
+</I>&gt;<i> 		&lt;!-- ... --&gt;
+</I>&gt;<i> 	&lt;/list&gt;
+</I>&gt;<i> &lt;/xsl:template&gt;
+</I>&gt;<i>
+</I>&gt;<i> &lt;/xsl:stylesheet&gt;
+</I>&gt;<i> -----------------------------------------------------------&gt;8----------
+</I>&gt;<i>
+</I>&gt;<i> Some &lt;list&gt;-Elements could of course be replaced by elements that have
+</I>&gt;<i> more semantic (like: &lt;sources&gt;, &lt;source&gt;, &lt;graph&gt;, ...)...but I think to
+</I>&gt;<i> describe this here &lt;list&gt; is enough (and closer to the current config).
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>It's always better to use xml inside namespace and define type using 
+standard like rdf or w3c schema
+This is why my xml files seems to be a little complicate  but with 
+xforms it's easier to parse and manipulate as this.
+
+&gt;<i> So, what do you think?
+</I>&gt;<i>
+</I>&gt;<i> Greetings, David Danier
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000128.html">[Serverstats-devel] Attribute Value Template on xml parameter
+</A></li>
+	<LI>Next message: <A HREF="000130.html">[Serverstats-devel] Attribute Value Template on xml parameter
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#129">[ date ]</a>
+              <a href="thread.html#129">[ thread ]</a>
+              <a href="subject.html#129">[ subject ]</a>
+              <a href="author.html#129">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

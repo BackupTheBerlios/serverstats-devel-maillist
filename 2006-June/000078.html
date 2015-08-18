@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r132 - in trunk: includes sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-June/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r132%20-%20in%20trunk%3A%20includes%20sources&In-Reply-To=%3C200606300946.k5U9k1kf007129%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000077.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r132 - in trunk: includes sources</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r132%20-%20in%20trunk%3A%20includes%20sources&In-Reply-To=%3C200606300946.k5U9k1kf007129%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r132 - in trunk: includes sources">goliath at berlios.de
+       </A><BR>
+    <I>Fri Jun 30 11:46:01 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000077.html">[Serverstats-devel] r131 - trunk/includes
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#78">[ date ]</a>
+              <a href="thread.html#78">[ thread ]</a>
+              <a href="subject.html#78">[ subject ]</a>
+              <a href="author.html#78">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-06-30 11:45:59 +0200 (Fri, 30 Jun 2006)
+New Revision: 132
+
+Modified:
+   trunk/includes/rrd.class.php
+   trunk/sources/snmp.php
+Log:
+ * reverted last patch
+ * added patch to fix the problem with SNMP-datasources (thx S?\195?\169bastien CRAMATTE)
+
+
+Modified: trunk/includes/rrd.class.php
+===================================================================
+--- trunk/includes/rrd.class.php	2006-06-30 08:38:28 UTC (rev 131)
++++ trunk/includes/rrd.class.php	2006-06-30 09:45:59 UTC (rev 132)
+@@ -509,17 +509,7 @@
+ 	
+ 	public static function escapeDsName($name)
+ 	{
+-		// escape
+-		$name = preg_replace('/[^a-zA-Z0-9_]/', '_', $name);
+-		if (strlen($name) &gt; 19)
+-		{
+-			$name = str_replace('_', '', $name);
+-			if (strlen($name) &gt; 19)
+-			{
+-				throw new Exception('Your datasource-name is to long');
+-			}
+-		}
+-		return $name;
++		return preg_replace('/[^a-zA-Z0-9_]/', '_', $name);
+ 	}
+ }
+ 
+
+Modified: trunk/sources/snmp.php
+===================================================================
+--- trunk/sources/snmp.php	2006-06-30 08:38:28 UTC (rev 131)
++++ trunk/sources/snmp.php	2006-06-30 09:45:59 UTC (rev 132)
+@@ -56,19 +56,19 @@
+ 	
+ 	public function refreshData()
+ 	{
+-		foreach ($this-&gt;objects as $object)
++		foreach ($this-&gt;objects as $object =&gt; $objectValue)
+ 		{
+-			$value = snmpgetnext($this-&gt;host, $this-&gt;community, $object);
++			$value = snmpgetnext($this-&gt;host, $this-&gt;community, $objectValue);
+ 			if ($value !== false)
+ 			{
+-				$this-&gt;data[$object] = $value;
++				$this-&gt;data[$object] = preg_replace('/.*:\s*(.*)/i','$1', $value);
+ 			}
+ 		}
+ 	}
+ 	
+ 	public function initRRD(rrd $rrd)
+ 	{
+-		foreach ($this-&gt;objects as $object)
++		foreach ($this-&gt;objects as $object =&gt; $objectValue)
+ 		{
+ 			if (isset($this-&gt;dsdef[$object]))
+ 			{
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000077.html">[Serverstats-devel] r131 - trunk/includes
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#78">[ date ]</a>
+              <a href="thread.html#78">[ thread ]</a>
+              <a href="subject.html#78">[ subject ]</a>
+              <a href="author.html#78">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

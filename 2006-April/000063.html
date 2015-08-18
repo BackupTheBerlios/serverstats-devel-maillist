@@ -1,0 +1,247 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r126 - in trunk: includes sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r126%20-%20in%20trunk%3A%20includes%20sources&In-Reply-To=%3C200604251042.k3PAgKhh003733%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000061.html">
+   <LINK REL="Next"  HREF="000064.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r126 - in trunk: includes sources</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r126%20-%20in%20trunk%3A%20includes%20sources&In-Reply-To=%3C200604251042.k3PAgKhh003733%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r126 - in trunk: includes sources">goliath at berlios.de
+       </A><BR>
+    <I>Tue Apr 25 12:42:20 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000061.html">[Serverstats-devel] r125 - trunk/includes
+</A></li>
+        <LI>Next message: <A HREF="000064.html">[Serverstats-devel] r127 - trunk/sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#63">[ date ]</a>
+              <a href="thread.html#63">[ thread ]</a>
+              <a href="subject.html#63">[ subject ]</a>
+              <a href="author.html#63">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-04-25 12:42:12 +0200 (Tue, 25 Apr 2006)
+New Revision: 126
+
+Modified:
+   trunk/includes/simpleconfig.class.php
+   trunk/sources/apache.php
+   trunk/sources/cpu.php
+Log:
+ * Fixed CPU-source (I hope) and added more stats to it (e.g. iowait)
+ * Apache-Exception now asks user to allow URL-access in PHP-config
+ * Updated SimpleConfig to reflect CPU-source changes
+
+
+Modified: trunk/includes/simpleconfig.class.php
+===================================================================
+--- trunk/includes/simpleconfig.class.php	2006-04-12 08:37:55 UTC (rev 125)
++++ trunk/includes/simpleconfig.class.php	2006-04-25 10:42:12 UTC (rev 126)
+@@ -126,6 +126,33 @@
+ 											'legend' =&gt; 'Idle',
+ 											'color' =&gt; 'FFFF00',
+ 											'stacked' =&gt; true
++										),
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; $module,
++											'ds' =&gt; 'cpu_iowait',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'IOwait',
++											'color' =&gt; 'FFAA00',
++											'stacked' =&gt; true
++										),
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; $module,
++											'ds' =&gt; 'cpu_irq',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'IRQ',
++											'color' =&gt; 'FF6600',
++											'stacked' =&gt; true
++										),
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; $module,
++											'ds' =&gt; 'cpu_softirq',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'SoftIRQ',
++											'color' =&gt; 'AAFF00',
++											'stacked' =&gt; true
+ 										)
+ 									)
+ 								);
+
+Modified: trunk/sources/apache.php
+===================================================================
+--- trunk/sources/apache.php	2006-04-12 08:37:55 UTC (rev 125)
++++ trunk/sources/apache.php	2006-04-25 10:42:12 UTC (rev 126)
+@@ -76,7 +76,7 @@
+ 	{
+ 		if (($lines = @file($this-&gt;url_serverstatus)) === false)
+ 		{
+-			throw new Exception('Error while reading Apache-status');
++			throw new Exception('Error while reading Apache-status (perhaps file-access is forbidden?)');
+ 			return;
+ 		}
+ 		foreach ($lines as $line)
+
+Modified: trunk/sources/cpu.php
+===================================================================
+--- trunk/sources/cpu.php	2006-04-12 08:37:55 UTC (rev 125)
++++ trunk/sources/cpu.php	2006-04-25 10:42:12 UTC (rev 126)
+@@ -28,11 +28,18 @@
+ {
+ 	private $path_stat;
+ 	
++	private $fieldList = array(
++		'user',
++		'nice',
++		'system',
++		'idle',
++		'iowait',
++		'irq',
++		'softirq'
++	);
++	
+ 	private $stats;
+-	private $time;
+-	
+ 	private $oldstats;
+-	private $oldtime;
+ 	
+ 	public function __construct($path_stat = '/proc/stat')
+ 	{
+@@ -61,21 +68,26 @@
+ 		$returnValues = array();
+ 		foreach ($this-&gt;stats as $cpu =&gt; $values)
+ 		{
+-			$sumProc = array_sum($values) - array_sum($this-&gt;oldstats[$cpu]);
+-			if ($sumProc &gt; 0)
++			$cpuUsage = array();
++			foreach ($values as $key =&gt; $value)
+ 			{
+-				foreach ($values as $key =&gt; $value)
++				if (isset($this-&gt;oldstats[$cpu][$key]))
+ 				{
+-					if ($sumProc == 0)
+-					{
+-						$returnValues[$cpu . '_' . $key] = 0;
+-					}
+-					else
+-					{
+-						$returnValues[$cpu . '_' . $key] = (($value - $this-&gt;oldstats[$cpu][$key]) * 100) / $sumProc;
+-					}
++					$cpuUsage[$key] = $value - $this-&gt;oldstats[$cpu][$key];
+ 				}
++				else
++				{
++					$cpuUsage[$key] = 0;
++				}
+ 			}
++			$sumUsage = array_sum($cpuUsage);
++			if ($sumUsage &gt; 0)
++			{
++				foreach ($cpuUsage as $key =&gt; $value)
++				{
++					$returnValues[$cpu . '_' . $key] = $value * 100 / $sumUsage;
++				}
++			}
+ 		}
+ 		return $returnValues;
+ 	}
+@@ -91,19 +103,24 @@
+ 		{
+ 			throw new Exception('Could not read &quot;' . $this-&gt;path_stat . '&quot;');
+ 		}
+-		$this-&gt;time = microtime(true);
+ 		
+ 		$this-&gt;stats = array();
+ 		foreach ($lines as $line)
+ 		{
+-			if (preg_match('/^(cpu[0-9]*)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)/i', $line, $parts))
++			if (preg_match('/^(cpu[0-9]*)((\s+([0-9]+))+)\s*$/i', $line, $parts))
+ 			{
+-				$this-&gt;stats[$parts[1]] = array(
+-					'user' =&gt; $parts[2],
+-					'nice' =&gt; $parts[3],
+-					'system' =&gt; $parts[4],
+-					'idle' =&gt; $parts[5]
+-				);
++				$this-&gt;stats[$parts[1]] = array();
++				$cpustats = preg_split('/\s+/', trim($parts[2]));
++				$i = 0;
++				foreach ($this-&gt;fieldList as $fieldName)
++				{
++					if (!isset($cpustats[$i]))
++					{
++						break;
++					}
++					$this-&gt;stats[$parts[1]][$fieldName] = $cpustats[$i];
++					$i++;
++				}
+ 			}
+ 		}
+ 	}
+@@ -112,20 +129,17 @@
+ 	{
+ 		$this-&gt;getStats();
+ 		$this-&gt;oldstats = $this-&gt;stats;
+-		$this-&gt;oldtime = 0;
+ 	}
+ 	
+ 	public function loadCache($cachedata)
+ 	{
+ 		$this-&gt;oldstats = $cachedata['stats'];
+-		$this-&gt;oldtime = $cachedata['time'];
+ 	}
+ 	
+ 	public function getCache()
+ 	{
+ 		return array(
+ 			'stats' =&gt; $this-&gt;stats,
+-			'time' =&gt; $this-&gt;time
+ 		);
+ 	}
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000061.html">[Serverstats-devel] r125 - trunk/includes
+</A></li>
+	<LI>Next message: <A HREF="000064.html">[Serverstats-devel] r127 - trunk/sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#63">[ date ]</a>
+              <a href="thread.html#63">[ thread ]</a>
+              <a href="subject.html#63">[ subject ]</a>
+              <a href="author.html#63">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

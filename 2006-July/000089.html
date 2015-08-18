@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] XML File parse demo ...
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20XML%20File%20parse%20demo%20...&In-Reply-To=%3C44A8EE4C.2000709%40wanadoo.fr%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000087.html">
+   <LINK REL="Next"  HREF="000090.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] XML File parse demo ...</H1>
+    <B>S&#233;bastien CRAMATTE</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20XML%20File%20parse%20demo%20...&In-Reply-To=%3C44A8EE4C.2000709%40wanadoo.fr%3E"
+       TITLE="[Serverstats-devel] XML File parse demo ...">s.cramatte at wanadoo.fr
+       </A><BR>
+    <I>Mon Jul  3 12:15:40 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000087.html">[Serverstats-devel] XML File parse demo ...
+</A></li>
+        <LI>Next message: <A HREF="000090.html">[Serverstats-devel] XML File parse demo ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#89">[ date ]</a>
+              <a href="thread.html#89">[ thread ]</a>
+              <a href="subject.html#89">[ subject ]</a>
+              <a href="author.html#89">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>David Danier a &#233;crit :
+&gt;&gt;<i> I've make these test files.
+</I>&gt;&gt;<i> Put these 2 files into  config.sample directory using the xml files
+</I>&gt;&gt;<i> from  branches/xmlconfig svn.
+</I>&gt;&gt;<i> I haven't comit these because  I want to keep svn clean ...
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> I commited this into a &quot;test&quot;-directory inside the xmlconfig-branch, so
+</I>&gt;<i> we can omit this path when merging.
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> Test it and tell me If you're agree with this approach ...
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> You're doing two things there:
+</I>&gt;<i>  * XML-config
+</I>&gt;<i>  * structured config (tree view)
+</I>&gt;<i>
+</I>&gt;<i> I like the XML-config-approach with the xincludes. Perhaps it should be
+</I>&gt;<i> more general (like putting the current array into XML) to avoid a too
+</I>&gt;<i> complex config-class. The less special elemente the less complex the
+</I>&gt;<i> config-class should be.
+</I>&gt;<i>
+</I>&gt;<i> With the host-approach I'm not sure. Currently I'm thinking of something
+</I>&gt;<i> different. The problem with your approach is, that it aims to fix one
+</I>&gt;<i> special problem, it's useable if you want to put your graphs into a
+</I>&gt;<i> host-bases tree-view. But if you want to use the controlled service (or
+</I>&gt;<i> used source) it is even more unstructured than the current graph-format.
+</I>&gt;<i> Besides it alters the complete config-format, so all scripts would need
+</I>&gt;<i> an update/rewrite.
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>I'm agree with you ...
+to implement the demo, I've updated lots of your file :(
+
+&gt;<i> So I'm thinking of having something like a list of categories for each
+</I>&gt;<i> graph (not source). Example:
+</I>&gt;<i> $config['list'][] = array(
+</I>&gt;<i> 	'title' =&gt; 'test',
+</I>&gt;<i> 	'categories' =&gt; array(
+</I>&gt;<i> 		'host' =&gt; '127.0.0.1',
+</I>&gt;<i> 		'service' =&gt; 'http', // example: HTTP-ping
+</I>&gt;<i> 		'impact' =&gt; 'important',
+</I>&gt;<i> 		'foobar' =&gt; 'barfoo'
+</I>&gt;<i> 	),
+</I>&gt;<i> 	...
+</I>&gt;<i> );
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>sound goods :)
+&gt;<i> Now it would be possible to filter the listed graphs using these
+</I>&gt;<i> categories: index.php?filter=host:127.0.0.1
+</I>&gt;<i> You can combine this to filter using two or more categories:
+</I>&gt;<i> index.php?filter=host:127.0.0.1,service:http
+</I>&gt;<i> It would also be possible to reverse the filter:
+</I>&gt;<i> index.php?filter=host:127.0.0.1,!service:http
+</I>&gt;<i>
+</I>&gt;<i> So with this categories you could filter your graphs as complex as you
+</I>&gt;<i> may want, but keep the current config-format.
+</I>&gt;<i>
+</I>&gt;<i> But, we don't have any tree, let's see:
+</I>&gt;<i> $config['tree'] = array(
+</I>&gt;<i> 	'title' =&gt; 'foobar',
+</I>&gt;<i> 	'filter' =&gt; '', // default: no filter (or 'none' for no graphs)
+</I>&gt;<i> 	'sub' =&gt; array(
+</I>&gt;<i> 		array(
+</I>&gt;<i> 			'title' =&gt; 'localhost',
+</I>&gt;<i> 			'filter' =&gt; 'host:127.0.0.1',
+</I>&gt;<i> 			'sub' =&gt; array(
+</I>&gt;<i> 				array(
+</I>&gt;<i> 					'title' =&gt; 'Read this!',
+</I>&gt;<i> 					'filter' =&gt; 'host:127.0.0.1,impact:important',
+</I>&gt;<i> 				)
+</I>&gt;<i> 			)
+</I>&gt;<i> 		),
+</I>&gt;<i> 		array(
+</I>&gt;<i> 			'title' =&gt; 'some_host',
+</I>&gt;<i> 			'filter' =&gt; 'host:12.34.56.78'
+</I>&gt;<i> 		),
+</I>&gt;<i> 		...
+</I>&gt;<i> 	)
+</I>&gt;<i> );
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>I like the idea ... seems like  ldap filter approach :)
+&gt;<i> The parameter could look like this:
+</I>&gt;<i>  * index.php?tree=0 (only localhost)
+</I>&gt;<i>  * index.php?tree=0,0 (important localhost)
+</I>&gt;<i>
+</I>&gt;<i> Of cource, this can be done using XML, too. But I think writing this in
+</I>&gt;<i> the current config is more appropriate.
+</I>&gt;<i>
+</I>&gt;<i> Greetings, David Danier
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000087.html">[Serverstats-devel] XML File parse demo ...
+</A></li>
+	<LI>Next message: <A HREF="000090.html">[Serverstats-devel] XML File parse demo ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#89">[ date ]</a>
+              <a href="thread.html#89">[ thread ]</a>
+              <a href="subject.html#89">[ subject ]</a>
+              <a href="author.html#89">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

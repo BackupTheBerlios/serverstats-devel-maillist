@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] segfault in cpu.php + workaround, please confirm
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2008-February/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20segfault%20in%20cpu.php%20%2B%20workaround%2C%20please%20confirm&In-Reply-To=%3C47B9D687.2050109%40christianroessler.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] segfault in cpu.php + workaround, please confirm</H1>
+    <B>Christian R&#246;&#223;ler</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20segfault%20in%20cpu.php%20%2B%20workaround%2C%20please%20confirm&In-Reply-To=%3C47B9D687.2050109%40christianroessler.net%3E"
+       TITLE="[Serverstats-devel] segfault in cpu.php + workaround, please confirm">christian at christianroessler.net
+       </A><BR>
+    <I>Mon Feb 18 20:03:35 CET 2008</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#145">[ date ]</a>
+              <a href="thread.html#145">[ thread ]</a>
+              <a href="subject.html#145">[ subject ]</a>
+              <a href="author.html#145">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>after migrating to a new server i encountered some issues with serverstat.
+
+affected version:  0.8.2   downloaded at 2008-02-18
+rrd-source:    sources/cpu.php
+function:   getStats()   (private)
+php:  5.2.3, 64bit
+os:  ubuntu 7.10, latest + fresh install, default configuration
+cpu's:  dual-core athlon64 X2 6000+
+
+this function causes an segmentation fault when preg-matching the 
+current line of the /proc/stat output.
+i could not determine why this happend, so i wrote a simple workaround 
+for this. please confirm that issue if you can.
+the segfault happens when preg_matching the 4th (arrayindex 3) line 
+beginning with 'intr 25...'   which seems to be a bit long for 
+preg_match. does this cause an overflow?
+
+below my noobish-workaround. i'm still checking if everything works now.
+
+i hope someone can verify that.
+
+...
+...
+foreach ($lines as $line)
+{
+          if(strlen($line) &gt; 0 AND strlen($line) &lt; 100)  // my simple 
+length-check workaround
+               if (preg_match('/^([a-zA-Z0-9]*)((\s+([0-9]+))+)\s*$/i', 
+$line, $parts))   // a tooo long $line causes an segfault!
+               {
+                       $key = strtolower($parts[1]);
+...
+...
+
+
+
+------
+
+output of /proc/stat that the function will go through line for line:
+
+shell&gt;  cat /proc/stat
+cpu  17410 0 7745 50343318 6770 262 699 0
+cpu0 6701 0 3370 25176151 1488 0 429 0
+cpu1 10709 0 4375 25167167 5282 262 270 0
+intr 25682404 25306759 32 0 0 0 0 0 0 0 0 0 0 4 0 0 0 1 2 2 320045 0 
+55559 0 0 0 0 0 ... plus ~500 zeros or more...
+ctxt 2608414
+btime 1203106985
+processes 27036
+procs_running 1
+procs_blocked 0
+
+
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#145">[ date ]</a>
+              <a href="thread.html#145">[ thread ]</a>
+              <a href="subject.html#145">[ subject ]</a>
+              <a href="author.html#145">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

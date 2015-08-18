@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r84 - trunk/doc
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r84%20-%20trunk/doc&In-Reply-To=%3C200512210038.jBL0cNRk025716%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000000.html">
+   <LINK REL="Next"  HREF="000002.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r84 - trunk/doc</H1>
+    <B>andreask at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r84%20-%20trunk/doc&In-Reply-To=%3C200512210038.jBL0cNRk025716%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r84 - trunk/doc">andreask at berlios.de
+       </A><BR>
+    <I>Wed Dec 21 01:38:23 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000000.html">[Serverstats-devel] r83 - trunk
+</A></li>
+        <LI>Next message: <A HREF="000002.html">[Serverstats-devel] r85 - trunk/doc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: andreask
+Date: 2005-12-21 01:37:54 +0100 (Wed, 21 Dec 2005)
+New Revision: 84
+
+Modified:
+   trunk/doc/graph-config.txt
+Log:
+added more description about sources, corrected some errors
+
+Modified: trunk/doc/graph-config.txt
+===================================================================
+--- trunk/doc/graph-config.txt	2005-12-20 23:32:09 UTC (rev 83)
++++ trunk/doc/graph-config.txt	2005-12-21 00:37:54 UTC (rev 84)
+@@ -31,38 +31,55 @@
+   of the used parameters.
+ 
+   ---------------------------------------------------------------------------
+-  
++
+   Settings in config/sources.php (for data sources 'load' and 'users'):
+-  
++
+     $config = array(); // this line is only needed once in this file
+     $config['load']['module'] = new load();
+-    $config['load']['rra'] = 'default';
+     $config['users']['module'] = new users();
+-    $config['users']['rra'] = 'default';
+ 
+-  Explaination:
++  Explanation:
+ 
+   For every source you have to enter the following:
+ 
+     $config[&lt;name&gt;]['module'] = new &lt;sourcemodulname&gt;([parameters]);
+-    $config[&lt;name&gt;]['rra'] = 'default';
+-  
++
+   &lt;sourcemodulname&gt; is a class in sources/ directory, which is used to collect
+-  the data. Serverstats ships with a lot of sources, we will use 
++  the data. serverstats ships with a lot of sources, we will use 
+   sources/load.php and sources/users.php in this guide, because they don't need
+   any additional configuration to work.
+-   
++
+   For information on how to set up sources for Traffic, Apache requests/s, ...
+   have a lock at doc/sources.txt.
+ 
+   Available [parameters] can be found in __construct() methode 
+-  in sources/&lt;sourcemodulname&gt;.php and in doc/sources.txt. For 'load' and
+-  'users' no additional parameters are available (or needed).
++  in sources/&lt;sourcemodulname&gt;.php and in doc/sources.txt. An example line from
++  sources/disk.php:
+ 
++    public function __construct($disk, $withpartitions = false,
++        $sector_size = 512, $path_stat = '/proc/diskstats')
++
++  here $disk is a mandatory parameter (e.g. 'hda'), all the other partameters
++  have default values like $path_stat = '/proc/diskstats' which don't need to
++  be changed if the default is OK. So the line in config/sources.php for the
++  disk source could look like this:
++
++    $config['disk']['module'] = new disk('hda');
++
++  If you have a &quot;sector size&quot; of 1024 and not the default 512, you have to pass
++  something like that: 
++
++    $config['disk']['module'] = new disk('hdb', false, 1024);
++
++  The parameters are explained in doc/sources.txt in detail. If a parameter has
++  no default value, it must be provided in config/sources.php.
++
++  For 'load' and 'users' no additional parameters are available (or needed).
++
+   ---------------------------------------------------------------------------
+ 
+   Example for settings in config/graph.php
+-  
++
+   (for only two graphs from data source 'load' and 'users'):
+ 
+     $config['list'] = array(
+@@ -117,7 +134,7 @@
+             )
+     );
+ 
+-  Explaination:
++  Explanation:
+ 
+     $config['list']
+ 
+@@ -129,7 +146,7 @@
+     $config['list'][0]
+ 
+   the first graph, in this case 'Number of User logged in'.
+-  
++
+   Settings in element 'content':
+ 
+     * 'type' - that's the Typ of graph (line, area..., see:
+@@ -176,7 +193,7 @@
+       see: <A HREF="http://people.ee.ethz.ch/oetiker/webtools/rrdtool/doc/rrdtool.en.html#item_consolidation">http://people.ee.ethz.ch/oetiker/webtools/rrdtool/doc/rrdtool.en.html#item_consolidation</A>
+ 
+     * 'legend' (optional) - that's the legend displayed below the graph
+-    
++
+       - if you want to display ':' you have to escape it (&quot;:&quot; -&gt; &quot;\:&quot;)
+       - you get new lines using &quot;\n&quot;  (see 'man rrdgraph')
+ 
+@@ -196,10 +213,8 @@
+ ===============================================================================
+ 
+   More complex, working examples can be found in config.sample/.
+-  
++
+   A more advanced configuration with a lot of nice graphs can be found here:
+ 
+ 	* demo -&gt; <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/demo/">http://www.webmasterpro.de/~ddanier/serverstats/demo/</A>
+ 	* config -&gt; <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/graph_example.phps">http://www.webmasterpro.de/~ddanier/serverstats/graph_example.phps</A>
+-
+-
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000000.html">[Serverstats-devel] r83 - trunk
+</A></li>
+	<LI>Next message: <A HREF="000002.html">[Serverstats-devel] r85 - trunk/doc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

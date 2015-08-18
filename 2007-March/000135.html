@@ -1,0 +1,262 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r165 - in trunk: includes sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2007-March/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r165%20-%20in%20trunk%3A%20includes%20sources&In-Reply-To=%3C200703151030.l2FAUIjM006782%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r165 - in trunk: includes sources</H1>
+    <B>goliath at mail.berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r165%20-%20in%20trunk%3A%20includes%20sources&In-Reply-To=%3C200703151030.l2FAUIjM006782%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r165 - in trunk: includes sources">goliath at mail.berlios.de
+       </A><BR>
+    <I>Thu Mar 15 11:30:18 CET 2007</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#135">[ date ]</a>
+              <a href="thread.html#135">[ thread ]</a>
+              <a href="subject.html#135">[ subject ]</a>
+              <a href="author.html#135">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2007-03-15 11:30:16 +0100 (Thu, 15 Mar 2007)
+New Revision: 165
+
+Modified:
+   trunk/includes/rrd.class.php
+   trunk/sources/cpu.php
+Log:
+ * Added ability to store more values of /proc/stat to the cpu-source
+   (interrupts, context switches, uptime, processes (abs), processes running and processes blocking)
+ * rrd-class Exception now includes datasource name when datasource is unknow
+
+
+Modified: trunk/includes/rrd.class.php
+===================================================================
+--- trunk/includes/rrd.class.php	2006-10-21 20:05:20 UTC (rev 164)
++++ trunk/includes/rrd.class.php	2007-03-15 10:30:16 UTC (rev 165)
+@@ -390,7 +390,7 @@
+ 	{
+ 		if (!isset($this-&gt;values[$dsname]))
+ 		{
+-			throw new Exception('Datasource unknown or computed');
++			throw new Exception('Datasource &quot;' . $dsname . '&quot; unknown or computed');
+ 		}
+ 		if ($this-&gt;values[$dsname] != 'U')
+ 		{
+
+Modified: trunk/sources/cpu.php
+===================================================================
+--- trunk/sources/cpu.php	2006-10-21 20:05:20 UTC (rev 164)
++++ trunk/sources/cpu.php	2007-03-15 10:30:16 UTC (rev 165)
+@@ -28,7 +28,7 @@
+ {
+ 	private $path_stat;
+ 	
+-	private $fieldList = array(
++	private $cpuFieldList = array(
+ 		'user',
+ 		'nice',
+ 		'system',
+@@ -37,10 +37,26 @@
+ 		'irq',
+ 		'softirq'
+ 	);
++	private $sysFieldList = array(
++		'intr',
++		'ctxt',
++		'processes',
++		'procs_running',
++		'procs_blocked'
++	);
++	private $sysFieldListPs = array(
++		'intr',
++		'ctxt',
++		'processes',
++	);
++	private $uptimeField = 'btime';
+ 	
+-	private $stats;
+-	private $oldstats;
++	private $cpuStats;
++	private $sysStats;
++	private $uptime;
+ 	
++	private $oldCpuStats;
++	
+ 	public function __construct($path_stat = '/proc/stat')
+ 	{
+ 		$this-&gt;path_stat = $path_stat;
+@@ -54,26 +70,35 @@
+ 	public function initRRD(rrd $rrd)
+ 	{
+ 		$this-&gt;getStats();
+-		foreach ($this-&gt;stats as $cpu =&gt; $values)
++		foreach ($this-&gt;cpuStats as $cpu =&gt; $values)
+ 		{
+ 			foreach ($values as $key =&gt; $value)
+ 			{
+ 				$rrd-&gt;addDatasource($cpu . '_' . $key, 'GAUGE', null, 0, 100);
+ 			}
+ 		}
++		foreach ($this-&gt;sysFieldList as $key)
++		{
++			$rrd-&gt;addDatasource($key, 'GAUGE', null, 0);
++			if (in_array($key, $this-&gt;sysFieldListPs))
++			{
++				$rrd-&gt;addDatasource($key . '_ps', 'DERIVE', null, 0);
++			}
++		}
++		$rrd-&gt;addDatasource('uptime', 'GAUGE', null, 0);
+ 	}
+ 	
+ 	public function fetchValues()
+ 	{
+ 		$returnValues = array();
+-		foreach ($this-&gt;stats as $cpu =&gt; $values)
++		foreach ($this-&gt;cpuStats as $cpu =&gt; $values)
+ 		{
+ 			$cpuUsage = array();
+ 			foreach ($values as $key =&gt; $value)
+ 			{
+-				if (isset($this-&gt;oldstats[$cpu][$key]))
++				if (isset($this-&gt;oldCpuStats[$cpu][$key]))
+ 				{
+-					$cpuUsage[$key] = $value - $this-&gt;oldstats[$cpu][$key];
++					$cpuUsage[$key] = $value - $this-&gt;oldCpuStats[$cpu][$key];
+ 				}
+ 				else
+ 				{
+@@ -90,12 +115,21 @@
+ 				}
+ 			}
+ 		}
++		foreach ($this-&gt;sysStats as $key =&gt; $value)
++		{
++			$returnValues[$key] = $value;
++			if (in_array($key, $this-&gt;sysFieldListPs))
++			{
++				$returnValues[$key . '_ps'] = $value;
++			}
++		}
++		$returnValues['uptime'] = $this-&gt;uptime;
+ 		return $returnValues;
+ 	}
+ 	
+ 	private function getStats()
+ 	{
+-		if (isset($this-&gt;stats))
++		if (isset($this-&gt;cpuStats) &amp;&amp; isset($this-&gt;sysStats) &amp;&amp; isset($this-&gt;uptime))
+ 		{
+ 			return;
+ 		}
+@@ -105,23 +139,39 @@
+ 			throw new Exception('Could not read &quot;' . $this-&gt;path_stat . '&quot;');
+ 		}
+ 		
+-		$this-&gt;stats = array();
++		$this-&gt;cpuStats = array();
++		$this-&gt;sysStats = array();
+ 		foreach ($lines as $line)
+ 		{
+-			if (preg_match('/^(cpu[0-9]*)((\s+([0-9]+))+)\s*$/i', $line, $parts))
++			if (preg_match('/^([a-zA-Z0-9]*)((\s+([0-9]+))+)\s*$/i', $line, $parts))
+ 			{
+-				$this-&gt;stats[$parts[1]] = array();
+-				$cpustats = preg_split('/\s+/', trim($parts[2]));
+-				$i = 0;
+-				foreach ($this-&gt;fieldList as $fieldName)
++				$key = strtolower($parts[1]);
++				$value = trim($parts[2]);
++				if (preg_match('/^cpu[0-9]*$/i', $key))
+ 				{
+-					if (!isset($cpustats[$i]))
++					$this-&gt;cpuStats[$key] = array();
++					$line_cpustats = preg_split('/\s+/', $value);
++					$i = 0;
++					foreach ($this-&gt;cpuFieldList as $fieldName)
+ 					{
+-						break;
++						if (!isset($line_cpustats[$i]))
++						{
++							break;
++						}
++						$this-&gt;cpuStats[$key][$fieldName] = $line_cpustats[$i];
++						$i++;
+ 					}
+-					$this-&gt;stats[$parts[1]][$fieldName] = $cpustats[$i];
+-					$i++;
+ 				}
++				elseif (in_array($key, $this-&gt;sysFieldList))
++				{
++					// intval() converts &quot;123 456&quot; to int(123), so we don't have
++					// to do anything special for &quot;intr&quot;
++					$this-&gt;sysStats[$key] = intval($value);
++				}
++				elseif ($key == $this-&gt;uptimeField)
++				{
++					$this-&gt;uptime = time() - intval($value);
++				}
+ 			}
+ 		}
+ 	}
+@@ -129,18 +179,18 @@
+ 	public function initCache()
+ 	{
+ 		$this-&gt;getStats();
+-		$this-&gt;oldstats = $this-&gt;stats;
++		$this-&gt;oldCpuStats = $this-&gt;cpuStats;
+ 	}
+ 	
+ 	public function loadCache($cachedata)
+ 	{
+-		$this-&gt;oldstats = $cachedata['stats'];
++		$this-&gt;oldCpuStats = $cachedata['cpuStats'];
+ 	}
+ 	
+ 	public function getCache()
+ 	{
+ 		return array(
+-			'stats' =&gt; $this-&gt;stats,
++			'cpuStats' =&gt; $this-&gt;cpuStats,
+ 		);
+ 	}
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#135">[ date ]</a>
+              <a href="thread.html#135">[ thread ]</a>
+              <a href="subject.html#135">[ subject ]</a>
+              <a href="author.html#135">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

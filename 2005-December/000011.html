@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] Re: Serverstats 0.8
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Re%3A%20Serverstats%200.8&In-Reply-To=%3C43AC78A9.2080705%40team23.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000007.html">
+   <LINK REL="Next"  HREF="000008.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] Re: Serverstats 0.8</H1>
+    <B>David Danier</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Re%3A%20Serverstats%200.8&In-Reply-To=%3C43AC78A9.2080705%40team23.de%3E"
+       TITLE="[Serverstats-devel] Re: Serverstats 0.8">david.danier at team23.de
+       </A><BR>
+    <I>Fri Dec 23 23:22:33 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000007.html">[Serverstats-devel] Re: Serverstats 0.8
+</A></li>
+        <LI>Next message: <A HREF="000008.html">[Serverstats-devel] r90 - trunk/sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#11">[ date ]</a>
+              <a href="thread.html#11">[ thread ]</a>
+              <a href="subject.html#11">[ subject ]</a>
+              <a href="author.html#11">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> Wieso? Dasselbe Problem hast Du doch auch bei den Graphen. Jede
+</I>&gt;<i> &quot;datasource&quot; hat doch einen eindeutigen Namen. Den w&#252;rde ich einfach
+</I>&gt;<i> verwenden!
+</I>&gt;<i> Das hei&#223;t, in dem Moment wenn Du einen Wert in die RRD-Datei schreibst,
+</I>&gt;<i> w&#252;rde ich den Monitor aufrufen, also irgendeinen Hook in RRD::setValue()
+</I>&gt;<i> z.B.
+</I>
+Genau da will ichs eigentlich nicht haben, da die RRD-Klasse nichts mit
+dem Monitoring zu tun hat.
+
+Bleiben 3 M&#246;glichkeiten:
+1. Man hat eine Klasse bei der &#228;hnlich wie bei der RRD-Klasse die Werte
+eingetragen werden und dann gepr&#252;ft werden.
+2. Alle Sourcen bieten die M&#246;glichkeit an ihre Werte abzurufen (z.B.
+getValue(&quot;bytesps&quot;)), das wird zum Monitoring benutzt
+3. Die Source-Klasse selbst erledigt das Monitoring, update.php pr&#252;ft ob
+Warnungen aufgetreten sind und holt sie gegebenenfalls ab.
+
+&gt;&gt;<i>Mein Releaseplan schaut derzeit wie folgt aus:
+</I>&gt;&gt;<i>0.8: Monitoring, Ping-Sourcen
+</I>&gt;&gt;<i>0.9: Bugfixes, alles stabilisieren (falls n&#246;tig?), nochmal durchdenken,
+</I>&gt;&gt;<i>     ob alles so passt und benutzbar ist, evtl. neue Sources
+</I>&gt;&gt;<i>1.0: Doku nochmal &#252;berarbeiten (z.B. eine Doku, wie man Sourcen
+</I>&gt;&gt;<i>     schreibt), letzte Bugfixes, API dokumentieren und einfrieren
+</I>
+Zu 0.9:
+Eine SNMP-Source w&#252;rde da noch anstehen. ;-)
+
+&gt;<i> Ein bisschen Quellcode-Dokumentation w&#228;re auch nicht schlecht ;-)
+</I>
+Klar, wenn die API dann freezed ist.
+(Ich mag Doku nicht, die man st&#228;ndig mit&#228;ndern muss)
+
+&#220;brigens hab ich die ping-Source aktualisiert und eine ping-Source f&#252;r
+Dienste (ping_service) hinzugef&#252;gt. Bei zweiterem bin ich mir noch
+unsicher, ob das nicht noch besser geht. ;-)
+
+Desweiteren &#252;berleg ich die commits an eine separate Mailinglist zu
+schicken. Was h&#228;ltst du davon? Find das etwas chaotisch wie es jetzt ist....
+(serverstats-commit(s) oder so)
+
+Viele Gr&#252;&#223;e, David Danier
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 256 bytes
+Desc: OpenPGP digital signature
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/serverstats-devel/attachments/20051223/d9c4bd93/attachment.pgp">https://lists.berlios.de/pipermail/serverstats-devel/attachments/20051223/d9c4bd93/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000007.html">[Serverstats-devel] Re: Serverstats 0.8
+</A></li>
+	<LI>Next message: <A HREF="000008.html">[Serverstats-devel] r90 - trunk/sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#11">[ date ]</a>
+              <a href="thread.html#11">[ thread ]</a>
+              <a href="subject.html#11">[ subject ]</a>
+              <a href="author.html#11">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

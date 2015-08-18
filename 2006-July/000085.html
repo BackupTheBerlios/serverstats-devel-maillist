@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r138 - in branches/xmlconfig/config.sample/xml: . hosts templates
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r138%20-%20in%20branches/xmlconfig/config.sample/xml%3A%20.%20hosts%20templates&In-Reply-To=%3C200607021815.k62IFuCq003798%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000084.html">
+   <LINK REL="Next"  HREF="000088.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r138 - in branches/xmlconfig/config.sample/xml: . hosts templates</H1>
+    <B>scramatte at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r138%20-%20in%20branches/xmlconfig/config.sample/xml%3A%20.%20hosts%20templates&In-Reply-To=%3C200607021815.k62IFuCq003798%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r138 - in branches/xmlconfig/config.sample/xml: . hosts templates">scramatte at berlios.de
+       </A><BR>
+    <I>Sun Jul  2 20:15:56 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000084.html">[Serverstats-devel] r137 - trunk/config.sample
+</A></li>
+        <LI>Next message: <A HREF="000088.html">[Serverstats-devel] XmlConfig + Ajax demo ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#85">[ date ]</a>
+              <a href="thread.html#85">[ thread ]</a>
+              <a href="subject.html#85">[ subject ]</a>
+              <a href="author.html#85">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: scramatte
+Date: 2006-07-02 20:15:46 +0200 (Sun, 02 Jul 2006)
+New Revision: 138
+
+Added:
+   branches/xmlconfig/config.sample/xml/config.xml
+   branches/xmlconfig/config.sample/xml/hosts/
+   branches/xmlconfig/config.sample/xml/hosts/host1.xml
+   branches/xmlconfig/config.sample/xml/hosts/switch1.xml
+   branches/xmlconfig/config.sample/xml/templates/
+   branches/xmlconfig/config.sample/xml/templates/hp_memory.xml
+   branches/xmlconfig/config.sample/xml/templates/ucd_snmp_load.xml
+   branches/xmlconfig/config.sample/xml/templates/ucd_snmp_memory.xml
+Removed:
+   branches/xmlconfig/config.sample/xml/zone1/
+Log:
+Add some xml files for xmlconfig test
+
+Added: branches/xmlconfig/config.sample/xml/config.xml
+===================================================================
+--- branches/xmlconfig/config.sample/xml/config.xml	2006-07-02 17:59:56 UTC (rev 137)
++++ branches/xmlconfig/config.sample/xml/config.xml	2006-07-02 18:15:46 UTC (rev 138)
+@@ -0,0 +1,9 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
++&lt;group xmlns=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;  &gt;
++	&lt;label&gt;serverstats 0.8&lt;/label&gt;
++	&lt;group&gt;
++		&lt;label&gt;Zone 1&lt;/label&gt;
++		&lt;xi:include href=&quot;hosts/host1.xml&quot; /&gt;
++		&lt;xi:include href=&quot;hosts/switch1.xml&quot; /&gt;
++	&lt;/group&gt;	
++&lt;/group&gt;
+\ No newline at end of file
+
+Added: branches/xmlconfig/config.sample/xml/hosts/host1.xml
+===================================================================
+--- branches/xmlconfig/config.sample/xml/hosts/host1.xml	2006-07-02 17:59:56 UTC (rev 137)
++++ branches/xmlconfig/config.sample/xml/hosts/host1.xml	2006-07-02 18:15:46 UTC (rev 138)
+@@ -0,0 +1,54 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
++&lt;host id=&quot;host1&quot; hostname=&quot;192.168.0.10&quot; xmlns=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot;  xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot; &gt;			
++	&lt;label&gt;Host 1&lt;/label&gt;
++	&lt;sources&gt;
++			&lt;xi:include href=&quot;../templates/ucd_snmp_memory.xml&quot; id=&quot;src1&quot; /&gt;
++			&lt;xi:include href=&quot;../templates/ucd_snmp_load.xml&quot; id=&quot;src2&quot;  /&gt;
++	&lt;/sources&gt;
++	&lt;graphs&gt;
++			&lt;graph&gt;
++				&lt;param name=&quot;title&quot;&gt;Load&lt;/param&gt;
++				&lt;param name=&quot;lowerLimit&quot;&gt;0&lt;/param&gt;
++				&lt;param name=&quot;altAutoscaleMax&quot;&gt;true&lt;/param&gt;
++				&lt;param name=&quot;content&quot; xsi:type=&quot;xsd:array&quot;&gt;
++						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
++							&lt;param name=&quot;type&quot;&gt;COMMENT&lt;/param&gt;
++							&lt;param name=&quot;text&quot;&gt;average number of tasks in the queue:&lt;/param&gt;
++						&lt;/param&gt;
++						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
++							&lt;param name=&quot;type&quot;&gt;LINE&lt;/param&gt;
++							&lt;param name=&quot;source&quot;&gt;load&lt;/param&gt;
++							&lt;param name=&quot;ds&quot;&gt;1min&lt;/param&gt;
++							&lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
++							&lt;param name=&quot;legend&quot;&gt;1 minute&lt;/param&gt;
++							&lt;param name=&quot;width&quot;&gt;1&lt;/param&gt;
++							&lt;param name=&quot;color&quot;&gt;FFDD00&lt;/param&gt;
++						&lt;/param&gt;
++						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
++							&lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
++							&lt;param name=&quot;name&quot;&gt;load_1min&lt;/param&gt;
++							&lt;param name=&quot;cf&quot;&gt;LAST&lt;/param&gt;
++							&lt;param name=&quot;format&quot;&gt;  cur\: %01.2lf&lt;/param&gt;
++						&lt;/param&gt;
++						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
++							&lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
++							&lt;param name=&quot;name&quot;&gt;load_1min&lt;/param&gt;
++							&lt;param name=&quot;cf&quot;&gt;MAXIMUM&lt;/param&gt;
++							&lt;param name=&quot;format&quot;&gt;  max\: %01.2lf&lt;/param&gt;
++						&lt;/param&gt;
++						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
++							&lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
++							&lt;param name=&quot;name&quot;&gt;load_1min&lt;/param&gt;
++							&lt;param name=&quot;cf&quot;&gt;MINIMUM&lt;/param&gt;
++							&lt;param name=&quot;format&quot;&gt;  min\: %01.2lf&lt;/param&gt;
++						&lt;/param&gt;
++						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
++							&lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
++							&lt;param name=&quot;name&quot;&gt;load_1min&lt;/param&gt;
++							&lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
++							&lt;param name=&quot;format&quot;&gt;  avg\: %01.2lf&lt;/param&gt;
++						&lt;/param&gt;
++				&lt;/param&gt;
++			&lt;/graph&gt;
++	&lt;/graphs&gt;
++&lt;/host&gt;
+\ No newline at end of file
+
+Added: branches/xmlconfig/config.sample/xml/hosts/switch1.xml
+===================================================================
+--- branches/xmlconfig/config.sample/xml/hosts/switch1.xml	2006-07-02 17:59:56 UTC (rev 137)
++++ branches/xmlconfig/config.sample/xml/hosts/switch1.xml	2006-07-02 18:15:46 UTC (rev 138)
+@@ -0,0 +1,7 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
++&lt;host id=&quot;switch2&quot; hostname=&quot;192.168.0.6&quot; xmlns=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot;&gt; 	
++	&lt;label&gt;switch hp procurve 2626 #1&lt;/label&gt;
++	&lt;sources&gt;
++			&lt;xi:include href=&quot;../templates/hp_memory.xml&quot; /&gt;
++	&lt;/sources&gt;
++&lt;/host&gt;
+\ No newline at end of file
+
+Added: branches/xmlconfig/config.sample/xml/templates/hp_memory.xml
+===================================================================
+--- branches/xmlconfig/config.sample/xml/templates/hp_memory.xml	2006-07-02 17:59:56 UTC (rev 137)
++++ branches/xmlconfig/config.sample/xml/templates/hp_memory.xml	2006-07-02 18:15:46 UTC (rev 138)
+@@ -0,0 +1,7 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
++&lt;source type=&quot;snmp&quot; xmlns=&quot;urn:serverstats&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;&gt;
++           &lt;param name=&quot;comunity&quot;&gt;public&lt;/param&gt;
++           &lt;param name=&quot;objects&quot; xsi:type=&quot;xsd:array&quot;&gt;
++             &lt;param name=&quot;1mn&quot;&gt;UCD-SNMP-MIB::laLoad.1&lt;/param&gt;
++           &lt;/param&gt;
++&lt;/source&gt;
+\ No newline at end of file
+
+Added: branches/xmlconfig/config.sample/xml/templates/ucd_snmp_load.xml
+===================================================================
+--- branches/xmlconfig/config.sample/xml/templates/ucd_snmp_load.xml	2006-07-02 17:59:56 UTC (rev 137)
++++ branches/xmlconfig/config.sample/xml/templates/ucd_snmp_load.xml	2006-07-02 18:15:46 UTC (rev 138)
+@@ -0,0 +1,7 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
++&lt;source type=&quot;snmp&quot; xmlns=&quot;urn:serverstats&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;&gt;
++           &lt;param name=&quot;comunity&quot;&gt;public&lt;/param&gt;
++           &lt;param name=&quot;objects&quot; xsi:type=&quot;xsd:array&quot;&gt;
++             &lt;param name=&quot;1mn&quot;&gt;UCD-SNMP-MIB::laLoad.1&lt;/param&gt;
++           &lt;/param&gt;
++&lt;/source&gt;
+\ No newline at end of file
+
+Added: branches/xmlconfig/config.sample/xml/templates/ucd_snmp_memory.xml
+===================================================================
+--- branches/xmlconfig/config.sample/xml/templates/ucd_snmp_memory.xml	2006-07-02 17:59:56 UTC (rev 137)
++++ branches/xmlconfig/config.sample/xml/templates/ucd_snmp_memory.xml	2006-07-02 18:15:46 UTC (rev 138)
+@@ -0,0 +1,8 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
++&lt;source type=&quot;snmp&quot; xmlns=&quot;urn:serverstats&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;&gt;
++           &lt;param name=&quot;comunity&quot;&gt;public&lt;/param&gt;
++           &lt;param name=&quot;objects&quot; xsi:type=&quot;xsd:array&quot;&gt;
++           	 &lt;param name=&quot;memtotal&quot;&gt;UCD-SNMP-MIB::memTotalReal.0&lt;/param&gt;
++             &lt;param name=&quot;memfree&quot;&gt;UCD-SNMP-MIB::memAvailReal.0&lt;/param&gt;
++           &lt;/param&gt;
++&lt;/source&gt;
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000084.html">[Serverstats-devel] r137 - trunk/config.sample
+</A></li>
+	<LI>Next message: <A HREF="000088.html">[Serverstats-devel] XmlConfig + Ajax demo ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#85">[ date ]</a>
+              <a href="thread.html#85">[ thread ]</a>
+              <a href="subject.html#85">[ subject ]</a>
+              <a href="author.html#85">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

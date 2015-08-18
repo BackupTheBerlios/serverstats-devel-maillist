@@ -1,0 +1,218 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r181 - trunk/sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2010-June/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r181%20-%20trunk/sources&In-Reply-To=%3C201006151132.o5FBWX9r017057%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000155.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r181 - trunk/sources</H1>
+    <B>p_michalczyk at BerliOS</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r181%20-%20trunk/sources&In-Reply-To=%3C201006151132.o5FBWX9r017057%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r181 - trunk/sources">p_michalczyk at mail.berlios.de
+       </A><BR>
+    <I>Tue Jun 15 13:32:33 CEST 2010</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000155.html">[Serverstats-devel] r182 - trunk/sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#154">[ date ]</a>
+              <a href="thread.html#154">[ thread ]</a>
+              <a href="subject.html#154">[ subject ]</a>
+              <a href="author.html#154">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: p_michalczyk
+Date: 2010-06-15 13:32:23 +0200 (Tue, 15 Jun 2010)
+New Revision: 181
+
+Added:
+   trunk/sources/apache_mod_cband.php
+Modified:
+   trunk/sources/postgresql.php
+Log:
+Added source for mod_cband module (without simpleconfig)
+
+Added: trunk/sources/apache_mod_cband.php
+===================================================================
+--- trunk/sources/apache_mod_cband.php	2010-05-28 15:19:29 UTC (rev 180)
++++ trunk/sources/apache_mod_cband.php	2010-06-15 11:32:23 UTC (rev 181)
+@@ -0,0 +1,114 @@
++&lt;?php
++/**
++ * $Id$
++ *
++ * Author: Piotr Michalczyk, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">piotr at michalczyk.pro</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
++ * License: GPL v2 or later (<A HREF="http://www.gnu.org/licenses/gpl.html">http://www.gnu.org/licenses/gpl.html</A>)
++ *
++ * Copyright (C) 2010 Piotr Michalczyk
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ *
++ *
++ * Requirements:
++ *
++ * In order to use this source you have to configure Apache/mod_cband
++ * like that:
++ *
++ * &lt;Location /cband-status&gt;
++ *     SetHandler cband-status
++ *     Order deny,allow
++ *     Deny from all
++ *     Allow from 127.0.0.1
++ * &lt;/Location&gt;
++ */
++
++class apache_mod_cband extends source implements source_rrd
++{
++	private $url_cbandstatus;
++	private $targets;
++	private $labels;
++	private $data;
++	
++	public function __construct($targets = array(), $url_cbandstatus = '<A HREF="http://localhost/cband-status?xml">http://localhost/cband-status?xml</A>')
++	{
++		foreach ($targets as $target) {
++			$this-&gt;labels[] = array(
++				$target.' bandwidth used' =&gt; $target.'_bused',
++				$target.' bandwidth slice' =&gt; $target.'_bslice',
++				$target.' bandwidth limit' =&gt; $target.'_blimit',
++				/* 'VHost bandwidth used' =&gt; 'vbandused',
++				'VHost bandwidth slice' =&gt; 'vbandslice',
++				'VHost bandwidth limit' =&gt; 'vbandlimit', */
++			);
++		}
++		
++		$this-&gt;url_cbandstatus = $url_cbandstatus;
++		$this-&gt;targets = $targets;
++	}
++	
++	public function refreshData()
++	{
++		if (($lines = @file($this-&gt;url_cbandstatus)) === false)
++		{
++			throw new Exception('Error while reading cband-status (perhaps file-access is forbidden, check \'allow_url_fopen\'?)');
++			return;
++		}
++		$status = new DOMDocument();
++		$status-&gt;loadXML(implode('', $lines));
++		foreach ($this-&gt;targets as $target) {
++			$elem = $status-&gt;getElementsByTagName($target);
++			//print($elem-&gt;item(0)-&gt;nodeValue);
++			if ($elem != null) {
++				$limits = $elem-&gt;item(0)-&gt;getElementsByTagName(&quot;limits&quot;);
++				$total = $limits-&gt;item(0)-&gt;getElementsByTagName(&quot;total&quot;);
++				$this-&gt;data[$target.'_blimit'] = ((int)$total-&gt;item(0)-&gt;nodeValue)*1024;
++				$this-&gt;data[$target.'_bslice'] = 0;
++				$usages = $elem-&gt;item(0)-&gt;getElementsByTagName(&quot;usages&quot;);
++				$total = $usages-&gt;item(0)-&gt;getElementsByTagName(&quot;total&quot;);
++				$this-&gt;data[$target.'_bused'] = ((int)$total-&gt;item(0)-&gt;nodeValue)*1024;
++				//print ((int)$total-&gt;item(0)-&gt;nodeValue)*1024;
++			} else {
++				$this-&gt;data[$target.'_blimit'] = 0;
++				$this-&gt;data[$target.'_bslice'] = 0;
++				$this-&gt;data[$target.'_bused'] = 0;
++			}
++		}
++	}
++	
++	public function initRRD(rrd $rrd)
++	{
++		foreach ($this-&gt;targets as $target)
++		{
++			$rrd-&gt;addDatasource($target.'_blimit', 'GAUGE');
++			$rrd-&gt;addDatasource($target.'_bslice', 'GAUGE');
++			$rrd-&gt;addDatasource($target.'_bused', 'DERIVE', null, 0);
++		}
++	}
++	
++	public function fetchValues()
++	{
++		$values = array();
++		foreach ($this-&gt;data as $dsname =&gt; $value)
++		{
++			$values[$dsname] = $value;
++			//print($dsname.&quot;: &quot;.$value);
++		}
++		return $values;
++	}
++}
++
++?&gt;
+
+Modified: trunk/sources/postgresql.php
+===================================================================
+--- trunk/sources/postgresql.php	2010-05-28 15:19:29 UTC (rev 180)
++++ trunk/sources/postgresql.php	2010-06-15 11:32:23 UTC (rev 181)
+@@ -21,6 +21,22 @@
+  * You should have received a copy of the GNU General Public License
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ *
++ * Requirements:
++ *
++ * In order to use this source You have to configure PostgreSQL server
++ * with following options:
++ *
++ * track_activities = true
++ * track_counts = true
++ *
++ * It is safer to use special user, different from 'postgres' for
++ * collecting PostgreSQL statistics. To create such user and give him
++ * necessary privileges execute following statements while logged in as
++ * superuser:
++ *
++ * CREATE USER serverstats WITH NOCREATEDB NOCREATEUSER ENCRYPTED PASSWORD 'password';
++ * GRANT SELECT ON pg_stat_activity TO serverstats;
+  */
+ 
+ class postgresql extends source implements source_rrd
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000155.html">[Serverstats-devel] r182 - trunk/sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#154">[ date ]</a>
+              <a href="thread.html#154">[ thread ]</a>
+              <a href="subject.html#154">[ subject ]</a>
+              <a href="author.html#154">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] simpleconfig.class.php
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-May/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20simpleconfig.class.php&In-Reply-To=%3C44684335.2050001%40spuetz.ath.cx%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000071.html">
+   <LINK REL="Next"  HREF="000074.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] simpleconfig.class.php</H1>
+    <B>Martin Spuetz</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20simpleconfig.class.php&In-Reply-To=%3C44684335.2050001%40spuetz.ath.cx%3E"
+       TITLE="[Serverstats-devel] simpleconfig.class.php">mas at spuetz.ath.cx
+       </A><BR>
+    <I>Mon May 15 11:00:37 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000071.html">[Serverstats-devel] r129 - in trunk: includes sources
+</A></li>
+        <LI>Next message: <A HREF="000074.html">[Serverstats-devel] simpleconfig.class.php
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#72">[ date ]</a>
+              <a href="thread.html#72">[ thread ]</a>
+              <a href="subject.html#72">[ subject ]</a>
+              <a href="author.html#72">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+mit dem Problem der $GLOBALS und dem Zend Optimizer, ich denke, es ist
+keine gute Idee, den globalen Namespace von PHP zu benutzen, zumindest
+nicht in der Art.
+
+Ich hab mir den Source jetzt nicht so genau angeschaut, aber du
+scheinst das $GLOBALS- Array per-copy an simpleconfig::graph zu
+&#252;bergeben, daran h&#228;ngt sich der Cache wahrscheinlich auf, ist auch
+verst&#228;ndlich ;)
+
+-public static function graph(&amp;$config, $simpleconfig)
++public static function graph(&amp;$config, &amp;$simpleconfig)
+
+hilft vielleicht schon (obwohl...das ist ja kein zeiger in php), oder
+du &#252;bergibst nur den Key des $GLOBALS- Arrays.
+
+
+        public static function graph(&amp;$config, $config_key)
+        {
+		
+                if (!$GLOBALS[$config_key]['used'])
+
+Pers&#246;nlich denke ich, dass es vielleicht besser w&#228;re, komplett auf den
+globalen Namespace zu verzichten und daf&#252;r ein Object mit singleton
+und ArrayAccess zu verwenden, so in der Art:
+
+$config = Serverstats_Config::getInstance();
+$config[&quot;list&quot;]...
+
+Damit h&#228;ttest du die gleiche funktionalit&#228;t, aber ohne den namespace
+zu verschmutzen.
+
+Beste Gr&#252;&#223;e,
+Martin
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000071.html">[Serverstats-devel] r129 - in trunk: includes sources
+</A></li>
+	<LI>Next message: <A HREF="000074.html">[Serverstats-devel] simpleconfig.class.php
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#72">[ date ]</a>
+              <a href="thread.html#72">[ thread ]</a>
+              <a href="subject.html#72">[ subject ]</a>
+              <a href="author.html#72">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

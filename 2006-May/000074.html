@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] simpleconfig.class.php
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-May/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20simpleconfig.class.php&In-Reply-To=%3C446847FE.1090300%40team23.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000072.html">
+   <LINK REL="Next"  HREF="000075.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] simpleconfig.class.php</H1>
+    <B>David Danier</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20simpleconfig.class.php&In-Reply-To=%3C446847FE.1090300%40team23.de%3E"
+       TITLE="[Serverstats-devel] simpleconfig.class.php">david.danier at team23.de
+       </A><BR>
+    <I>Mon May 15 11:21:02 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000072.html">[Serverstats-devel] simpleconfig.class.php
+</A></li>
+        <LI>Next message: <A HREF="000075.html">[Serverstats-devel] simpleconfig.class.php
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#74">[ date ]</a>
+              <a href="thread.html#74">[ thread ]</a>
+              <a href="subject.html#74">[ subject ]</a>
+              <a href="author.html#74">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Knapp zu sp&#228;t, ich antworte aber trotzdem nochmal mit Erkl&#228;rungen.
+
+&gt;<i> mit dem Problem der $GLOBALS und dem Zend Optimizer, ich denke, es ist
+</I>&gt;<i> keine gute Idee, den globalen Namespace von PHP zu benutzen, zumindest
+</I>&gt;<i> nicht in der Art.
+</I>
+Naja, das ist innerhalb eines Methodenaufrufes, weshalb der globale
+Namespace nicht verschmutzt wird. Die Variable $GLOBALS wird nur im
+Namespace dieser Methode ersetzt.
+
+&gt;<i> Ich hab mir den Source jetzt nicht so genau angeschaut, aber du
+</I>&gt;<i> scheinst das $GLOBALS- Array per-copy an simpleconfig::graph zu
+</I>&gt;<i> &#252;bergeben, daran h&#228;ngt sich der Cache wahrscheinlich auf, ist auch
+</I>&gt;<i> verst&#228;ndlich ;)
+</I>&gt;<i> 
+</I>&gt;<i> -public static function graph(&amp;$config, $simpleconfig)
+</I>&gt;<i> +public static function graph(&amp;$config, &amp;$simpleconfig)
+</I>
+Das ist nicht n&#246;tig, das $GLOBALS kein Array ist. $GLOBALS ist eine
+Instanz der Klasse config, die ArrayAccess anbietet. Um genau zu sein
+ist es genau die Instanz von config, die der Wurzel der Konfiguration
+entspricht.
+Da PHP seit Version 5 Objekte immer per Referenz &#252;bergibt w&#228;re das &quot;&amp;&quot;
+redundant.
+
+$config hingegen ist ein Array, der benutzt wird um die Konfiguration zu
+inizialisieren (die Klasse config l&#228;sst keinen Schreibzugriff, also
+keine &#196;nderungen an der Konfiguration zu). Dieser wird innerhalb der
+config-Klasse initialisiert und dann in der Konfigurationsdatei
+ver&#228;ndert. Beim Zugriff von au&#223;en wird jedes Array-Element in $config
+wieder &#252;ber die config-Klasse gakapselt.
+
+Den Namen $GLOBALS hatte ich gew&#228;hlt, da ich aus der Konfiguration den
+Zugriff auf $GLOBALS verbieten wollte und der Name f&#252;r die Wurzel der
+Konfiguration (also den Startpunkt, &#228;hnlich dem globalen Namespace)
+passend war (meine pers&#246;nliche Meinung). Allerdings wusste ich auch
+schon von Anfang an, dass man soetwas normalerweise nciht machen sollte,
+weshalb ich auf den ersten Bugreport diesbez&#252;glich auch sofort mit einer
+&#196;nderung reagiert hab.
+
+&gt;<i> hilft vielleicht schon (obwohl...das ist ja kein zeiger in php), oder
+</I>&gt;<i> du &#252;bergibst nur den Key des $GLOBALS- Arrays.
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>         public static function graph(&amp;$config, $config_key)
+</I>&gt;<i>         {
+</I>&gt;<i> 		
+</I>&gt;<i>                 if (!$GLOBALS[$config_key]['used'])
+</I>
+Die Konfiguration kann (rein theoretisch) tiefer verschalchtelt sein als
+nur eine Ebene. Somit m&#252;sste der Key durch einen Array dargestellt werden.
+Au&#223;erdem ist (/war) $GLOBALS etwas anderes als nur der Key der eigenen
+Konfiguration, es war der Wurzel der Konfiguration um Zugriff auf andere
+Teile der Konfiguration zu erm&#246;glichen.
+
+&gt;<i> Pers&#246;nlich denke ich, dass es vielleicht besser w&#228;re, komplett auf den
+</I>&gt;<i> globalen Namespace zu verzichten und daf&#252;r ein Object mit singleton
+</I>&gt;<i> und ArrayAccess zu verwenden, so in der Art:
+</I>&gt;<i> 
+</I>&gt;<i> $config = Serverstats_Config::getInstance();
+</I>&gt;<i> $config[&quot;list&quot;]...
+</I>
+W&#252;rde die Sache unn&#246;tig verkomplizieren.
+
+$config wird in jeder Konfigurationsdatei ben&#246;tigt, es muss im Gegensatz
+zu den von der Klasse config gekapselten Daten Schreibzugriff erlauben.
+Deswegen ist ein Array, der per Referenz &#252;bergeben, IMHO wird eine gute
+Wahl. Hiermit wird quasi Zugriff auf die private Variable innerhalb von
+der config-Klasse erm&#246;glicht.
+
+Da $GLOBALS/$rootConfig nicht ben&#246;tigt wird um die Konfiguration zu
+&#228;ndern ist es hier nicht notwendig einen Array zu &#252;bergeben, vielmehr
+reicht der readonly-Zugriff auf die Konfigurationsklasse. Somit wird
+au&#223;erdem der Zugriff auf fremde Konfigurationsparameter (au&#223;erhalb der
+eigenen Datei) gesch&#252;tzt.
+
+Eine der beiden Variablen erst durch einen Methodenaufruf zu laden halte
+ich f&#252;r einen weitaus komplizierteren Ansatz. Derzeit kann die
+Konfiguration - obwohl sie sehr komplex verwaltet wird - auch von Laien
+ohne gr&#246;&#223;ere Probleme benutzt werden.
+
+Trotzdem nat&#252;rlich danke f&#252;r die Vorschl&#228;ge. Falls dir mit dem genaueren
+Wissen bzgl. der Funktionsweise noch eine bessere Idee einf&#228;llt hab ich
+auf jeden Fall offene Ohren daf&#252;r. ;-)
+
+Viele Gr&#252;&#223;e, David Danier
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 191 bytes
+Desc: OpenPGP digital signature
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060515/e6787615/attachment.pgp">https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060515/e6787615/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000072.html">[Serverstats-devel] simpleconfig.class.php
+</A></li>
+	<LI>Next message: <A HREF="000075.html">[Serverstats-devel] simpleconfig.class.php
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#74">[ date ]</a>
+              <a href="thread.html#74">[ thread ]</a>
+              <a href="subject.html#74">[ subject ]</a>
+              <a href="author.html#74">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

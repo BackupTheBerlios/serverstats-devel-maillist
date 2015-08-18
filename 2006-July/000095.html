@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r142 - trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r142%20-%20trunk&In-Reply-To=%3C200607031125.k63BP8GN027475%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000096.html">
+   <LINK REL="Next"  HREF="000097.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r142 - trunk</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r142%20-%20trunk&In-Reply-To=%3C200607031125.k63BP8GN027475%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r142 - trunk">goliath at berlios.de
+       </A><BR>
+    <I>Mon Jul  3 13:25:08 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000096.html">[Serverstats-devel] r141 - in trunk: . lang
+</A></li>
+        <LI>Next message: <A HREF="000097.html">[Serverstats-devel] r143 - trunk/lang
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#95">[ date ]</a>
+              <a href="thread.html#95">[ thread ]</a>
+              <a href="subject.html#95">[ subject ]</a>
+              <a href="author.html#95">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-07-03 13:24:46 +0200 (Mon, 03 Jul 2006)
+New Revision: 142
+
+Modified:
+   trunk/.todo
+   trunk/FEATURE_REQUEST
+   trunk/TODO
+Log:
+ * updated TODO and FEATURE_REQUEST
+
+
+Modified: trunk/.todo
+===================================================================
+--- trunk/.todo	2006-07-03 11:14:33 UTC (rev 141)
++++ trunk/.todo	2006-07-03 11:24:46 UTC (rev 142)
+@@ -23,18 +23,18 @@
+     &lt;note priority=&quot;high&quot; time=&quot;1126344228&quot; done=&quot;1126975191&quot;&gt;
+         Errorlogging
+     &lt;/note&gt;
++    &lt;note priority=&quot;high&quot; time=&quot;1126975273&quot; done=&quot;1137978235&quot;&gt;
++        safe_mode bugfixes (auto-escapeshellcmd() for exec()) or document that Serverstats is safe_mode=off only
++        &lt;comment&gt;
++            not possible, Serverstats needs safe_mode=off
++        &lt;/comment&gt;
++    &lt;/note&gt;
+     &lt;note priority=&quot;medium&quot; time=&quot;1126281625&quot; done=&quot;1126344729&quot;&gt;
+         sources/disk.php: deriveValue() -&gt; Hier sollte ein f&#252;r das System passender Maximalwert ausgelesen werden
+         &lt;comment&gt;
+             ini_set('precision', 32) in init.php
+         &lt;/comment&gt;
+     &lt;/note&gt;
+-    &lt;note priority=&quot;high&quot; time=&quot;1126975273&quot; done=&quot;1137978235&quot;&gt;
+-        safe_mode bugfixes (auto-escapeshellcmd() for exec()) or document that Serverstats is safe_mode=off only
+-        &lt;comment&gt;
+-            not possible, Serverstats needs safe_mode=off
+-        &lt;/comment&gt;
+-    &lt;/note&gt;
+     &lt;note priority=&quot;medium&quot; time=&quot;1121445220&quot;&gt;
+         Support all graph options
+     &lt;/note&gt;
+@@ -44,7 +44,10 @@
+     &lt;note priority=&quot;low&quot; time=&quot;1126268571&quot;&gt;
+         add homepage to svn
+     &lt;/note&gt;
+-    &lt;note priority=&quot;verylow&quot; time=&quot;1120030156&quot;&gt;
++    &lt;note priority=&quot;verylow&quot; time=&quot;1120030156&quot; done=&quot;1151925367&quot;&gt;
+         SNMP support
++        &lt;comment&gt;
++            snmp.php is ready
++        &lt;/comment&gt;
+     &lt;/note&gt;
+ &lt;/todo&gt;
+
+Modified: trunk/FEATURE_REQUEST
+===================================================================
+--- trunk/FEATURE_REQUEST	2006-07-03 11:14:33 UTC (rev 141)
++++ trunk/FEATURE_REQUEST	2006-07-03 11:24:46 UTC (rev 142)
+@@ -1,10 +1,17 @@
++Legend:
++ [ ] todo
++ [*] done (username)
++ [/] working on (username)
++ [#] discarded (username: reason)
++------------------------------------------------------------------------------
++
+ Missing Cacti Features:
+- * Tree view
+- * Graph preview (smaller graph, perhaps more, not really needed)
+- * Graph templates
+- * user-management (not needed!)
++ [*] Tree view (goliath) 
++ [ ] Graph preview (smaller graph, perhaps more, not really needed)
++ [ ] Graph templates
++ [#] user-management (goliath: not needed)
+ 
+ Ideas:
+- * Remote polling
++ [ ] Remote polling
+    (Server sends out data using some XML-format, source to read this data.
+     Server does not need to create any RRD-files)
+
+Modified: trunk/TODO
+===================================================================
+--- trunk/TODO	2006-07-03 11:14:33 UTC (rev 141)
++++ trunk/TODO	2006-07-03 11:24:46 UTC (rev 142)
+@@ -7,6 +7,3 @@
+ - add homepage to svn
+   (added Fri Sep  9 14:22:51 2005, incomplete, priority low)
+ 
+-- SNMP support
+-  (added Wed Jun 29 09:29:16 2005, incomplete, priority verylow)
+-
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000096.html">[Serverstats-devel] r141 - in trunk: . lang
+</A></li>
+	<LI>Next message: <A HREF="000097.html">[Serverstats-devel] r143 - trunk/lang
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#95">[ date ]</a>
+              <a href="thread.html#95">[ thread ]</a>
+              <a href="subject.html#95">[ subject ]</a>
+              <a href="author.html#95">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,149 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] XML File parse demo ...
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20XML%20File%20parse%20demo%20...&In-Reply-To=%3C44A8E864.8080309%40team23.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000082.html">
+   <LINK REL="Next"  HREF="000089.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] XML File parse demo ...</H1>
+    <B>David Danier</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20XML%20File%20parse%20demo%20...&In-Reply-To=%3C44A8E864.8080309%40team23.de%3E"
+       TITLE="[Serverstats-devel] XML File parse demo ...">david.danier at team23.de
+       </A><BR>
+    <I>Mon Jul  3 11:50:28 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000082.html">[Serverstats-devel] XML File parse demo ...
+</A></li>
+        <LI>Next message: <A HREF="000089.html">[Serverstats-devel] XML File parse demo ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#87">[ date ]</a>
+              <a href="thread.html#87">[ thread ]</a>
+              <a href="subject.html#87">[ subject ]</a>
+              <a href="author.html#87">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> I've make these test files.
+</I>&gt;<i> Put these 2 files into  config.sample directory using the xml files
+</I>&gt;<i> from  branches/xmlconfig svn.
+</I>&gt;<i> I haven't comit these because  I want to keep svn clean ...
+</I>
+I commited this into a &quot;test&quot;-directory inside the xmlconfig-branch, so
+we can omit this path when merging.
+
+&gt;<i> Test it and tell me If you're agree with this approach ...
+</I>
+You're doing two things there:
+ * XML-config
+ * structured config (tree view)
+
+I like the XML-config-approach with the xincludes. Perhaps it should be
+more general (like putting the current array into XML) to avoid a too
+complex config-class. The less special elemente the less complex the
+config-class should be.
+
+With the host-approach I'm not sure. Currently I'm thinking of something
+different. The problem with your approach is, that it aims to fix one
+special problem, it's useable if you want to put your graphs into a
+host-bases tree-view. But if you want to use the controlled service (or
+used source) it is even more unstructured than the current graph-format.
+Besides it alters the complete config-format, so all scripts would need
+an update/rewrite.
+
+So I'm thinking of having something like a list of categories for each
+graph (not source). Example:
+$config['list'][] = array(
+	'title' =&gt; 'test',
+	'categories' =&gt; array(
+		'host' =&gt; '127.0.0.1',
+		'service' =&gt; 'http', // example: HTTP-ping
+		'impact' =&gt; 'important',
+		'foobar' =&gt; 'barfoo'
+	),
+	...
+);
+
+Now it would be possible to filter the listed graphs using these
+categories: index.php?filter=host:127.0.0.1
+You can combine this to filter using two or more categories:
+index.php?filter=host:127.0.0.1,service:http
+It would also be possible to reverse the filter:
+index.php?filter=host:127.0.0.1,!service:http
+
+So with this categories you could filter your graphs as complex as you
+may want, but keep the current config-format.
+
+But, we don't have any tree, let's see:
+$config['tree'] = array(
+	'title' =&gt; 'foobar',
+	'filter' =&gt; '', // default: no filter (or 'none' for no graphs)
+	'sub' =&gt; array(
+		array(
+			'title' =&gt; 'localhost',
+			'filter' =&gt; 'host:127.0.0.1',
+			'sub' =&gt; array(
+				array(
+					'title' =&gt; 'Read this!',
+					'filter' =&gt; 'host:127.0.0.1,impact:important',
+				)
+			)
+		),
+		array(
+			'title' =&gt; 'some_host',
+			'filter' =&gt; 'host:12.34.56.78'
+		),
+		...
+	)
+);
+
+The parameter could look like this:
+ * index.php?tree=0 (only localhost)
+ * index.php?tree=0,0 (important localhost)
+
+Of cource, this can be done using XML, too. But I think writing this in
+the current config is more appropriate.
+
+Greetings, David Danier
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 191 bytes
+Desc: OpenPGP digital signature
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060703/bd0423a3/attachment.pgp">https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060703/bd0423a3/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000082.html">[Serverstats-devel] XML File parse demo ...
+</A></li>
+	<LI>Next message: <A HREF="000089.html">[Serverstats-devel] XML File parse demo ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#87">[ date ]</a>
+              <a href="thread.html#87">[ thread ]</a>
+              <a href="subject.html#87">[ subject ]</a>
+              <a href="author.html#87">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

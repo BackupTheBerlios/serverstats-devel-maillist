@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r136 - in branches/xmlconfig/config.sample: . xml xml/zone1 xml/zone1/servers xml/zone1/servers/host1
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r136%20-%20in%20branches/xmlconfig/config.sample%3A%20.%20xml%20xml/zone1%20xml/zone1/servers%20xml/zone1/servers/host1&In-Reply-To=%3C200607021757.k62HvsYH031591%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000091.html">
+   <LINK REL="Next"  HREF="000084.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r136 - in branches/xmlconfig/config.sample: . xml xml/zone1 xml/zone1/servers xml/zone1/servers/host1</H1>
+    <B>scramatte at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r136%20-%20in%20branches/xmlconfig/config.sample%3A%20.%20xml%20xml/zone1%20xml/zone1/servers%20xml/zone1/servers/host1&In-Reply-To=%3C200607021757.k62HvsYH031591%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r136 - in branches/xmlconfig/config.sample: . xml xml/zone1 xml/zone1/servers xml/zone1/servers/host1">scramatte at berlios.de
+       </A><BR>
+    <I>Sun Jul  2 19:57:54 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000091.html">[Serverstats-devel] XML File parse demo ...
+</A></li>
+        <LI>Next message: <A HREF="000084.html">[Serverstats-devel] r137 - trunk/config.sample
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#83">[ date ]</a>
+              <a href="thread.html#83">[ thread ]</a>
+              <a href="subject.html#83">[ subject ]</a>
+              <a href="author.html#83">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: scramatte
+Date: 2006-07-02 19:57:50 +0200 (Sun, 02 Jul 2006)
+New Revision: 136
+
+Added:
+   branches/xmlconfig/config.sample/xml/
+   branches/xmlconfig/config.sample/xml/zone1/
+   branches/xmlconfig/config.sample/xml/zone1/servers/
+   branches/xmlconfig/config.sample/xml/zone1/servers/host1/
+   branches/xmlconfig/config.sample/xml/zone1/servers/host1/snmp1.xml
+   branches/xmlconfig/config.sample/xml/zone1/servers/host1/sources.xml
+Log:
+Add some xml files to test xmlconfig
+
+Added: branches/xmlconfig/config.sample/xml/zone1/servers/host1/snmp1.xml
+===================================================================
+--- branches/xmlconfig/config.sample/xml/zone1/servers/host1/snmp1.xml	2006-07-02 17:07:28 UTC (rev 135)
++++ branches/xmlconfig/config.sample/xml/zone1/servers/host1/snmp1.xml	2006-07-02 17:57:50 UTC (rev 136)
+@@ -0,0 +1,10 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
++&lt;source type=&quot;snmp&quot; id=&quot;appli1&quot; xmlns=&quot;urn:serverstats&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;&gt;
++           &lt;param id=&quot;host&quot;&gt;192.168.0.12&lt;/param&gt;
++           &lt;param id=&quot;comunity&quot;&gt;public&lt;/param&gt;
++           &lt;param xsi:type=&quot;xsd:array&quot;&gt;
++           	 &lt;item id=&quot;memtotal&quot;&gt;UCD-SNMP-MIB::memTotalReal.0&lt;/item&gt;
++             &lt;item id=&quot;memfree&quot;&gt;UCD-SNMP-MIB::memAvailReal.0&lt;/item&gt;
++             &lt;item id=&quot;1mn&quot;&gt;UCD-SNMP-MIB::laLoad.1&lt;/item&gt;
++           &lt;/param&gt;
++&lt;/source&gt;
+\ No newline at end of file
+
+Added: branches/xmlconfig/config.sample/xml/zone1/servers/host1/sources.xml
+===================================================================
+--- branches/xmlconfig/config.sample/xml/zone1/servers/host1/sources.xml	2006-07-02 17:07:28 UTC (rev 135)
++++ branches/xmlconfig/config.sample/xml/zone1/servers/host1/sources.xml	2006-07-02 17:57:50 UTC (rev 136)
+@@ -0,0 +1,4 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
++&lt;sources xmlns=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot;&gt;
++	&lt;xi:include href=&quot;snmp1.xml&quot; /&gt;
++&lt;/sources&gt;
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000091.html">[Serverstats-devel] XML File parse demo ...
+</A></li>
+	<LI>Next message: <A HREF="000084.html">[Serverstats-devel] r137 - trunk/config.sample
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#83">[ date ]</a>
+              <a href="thread.html#83">[ thread ]</a>
+              <a href="subject.html#83">[ subject ]</a>
+              <a href="author.html#83">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] simpleconfig.class.php
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-May/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20simpleconfig.class.php&In-Reply-To=%3C446866F2.7050509%40team23.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000075.html">
+   <LINK REL="Next"  HREF="000073.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] simpleconfig.class.php</H1>
+    <B>David Danier</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20simpleconfig.class.php&In-Reply-To=%3C446866F2.7050509%40team23.de%3E"
+       TITLE="[Serverstats-devel] simpleconfig.class.php">david.danier at team23.de
+       </A><BR>
+    <I>Mon May 15 13:33:06 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000075.html">[Serverstats-devel] simpleconfig.class.php
+</A></li>
+        <LI>Next message: <A HREF="000073.html">[Serverstats-devel] r130 - in trunk: config.sample includes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#76">[ date ]</a>
+              <a href="thread.html#76">[ thread ]</a>
+              <a href="subject.html#76">[ subject ]</a>
+              <a href="author.html#76">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> $GLOBALS ist der globale Namespace ;)
+</I>
+Es ist eine Variable, die den globalen Namespace repr&#228;sentiert (durch
+Elemente im Array) darstellt und gleichzeitig in jedem Namespace zur
+verf&#252;gung steht (Superglobal).
+
+Allerdings muss ich zugeben, dass sich hier wohl innerhalb der letzten
+PHP-Versionen etwas ge&#228;ndert hat. Fr&#252;her war $GLOBALS wirklich nur eine
+Variable, mit aktuellen PHP-Versionen kommt es dem globalen Namensraum
+n&#228;her, sorgt so aber meiner Meinung nach f&#252;r mehr Verwirrung:
+&lt;?php
+
+$a = &quot;foo&quot;;
+$b = &quot;test&quot;;
+
+function bar($GLOBALS)
+{
+        $GLOBALS['a'] = &quot;bar&quot;;
+}
+
+var_dump($GLOBALS);
+echo $a . &quot;\n&quot;;
+echo $b . &quot;\n&quot;;
+bar(array());
+var_dump($GLOBALS);
+echo $a . &quot;\n&quot;;
+echo $b . &quot;\n&quot;;
+
+?&gt;
+
+
+Unter PHP 4 (evtl. auch PHP 5.0?) liefert obiges Script zwei mal die
+Ausgabe von $GLOBALS gefolgt von $a und $b ($GLOBALS ist nur eine Variable).
+Unter PHP 5.1 wird beim zweiten var_dump() nur der Array mit 'a' = 'bar'
+ausgegeben, die globale Variablen $a und $b bleiben aber unangetastet
+(sprich es wird nur die $GLOBALS-Variable ge&#228;ndert wie bisher,
+allerdings im globalen Namensraum -&gt; die &#220;berschreibung von $GLOBALS hat
+Auswirklung auf andere Funktionen/Methoden, nicht aber auf den globalen
+Namensraum -&gt; die oben angesprochene Verwirrung).
+Vielleicht kann das jemand nochmal unter PHP 5.0 testen, ich dachte
+n&#228;mlich ich h&#228;tte das eigentlich &#228;hnlich damals schon probiert.
+
+Die Verwendung von $GLOBALS h&#228;tte also auf lange Sicht wahrscheinlich zu
+Fehlern gef&#252;hrt. Allerdings finde ich das alte Verhalten hier
+konsitenter, auch wenn das neu Verhalten wohl praktischer ist.
+Allerdings sollte mit dem neuen Verhalten das &#220;berschreiben von $GLOBALS
+eigentlich zu einem Fehler f&#252;hren, da es eine wirkliche Falle darstellt.
+Ich k&#246;nnte mir vorstellen, dass das die Patches vom PHP-Hardened-Projekt
+PHP dementsprechend nachr&#252;sten. ;-)
+
+&gt;<i> und das die Optimizer daran scheitern ist mehr als verst&#228;ndlich:
+</I>
+Eigentlich ist es eher ein Fehler im Optimizer. PHP erlaubt $GLOBALS zu
+&#252;berschreiben, der Optimizer ignoriert das aber. Nat&#252;rlich kann das auch
+ein Sicherheitsfeature sein, allerdings sollte dann ein Fehler beim
+&#220;berschreiben und nicht beim Zugriff ausgegeben werden.
+Der Optimizer geht von der Annahme aus, das $GLOBALS immer $GLOBALS
+bleibt und diese ist leider unter allen bisherigen PHP-Versionen falsch.
+
+Viele Gr&#252;&#223;e, David Danier
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 191 bytes
+Desc: OpenPGP digital signature
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060515/32f0b4b7/attachment.pgp">https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060515/32f0b4b7/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000075.html">[Serverstats-devel] simpleconfig.class.php
+</A></li>
+	<LI>Next message: <A HREF="000073.html">[Serverstats-devel] r130 - in trunk: config.sample includes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#76">[ date ]</a>
+              <a href="thread.html#76">[ thread ]</a>
+              <a href="subject.html#76">[ subject ]</a>
+              <a href="author.html#76">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

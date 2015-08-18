@@ -1,0 +1,436 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r179 - in trunk: config.sample includes sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r179%20-%20in%20trunk%3A%20config.sample%20includes%20sources&In-Reply-To=%3C201005271512.o4RFCShl019804%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000153.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r179 - in trunk: config.sample includes sources</H1>
+    <B>p_michalczyk at BerliOS</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r179%20-%20in%20trunk%3A%20config.sample%20includes%20sources&In-Reply-To=%3C201005271512.o4RFCShl019804%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r179 - in trunk: config.sample includes sources">p_michalczyk at mail.berlios.de
+       </A><BR>
+    <I>Thu May 27 17:12:28 CEST 2010</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000153.html">[Serverstats-devel] r180 - trunk/lang
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#152">[ date ]</a>
+              <a href="thread.html#152">[ thread ]</a>
+              <a href="subject.html#152">[ subject ]</a>
+              <a href="author.html#152">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: p_michalczyk
+Date: 2010-05-27 17:12:27 +0200 (Thu, 27 May 2010)
+New Revision: 179
+
+Added:
+   trunk/sources/postgresql.php
+Modified:
+   trunk/config.sample/simple.php
+   trunk/includes/simpleconfig.class.php
+Log:
+Added source + simpleconfig for PostgreSQL database
+
+Modified: trunk/config.sample/simple.php
+===================================================================
+--- trunk/config.sample/simple.php	2009-12-09 12:53:09 UTC (rev 178)
++++ trunk/config.sample/simple.php	2010-05-27 15:12:27 UTC (rev 179)
+@@ -69,6 +69,20 @@
+ 			'processes' =&gt; array('used' =&gt; true, 'title' =&gt; 'MySQL: query count (&quot;SHOW PROCESSLIST&quot;)')
+ 		)
+ 	),
++	'postgresql' =&gt; array(
++		'used' =&gt; true,
++		'host' =&gt; 'localhost',
++		'port' =&gt; '5432',
++		'user' =&gt; 'postgres',
++		'password' =&gt; '',
++		'dbname' =&gt; 'template1',
++		'graphs' =&gt; array(
++			'transactions' =&gt; array('used' =&gt; true, 'title' =&gt; 'PostgreSQL: transactions per second'),
++			'backends' =&gt; array('used' =&gt; true, 'title' =&gt; 'PostgreSQL: backend count'),
++			'tuplesread' =&gt; array('used' =&gt; true, 'title' =&gt; 'PosgreSQL: tuples read'),
++			'tupleswritten' =&gt; array('used' =&gt; true, 'title' =&gt; 'PosgreSQL: tuples written')
++		)
++	),
+ 	'ping' =&gt; array(
+ 		'used' =&gt; false,
+ 		'hosts' =&gt; array('www.google.com'),
+
+Modified: trunk/includes/simpleconfig.class.php
+===================================================================
+--- trunk/includes/simpleconfig.class.php	2009-12-09 12:53:09 UTC (rev 178)
++++ trunk/includes/simpleconfig.class.php	2010-05-27 15:12:27 UTC (rev 179)
+@@ -677,6 +677,160 @@
+ 						}
+ 					}
+ 					break;
++				case 'postgresql':
++					foreach ($modconf['graphs'] as $graph =&gt; $graphconf)
++					{
++						if (!$graphconf['used'])
++						{
++							continue;
++						}
++						switch ($graph)
++						{
++							case 'transactions':
++								$config['list'][] = array(
++									'title' =&gt; $graphconf['title'],
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'categories' =&gt; array('host' =&gt; $modconf['host']),
++									'content' =&gt; array(
++										array(
++											'type' =&gt; 'LINE',
++											'source' =&gt; 'postgresql',
++											'ds' =&gt; 'xact_rollbackps',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'transaction ROLLBACKs/s',
++											'width' =&gt; 1,
++											'color' =&gt; 'FF0000'
++										),
++										array(
++											'type' =&gt; 'LINE',
++											'source' =&gt; 'postgresql',
++											'ds' =&gt; 'xact_commitps',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'transaction COMMITs/s',
++											'width' =&gt; 1,
++											'color' =&gt; 'FFDD00'
++										)
++									)
++								);
++								break;
++							case 'backends':
++								$config['list'][] = array(
++									'title' =&gt; $graphconf['title'],
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'categories' =&gt; array('host' =&gt; $modconf['host']),
++									'content' =&gt; array(
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; 'postgresql',
++											'ds' =&gt; 'backendworking',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'Working backends',
++											'width' =&gt; 1,
++											'color' =&gt; 'FFDD00'
++										),
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; 'postgresql',
++											'ds' =&gt; 'backendwaiting',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'Waiting backends',
++											'color' =&gt; 'FF0000',
++											'width' =&gt; 1,
++											'stacked' =&gt; true
++										),
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; 'postgresql',
++											'ds' =&gt; 'backendidleintrans',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; '&lt;IDLE&gt; in transaction backends',
++											'color' =&gt; '0000FF',
++											'width' =&gt; 1,
++											'stacked' =&gt; true
++										),
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; 'postgresql',
++											'ds' =&gt; 'backendidle',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; '&lt;IDLE&gt; backends',
++											'color' =&gt; '00FF00',
++											'width' =&gt; 1,
++											'stacked' =&gt; true
++										)
++									)
++								);
++								break;
++							case 'tupleswritten':
++								$config['list'][] = array(
++									'title' =&gt; $graphconf['title'],
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'categories' =&gt; array('host' =&gt; $modconf['host']),
++									'content' =&gt; array(
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; 'postgresql',
++											'ds' =&gt; 'tup_insertedps',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'Tuples INSERTed/s',
++											'width' =&gt; 1,
++											'color' =&gt; 'FF0000'
++										),
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; 'postgresql',
++											'ds' =&gt; 'tup_updatedps',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'Tuples UPDATEd/s',
++											'color' =&gt; 'FFDD00',
++											'width' =&gt; 1,
++											'stacked' =&gt; true
++										),
++										array(
++											'type' =&gt; 'AREA',
++											'source' =&gt; 'postgresql',
++											'ds' =&gt; 'tup_deletedps',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'Tuples DELETEd/s',
++											'color' =&gt; '654321',
++											'width' =&gt; 1,
++											'stacked' =&gt; true
++										)
++									)
++								);
++								break;
++							case 'tuplesread':
++								$config['list'][] = array(
++									'title' =&gt; 'PosgreSQL tuples - read',
++									'lowerLimit' =&gt; 0,
++									'altAutoscaleMax' =&gt; true,
++									'categories' =&gt; array('host' =&gt; $modconf['host']),
++									'content' =&gt; array(
++										array(
++											'type' =&gt; 'LINE',
++											'source' =&gt; 'postgresql',
++											'ds' =&gt; 'tup_returnedps',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'Tuples returned/s',
++											'color' =&gt; '00FF00'
++										),
++										array(
++											'type' =&gt; 'LINE',
++											'source' =&gt; 'postgresql',
++											'ds' =&gt; 'tup_fetchedps',
++											'cf' =&gt; 'AVERAGE',
++											'legend' =&gt; 'Tuples fetched/s',
++											'color' =&gt; 'FF0000'
++										)
++									)
++								);
++								break;
++						}
++					}
++					break;
+ 				case 'ping':
+ 					foreach ($modconf['hosts'] as $host)
+ 					{
+@@ -1100,6 +1254,9 @@
+ 				case 'mysql':
+ 					$config[$module]['module'] = new mysql($modconf['user'], $modconf['password'], $modconf['host']);
+ 					break;
++				case 'postgresql':
++					$config[$module]['module'] = new postgresql($modconf['host'], $modconf['port'], $modconf['user'], $modconf['password'], $modconf['dbname']);
++					break;
+ 				case 'ping':
+ 					foreach ($modconf['hosts'] as $host)
+ 					{
+
+Added: trunk/sources/postgresql.php
+===================================================================
+--- trunk/sources/postgresql.php	2009-12-09 12:53:09 UTC (rev 178)
++++ trunk/sources/postgresql.php	2010-05-27 15:12:27 UTC (rev 179)
+@@ -0,0 +1,157 @@
++&lt;?php
++/**
++ * $Id$
++ *
++ * Author: Piotr Michalczyk, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">piotr at michalczyk.pro</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
++ * License: GPL v2 or later (<A HREF="http://www.gnu.org/licenses/gpl.html">http://www.gnu.org/licenses/gpl.html</A>)
++ *
++ * Copyright (C) 2010 Piotr Michalczyk
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++class postgresql extends source implements source_rrd
++{
++	private $host;
++	private $port;
++	private $user;
++	private $password;
++	private $dbname;
++	
++	private $backendworking;
++	private $backendwaiting;
++	private $backendidle;
++	private $backendidleintrans;
++	
++	private $xact_commit;
++	private $xact_rollback;
++	private $blks_read ;
++	private $blks_hit;
++	private $tup_returned;
++	private $tup_fetched;
++	private $tup_inserted;
++	private $tup_updated;
++	private $tup_deleted;
++	
++	public function __construct($host = 'localhost', $port = '5432', $user = 'postgres', $password = '', $dbname = 'template1')
++	{
++		$this-&gt;host = $host;
++		$this-&gt;port = $port;
++		$this-&gt;user = $user;
++		$this-&gt;password = $password;
++		$this-&gt;dbname = $dbname;
++	}
++	
++	public function init()
++	{	
++		$connect_string = &quot;host='&quot;.$this-&gt;host.&quot;' port='&quot;.$this-&gt;port.&quot;' user='&quot;.$this-&gt;user.
++				&quot;' password='&quot;.$this-&gt;password.&quot;' dbname='&quot;.$this-&gt;dbname.&quot;'&quot;;
++		if (($this-&gt;db = @pg_connect($connect_string)) === false)
++		{
++			throw new Exception('Could not connect to database.');
++		}
++	}
++	
++	public function refreshData()
++	{
++		// Backends status
++		$sql = &quot;WITH backends AS (SELECT current_query, waiting from pg_stat_activity) &quot;.
++			&quot;SELECT 'idle' AS type, COUNT(*) AS number FROM backends &quot;.
++			    &quot;WHERE current_query='&lt;IDLE&gt;' &quot;.
++			&quot;UNION SELECT 'idleintrans' AS type, COUNT(*) AS number FROM backends &quot;.
++			    &quot;WHERE current_query='&lt;IDLE&gt; in transaction' &quot;.
++			&quot;UNION SELECT 'working' AS type, COUNT(*) AS number FROM backends &quot;.
++			    &quot;WHERE waiting='f' AND current_query NOT LIKE '&lt;IDLE&gt;%' &quot;.
++			&quot;UNION SELECT 'waiting' AS type, COUNT(*) AS number FROM backends &quot;.
++			    &quot;WHERE waiting='t' AND current_query NOT LIKE '&lt;IDLE&gt;%' &quot;.
++			&quot;UNION SELECT 'all' AS type , COUNT(*) AS number FROM backends;&quot;;
++		$result = pg_query($this-&gt;db, $sql);
++		while ($data = pg_fetch_row($result)) {
++		    switch ($data[0]) {
++			case 'working':
++			    $this-&gt;backendworking = $data[1];
++			    break;
++			case 'waiting':
++			    $this-&gt;backendwaiting = $data[1];
++			    break;
++			case 'idle':
++			    $this-&gt;backendidle = $data[1];
++			    break;
++			case 'idleintrans':
++			    $this-&gt;backendidleintrans = $data[1];
++			    break;
++		    }
++		}
++
++		// Transaction/blocks/tuples count
++		$sql = &quot;SELECT SUM(xact_commit) AS xact_commit, SUM(xact_rollback) AS xact_rollback, SUM(blks_read) AS blks_read, &quot;.
++			&quot;SUM(blks_hit) AS blks_hit, SUM(tup_returned) AS tup_returned, SUM(tup_fetched) AS tup_fetched, &quot;.
++			&quot;SUM(tup_inserted) AS tup_inserted, SUM(tup_updated) AS tup_updated, SUM(tup_deleted) AS tup_deleted &quot;.
++			&quot;FROM pg_stat_database;&quot;;
++		$result = pg_query($this-&gt;db, $sql);
++		$data = pg_fetch_assoc($result);
++		$this-&gt;xact_commit = $data['xact_commit'];
++		$this-&gt;xact_rollback = $data['xact_rollback'];
++		$this-&gt;blks_read = $data['blks_read'];
++		$this-&gt;blks_hit = $data['blks_hit'];
++		$this-&gt;tup_returned = $data['tup_returned'];
++		$this-&gt;tup_fetched = $data['tup_fetched'];
++		$this-&gt;tup_inserted = $data['tup_inserted'];
++		$this-&gt;tup_updated = $data['tup_updated'];
++		$this-&gt;tup_deleted = $data['tup_deleted'];
++	}
++	
++	public function initRRD(rrd $rrd)
++	{
++		$rrd-&gt;addDatasource('backendworking', 'GAUGE', null, 0);
++		$rrd-&gt;addDatasource('backendwaiting', 'GAUGE', null, 0);
++		$rrd-&gt;addDatasource('backendidle', 'GAUGE', null, 0);
++		$rrd-&gt;addDatasource('backendidleintrans', 'GAUGE', null, 0);
++		
++		$rrd-&gt;addDatasource('xact_commitps', 'DERIVE', null, 0);
++		$rrd-&gt;addDatasource('xact_rollbackps', 'DERIVE', null, 0);
++		$rrd-&gt;addDatasource('blks_readps', 'DERIVE', null, 0);
++		$rrd-&gt;addDatasource('blks_hitps', 'DERIVE', null, 0);
++		$rrd-&gt;addDatasource('tup_returnedps', 'DERIVE', null, 0);
++		$rrd-&gt;addDatasource('tup_fetchedps', 'DERIVE', null, 0);
++		$rrd-&gt;addDatasource('tup_insertedps', 'DERIVE', null, 0);
++		$rrd-&gt;addDatasource('tup_updatedps', 'DERIVE', null, 0);
++		$rrd-&gt;addDatasource('tup_deletedps', 'DERIVE', null, 0);
++	}
++	
++	public function fetchValues()
++	{
++		$values = array();
++		$values['backendworking'] = $this-&gt;backendworking;
++		$values['backendwaiting'] = $this-&gt;backendwaiting;
++		$values['backendidle'] = $this-&gt;backendidle;
++		$values['backendidleintrans'] = $this-&gt;backendidleintrans;
++		
++		$values['xact_commitps'] = $this-&gt;xact_commit;
++		$values['xact_rollbackps'] = $this-&gt;xact_rollback;
++		$values['blks_readps'] = $this-&gt;blks_read;
++		$values['blks_hitps'] = $this-&gt;blks_hit;
++		$values['tup_returnedps'] = $this-&gt;tup_returned;
++		$values['tup_fetchedps'] = $this-&gt;tup_fetched;
++		$values['tup_insertedps'] = $this-&gt;tup_inserted;
++		$values['tup_updatedps'] = $this-&gt;tup_updated;
++		$values['tup_deletedps'] = $this-&gt;tup_deleted;
++		
++		return $values;
++	}
++}
++
++?&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000153.html">[Serverstats-devel] r180 - trunk/lang
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#152">[ date ]</a>
+              <a href="thread.html#152">[ thread ]</a>
+              <a href="subject.html#152">[ subject ]</a>
+              <a href="author.html#152">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

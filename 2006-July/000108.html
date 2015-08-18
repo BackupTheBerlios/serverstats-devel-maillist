@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] Creation of groups of sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Creation%20of%20groups%20of%20sources&In-Reply-To=%3C44A95E5D.1020800%40wanadoo.fr%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000110.html">
+   <LINK REL="Next"  HREF="000111.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] Creation of groups of sources</H1>
+    <B>S&#233;bastien CRAMATTE</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Creation%20of%20groups%20of%20sources&In-Reply-To=%3C44A95E5D.1020800%40wanadoo.fr%3E"
+       TITLE="[Serverstats-devel] Creation of groups of sources">s.cramatte at wanadoo.fr
+       </A><BR>
+    <I>Mon Jul  3 20:13:49 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000110.html">[Serverstats-devel] XmlConfig + Ajax demo ...
+</A></li>
+        <LI>Next message: <A HREF="000111.html">[Serverstats-devel] Creation of groups of sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#108">[ date ]</a>
+              <a href="thread.html#108">[ thread ]</a>
+              <a href="subject.html#108">[ subject ]</a>
+              <a href="author.html#108">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello,
+
+When I've made  the xml config by hosts approach but in reality we 
+should have  by groups of sources approach.
+For the current job, that I currently working on  I require this and 
+templates support
+
+So I can use tree  to  groups my source :D
+
+I've done this tree to organize my infrastructure.
+I've still just one problem  on  'datacenter1' level ...
+'datacenter1'  node displays all graphs and I want that do nothing   ... 
+just an organizationalUnit ;)
+moreover is 'filter' is not specified the script return error  ( 'Offset 
+&quot;filter&quot; does not exist'  ).  I believe that should be better to set 
+filter  to none  by default
+
+$config['tree'] = array(
+        'title' =&gt; 'All graphs',
+        'filter' =&gt; '',
+        'sub' =&gt; array(
+                array(
+                        'title' =&gt; 'localhost',
+                        'filter' =&gt; 'host:localhost'
+                ),
+                array (
+                        'title' =&gt; 'important',
+                        'filter' =&gt; 'impact:important'
+                ),
+                array (
+                        'title' =&gt; 'datacenter1',
+                        'filter' =&gt; 'none',
+                        'sub' =&gt; array (
+                                array (
+                                        'title' =&gt; 'switches',
+                                        'filter' =&gt; 'groupby:switches1'
+
+                                )
+                        )
+                )
+        )
+);
+
+
+For templates I must use xml and xinclude
+I think to impletent your tree structure in xml
+
+see you later
+
+
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000110.html">[Serverstats-devel] XmlConfig + Ajax demo ...
+</A></li>
+	<LI>Next message: <A HREF="000111.html">[Serverstats-devel] Creation of groups of sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#108">[ date ]</a>
+              <a href="thread.html#108">[ thread ]</a>
+              <a href="subject.html#108">[ subject ]</a>
+              <a href="author.html#108">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

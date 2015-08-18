@@ -1,0 +1,297 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r111 - in trunk: config.sample sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r111%20-%20in%20trunk%3A%20config.sample%20sources&In-Reply-To=%3C200602191044.k1JAih8A019916%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000038.html">
+   <LINK REL="Next"  HREF="000040.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r111 - in trunk: config.sample sources</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r111%20-%20in%20trunk%3A%20config.sample%20sources&In-Reply-To=%3C200602191044.k1JAih8A019916%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r111 - in trunk: config.sample sources">goliath at berlios.de
+       </A><BR>
+    <I>Sun Feb 19 11:44:43 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000038.html">[Serverstats-devel] r110 - trunk
+</A></li>
+        <LI>Next message: <A HREF="000040.html">[Serverstats-devel] r112 - trunk/doc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#39">[ date ]</a>
+              <a href="thread.html#39">[ thread ]</a>
+              <a href="subject.html#39">[ subject ]</a>
+              <a href="author.html#39">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-02-19 11:44:20 +0100 (Sun, 19 Feb 2006)
+New Revision: 111
+
+Added:
+   trunk/sources/ping_http.php
+Removed:
+   trunk/sources/ping_service.php
+Modified:
+   trunk/config.sample/graph.php
+Log:
+ * Added source to ping HTTP-Servers
+ * Deleted common ping-source for services
+
+
+Modified: trunk/config.sample/graph.php
+===================================================================
+--- trunk/config.sample/graph.php	2006-02-01 14:42:09 UTC (rev 110)
++++ trunk/config.sample/graph.php	2006-02-19 10:44:20 UTC (rev 111)
+@@ -486,7 +486,7 @@
+                 'color' =&gt; '00A302'
+             )
+         )
+-    ) 
++    )
+ );
+ // Define what Graphes we want in the detail view (detail.php)
+ $config['types'] = array(
+
+Added: trunk/sources/ping_http.php
+===================================================================
+--- trunk/sources/ping_http.php	2006-02-01 14:42:09 UTC (rev 110)
++++ trunk/sources/ping_http.php	2006-02-19 10:44:20 UTC (rev 111)
+@@ -0,0 +1,103 @@
++&lt;?php
++/**
++ * $Id$
++ *
++ * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
++ * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
++ *
++ * Copyright (C) 2005 David Danier
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++class ping_http extends source implements source_rrd
++{
++	private $host;
++	private $port;
++	private $path;
++	private $command;
++	private $timeout;
++	
++	private $ping_time;
++	
++	public function __construct($host, $port = 80, $path = '/', $command = 'HEAD', $timeout = 1)
++	{
++		$this-&gt;host = $host;
++		$this-&gt;port = $port;
++		$this-&gt;path = $path;
++		$this-&gt;command = $command;
++		$this-&gt;timeout = $timeout;
++	}
++	
++	public function refreshData()
++	{
++		$timer = array();
++		$timer['start'] = microtime(true);
++		$socket = @fsockopen($this-&gt;host, $this-&gt;port, $errno, $errstr, $this-&gt;timeout);
++		if (!is_resource($socket))
++		{
++			// don't log time, use default-value (undefined)
++			$this-&gt;ping_time = 'U';
++			return;
++		}
++		$timer['open'] = microtime(true);
++		socket_set_timeout($socket, $this-&gt;timeout);
++		socket_set_blocking($socket, true); // just to be sure
++		if (feof($socket))
++		{
++			throw new Exception('Connection closed while sending command');
++		}
++		$http_request = $this-&gt;command . ' ' . $this-&gt;path . &quot; HTTP/1.1\r\n&quot; . 
++			'Host: ' . $this-&gt;host . &quot;\r\n&quot; . 
++			&quot;User-Agent: Serverstats::ping_http\r\n&quot; . 
++			&quot;Connection: close\r\n\r\n&quot;;
++		fputs($socket, $http_request);
++		$timer['send'] = microtime(true);
++		while(!feof($socket))
++		{
++			if (fread($socket, 4096) === false)
++			{
++				throw new Exception('Communication error, could not fetch result');
++			}
++		}
++		$timer['receive'] = microtime(true);
++		fclose($socket);
++		$timer['finish'] = microtime(true);
++		$this-&gt;ping_time = array(
++				'time' =&gt; $timer['finish'] - $timer['start'],
++				'open' =&gt; $timer['open'] - $timer['start'],
++				'send' =&gt; $timer['send'] - $timer['open'],
++				'receive' =&gt; $timer['receive'] - $timer['send'],
++				'close' =&gt; $timer['finish'] - $timer['receive']
++			);
++	}
++	
++	public function initRRD(rrd $rrd)
++	{
++		$rrd-&gt;addDatasource('time', 'GAUGE', null, 0);
++		$rrd-&gt;addDatasource('open', 'GAUGE', null, 0);
++		$rrd-&gt;addDatasource('send', 'GAUGE', null, 0);
++		$rrd-&gt;addDatasource('receive', 'GAUGE', null, 0);
++		$rrd-&gt;addDatasource('close', 'GAUGE', null, 0);
++	}
++	
++	public function fetchValues()
++	{
++		return $this-&gt;ping_time;
++	}
++}
++
++?&gt;
+
+
+Property changes on: trunk/sources/ping_http.php
+___________________________________________________________________
+Name: svn:keywords
+   + LastChangedDate LastChangedRevision LastChangedBy HeadURL Id
+
+Deleted: trunk/sources/ping_service.php
+===================================================================
+--- trunk/sources/ping_service.php	2006-02-01 14:42:09 UTC (rev 110)
++++ trunk/sources/ping_service.php	2006-02-19 10:44:20 UTC (rev 111)
+@@ -1,86 +0,0 @@
+-&lt;?php
+-/**
+- * $Id$
+- *
+- * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
+- * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+- *
+- * Copyright (C) 2005 David Danier
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+- */
+-
+-class ping_service extends source implements source_rrd
+-{
+-	private $host;
+-	private $port;
+-	private $command;
+-	private $timeout;
+-	
+-	private $ping_time;
+-	
+-	public function __construct($host, $port, $command = null, $timeout = 1)
+-	{
+-		$this-&gt;host = $host;
+-		$this-&gt;port = $port;
+-		$this-&gt;command = $command;
+-		$this-&gt;timeout = $timeout;
+-	}
+-	
+-	public function refreshData()
+-	{
+-		$start = microtime(true);
+-		$socket = @fsockopen($this-&gt;host, $this-&gt;port, $errno, $errstr, $this-&gt;timeout);
+-		if (!is_resource($socket))
+-		{
+-			// don't log time, use default-value (undefined)
+-			$this-&gt;ping_time = 'U';
+-			return;
+-		}
+-		socket_set_timeout($socket, $this-&gt;timeout);
+-		if (isset($this-&gt;command))
+-		{
+-			socket_set_blocking($socket, true); // just to be sure
+-			if (feof($socket))
+-			{
+-				throw new Exception('Connection closed while sending command');
+-			}
+-			fwrite($socket, $this-&gt;command);
+-			fgetc($socket); // read one char
+-		}
+-		fclose($socket);
+-		$this-&gt;ping_time = microtime(true) - $start;
+-	}
+-	
+-	public function initRRD(rrd $rrd)
+-	{
+-		$rrd-&gt;addDatasource('time', 'GAUGE', null, 0);
+-	}
+-	
+-	public function fetchValues()
+-	{
+-		$values = array();
+-		$values['time'] = $this-&gt;ping_time;
+-		return $values;
+-	}
+-	
+-	static public function httpCommand($host, $path = '/')
+-	{
+-		return &quot;GET $path HTTP/1.1\r\nHost: $host\r\n\r\n&quot;;
+-	}
+-}
+-
+-?&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000038.html">[Serverstats-devel] r110 - trunk
+</A></li>
+	<LI>Next message: <A HREF="000040.html">[Serverstats-devel] r112 - trunk/doc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#39">[ date ]</a>
+              <a href="thread.html#39">[ thread ]</a>
+              <a href="subject.html#39">[ subject ]</a>
+              <a href="author.html#39">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

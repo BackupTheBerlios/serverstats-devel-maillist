@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] Re: Serverstats / traffic_proc
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Re%3A%20Serverstats%20/%20traffic_proc&In-Reply-To=%3C444F3D3E.9000901%40team23.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000064.html">
+   <LINK REL="Next"  HREF="000067.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] Re: Serverstats / traffic_proc</H1>
+    <B>David Danier</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Re%3A%20Serverstats%20/%20traffic_proc&In-Reply-To=%3C444F3D3E.9000901%40team23.de%3E"
+       TITLE="[Serverstats-devel] Re: Serverstats / traffic_proc">david.danier at team23.de
+       </A><BR>
+    <I>Wed Apr 26 11:28:30 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000064.html">[Serverstats-devel] r127 - trunk/sources
+</A></li>
+        <LI>Next message: <A HREF="000067.html">[Serverstats-devel] Re: Serverstats / traffic_proc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#66">[ date ]</a>
+              <a href="thread.html#66">[ thread ]</a>
+              <a href="subject.html#66">[ subject ]</a>
+              <a href="author.html#66">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> Hallo David!
+</I>&gt;<i> Serverstats ist ein Klasse Tool! Vielen Dank!
+</I>
+Danke :)
+
+&gt;<i> Schreibe es derzeit sozusagen auf eine Client/Server Variante um. Ziel ist es, auf einem Server einen Xinetd mit &quot;rrdtool -&quot; (in einer chroot) laufen zu haben, und die Commands der anderen via netcat an diesen zu schicken.
+</I>
+Client/Server-Support hatte ich mir auch schon &#252;berlegt, allerdings mit
+einem etwas anderen Ansatz:
+Der Server hat Serverstats laufen. Anstatt der update.php gibt es ein
+zus&#228;tzliches Script fetchValues.php (o.&#228;.). Dieses Script wird vom
+entfernten Rechner direkt per HTTP aufgerufen. Es gibt alle oder nur
+ausgew&#228;hlte Sourcen in XML kodiert zur&#252;ck, die der Server dann
+auswertet. Alternativ wird einfach ein serialisiertes Sources-Objekt
+zur&#252;ckgegeben bei dem die Daten schon abgerufen wurden (viel einfacher).
+
+Was jetzt schon sehr einfach m&#246;glich ist w&#228;re der Zugriff auf die Daten
+(/proc etc.) oder auf die RRD-Dateien &#252;ber einen Netzwerkmount. Hier
+k&#246;nnte NFS oder auch SSHFS zum Einsatz kommen. Ich denke wenn man das
+mit SSHFS auf die RRD-Dateien anwendet hat man ein einfaches und
+sicheres (verschl&#252;sselt) System.
+
+&gt;<i> Da sich meine virtuellen xen-interfaces (z.B. &quot;vif10.0&quot;, &quot;vif3.2&quot;, usw.) und die dazugeh&#246;rigen Bridges (&quot;xen-br0&quot;, &quot;xen-br1&quot;, usw.) nicht mit traffic_proc auswerten lie&#223;en musste ich die Regex ein ganz klein wenig anpassen...
+</I>&gt;<i> Habe nun auch im ersten Teil (vor dem Doppelpunkt) Punkte und Bindestriche gestattet...
+</I>&gt;<i> if (preg_match('/([\w\d\.\-]+):\s*(\d+)\s+(\d+)\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)\s+(\d+)\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+/', $line, $m))
+</I>&gt;<i> Nun klappts auch mit solchen Interfaces ;)
+</I>&gt;<i> Da ich keine Nachteile an dieser angepassten Regex entdecken konnte, m&#246;chte ich vorschlagen diese &#196;nderung in die n&#228;chste Release aufzunehmen.
+</I>
+Ich hab das schonmal ins SVN &#252;bernommen, hei&#223;t es ist auf dem besten Weg
+ins n&#228;chste Release.
+Vielen Dank f&#252;r den Hinweis.
+
+Viele Gr&#252;&#223;e, David Danier
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 191 bytes
+Desc: OpenPGP digital signature
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060426/354bc75c/attachment.pgp">https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060426/354bc75c/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000064.html">[Serverstats-devel] r127 - trunk/sources
+</A></li>
+	<LI>Next message: <A HREF="000067.html">[Serverstats-devel] Re: Serverstats / traffic_proc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#66">[ date ]</a>
+              <a href="thread.html#66">[ thread ]</a>
+              <a href="subject.html#66">[ subject ]</a>
+              <a href="author.html#66">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

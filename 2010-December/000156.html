@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r183 - trunk/sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2010-December/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r183%20-%20trunk/sources&In-Reply-To=%3C20101205152121.008B8480C9B%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000157.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r183 - trunk/sources</H1>
+    <B>goliath at mail.berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r183%20-%20trunk/sources&In-Reply-To=%3C20101205152121.008B8480C9B%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r183 - trunk/sources">goliath at mail.berlios.de
+       </A><BR>
+    <I>Sun Dec  5 16:21:20 CET 2010</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000157.html">[Serverstats-devel] r184 - trunk/includes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#156">[ date ]</a>
+              <a href="thread.html#156">[ thread ]</a>
+              <a href="subject.html#156">[ subject ]</a>
+              <a href="author.html#156">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2010-12-05 16:21:20 +0100 (Sun, 05 Dec 2010)
+New Revision: 183
+
+Modified:
+   trunk/sources/traffic_proc.php
+Log:
+Fix DS-Name in traffic_proc to allow virtual interfaces (eth0:1)
+
+Modified: trunk/sources/traffic_proc.php
+===================================================================
+--- trunk/sources/traffic_proc.php	2010-06-16 12:48:16 UTC (rev 182)
++++ trunk/sources/traffic_proc.php	2010-12-05 15:21:20 UTC (rev 183)
+@@ -69,10 +69,10 @@
+ 	{
+ 		foreach ($this-&gt;ifs as $if)
+ 		{
+-			$rrd-&gt;addDatasource($if . '_rbytes', 'COUNTER', null, 0, 4294967295);
+-			$rrd-&gt;addDatasource($if . '_rpackets', 'COUNTER', null, 0, 4294967295);
+-			$rrd-&gt;addDatasource($if . '_tbytes', 'COUNTER', null, 0, 4294967295);
+-			$rrd-&gt;addDatasource($if . '_tpackets', 'COUNTER', null, 0, 4294967295);
++			$rrd-&gt;addDatasource(rrd::escapeDsName($if) . '_rbytes', 'COUNTER', null, 0, 4294967295);
++			$rrd-&gt;addDatasource(rrd::escapeDsName($if) . '_rpackets', 'COUNTER', null, 0, 4294967295);
++			$rrd-&gt;addDatasource(rrd::escapeDsName($if) . '_tbytes', 'COUNTER', null, 0, 4294967295);
++			$rrd-&gt;addDatasource(rrd::escapeDsName($if) . '_tpackets', 'COUNTER', null, 0, 4294967295);
+ 		}
+ 	}
+ 	
+@@ -83,10 +83,10 @@
+ 		{
+ 			if (isset($this-&gt;data[$if]))
+ 			{
+-				$values[$if . '_rbytes'] = $this-&gt;data[$if]['rbytes'];
+-				$values[$if . '_rpackets'] = $this-&gt;data[$if]['rpackets'];
+-				$values[$if . '_tbytes'] = $this-&gt;data[$if]['tbytes'];
+-				$values[$if . '_tpackets'] = $this-&gt;data[$if]['tpackets'];
++				$values[rrd::escapeDsName($if) . '_rbytes'] = $this-&gt;data[$if]['rbytes'];
++				$values[rrd::escapeDsName($if) . '_rpackets'] = $this-&gt;data[$if]['rpackets'];
++				$values[rrd::escapeDsName($if) . '_tbytes'] = $this-&gt;data[$if]['tbytes'];
++				$values[rrd::escapeDsName($if) . '_tpackets'] = $this-&gt;data[$if]['tpackets'];
+ 			}
+ 		}
+ 		return $values;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000157.html">[Serverstats-devel] r184 - trunk/includes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#156">[ date ]</a>
+              <a href="thread.html#156">[ thread ]</a>
+              <a href="subject.html#156">[ subject ]</a>
+              <a href="author.html#156">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

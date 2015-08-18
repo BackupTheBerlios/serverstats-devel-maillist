@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r133 - trunk/sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r133%20-%20trunk/sources&In-Reply-To=%3C200607010905.k6195rjD019224%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000080.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r133 - trunk/sources</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r133%20-%20trunk/sources&In-Reply-To=%3C200607010905.k6195rjD019224%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r133 - trunk/sources">goliath at berlios.de
+       </A><BR>
+    <I>Sat Jul  1 11:05:53 CEST 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000080.html">[Serverstats-devel] r134 - branches
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#79">[ date ]</a>
+              <a href="thread.html#79">[ thread ]</a>
+              <a href="subject.html#79">[ subject ]</a>
+              <a href="author.html#79">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-07-01 11:05:52 +0200 (Sat, 01 Jul 2006)
+New Revision: 133
+
+Modified:
+   trunk/sources/snmp.php
+Log:
+ * snmpgetnext() -&gt; snmpget()
+ * snmp_set_valueretrieval(SNMP_VALUE_OBJECT);
+
+
+Modified: trunk/sources/snmp.php
+===================================================================
+--- trunk/sources/snmp.php	2006-06-30 09:45:59 UTC (rev 132)
++++ trunk/sources/snmp.php	2006-07-01 09:05:52 UTC (rev 133)
+@@ -56,25 +56,26 @@
+ 	
+ 	public function refreshData()
+ 	{
+-		foreach ($this-&gt;objects as $object =&gt; $objectValue)
++		snmp_set_valueretrieval(SNMP_VALUE_OBJECT);
++		foreach ($this-&gt;objects as $objectName =&gt; $objectId)
+ 		{
+-			$value = snmpgetnext($this-&gt;host, $this-&gt;community, $objectValue);
+-			if ($value !== false)
++			$object = snmpget($this-&gt;host, $this-&gt;community, $objectId);
++			if ($object !== false)
+ 			{
+-				$this-&gt;data[$object] = preg_replace('/.*:\s*(.*)/i','$1', $value);
++				$this-&gt;data[$objectName] = $object-&gt;value;
+ 			}
+ 		}
+ 	}
+ 	
+ 	public function initRRD(rrd $rrd)
+ 	{
+-		foreach ($this-&gt;objects as $object =&gt; $objectValue)
++		foreach ($this-&gt;objects as $objectName =&gt; $objectId)
+ 		{
+-			if (isset($this-&gt;dsdef[$object]))
++			if (isset($this-&gt;dsdef[$objectName]))
+ 			{
+-				$opt = $this-&gt;dsdef[$object];
++				$opt = $this-&gt;dsdef[$objectName];
+ 				$rrd-&gt;addDatasource(
+-					rrd::escapeDsName($object),
++					rrd::escapeDsName($objectName),
+ 					$opt['type'],
+ 					$opt['heartbeat'],
+ 					$opt['min'],
+@@ -83,7 +84,7 @@
+ 			}
+ 			else
+ 			{
+-				$rrd-&gt;addDatasource(rrd::escapeDsName($object), 'GAUGE');
++				$rrd-&gt;addDatasource(rrd::escapeDsName($objectName), 'GAUGE');
+ 			}
+ 		}
+ 	}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000080.html">[Serverstats-devel] r134 - branches
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#79">[ date ]</a>
+              <a href="thread.html#79">[ thread ]</a>
+              <a href="subject.html#79">[ subject ]</a>
+              <a href="author.html#79">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

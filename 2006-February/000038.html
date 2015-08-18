@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r110 - trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r110%20-%20trunk&In-Reply-To=%3C200602011442.k11EgBxX007920%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000039.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r110 - trunk</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r110%20-%20trunk&In-Reply-To=%3C200602011442.k11EgBxX007920%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r110 - trunk">goliath at berlios.de
+       </A><BR>
+    <I>Wed Feb  1 15:42:11 CET 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000039.html">[Serverstats-devel] r111 - in trunk: config.sample sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#38">[ date ]</a>
+              <a href="thread.html#38">[ thread ]</a>
+              <a href="subject.html#38">[ subject ]</a>
+              <a href="author.html#38">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-02-01 15:42:09 +0100 (Wed, 01 Feb 2006)
+New Revision: 110
+
+Modified:
+   trunk/update.php
+Log:
+ * Modified monitorint that &quot;foobar == U&quot; works (checking if values are undefined)
+
+
+Modified: trunk/update.php
+===================================================================
+--- trunk/update.php	2006-01-30 11:06:10 UTC (rev 109)
++++ trunk/update.php	2006-02-01 14:42:09 UTC (rev 110)
+@@ -141,9 +141,13 @@
+ 					// Test if we know the datasource
+ 					if (!isset($sourcevalues[$name]))
+ 					{
+-						throw new Exception(&quot;Invalid datasource in rule: '$rule' (Source '$sourcename')&quot;);
++						$config['log']['logger']-&gt;logString(logger::WARN, &quot;Invalid or undefined datasource in rule: '$rule' (Source '$sourcename')&quot;);
++						$value = 'U';
+ 					}
+-					$value = $sourcevalues[$name];
++					else
++					{
++						$value = $sourcevalues[$name];
++					}
+ 					// Test if limit is hit
+ 					if (value_compare($value, $limit, $operator))
+ 					{
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000039.html">[Serverstats-devel] r111 - in trunk: config.sample sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#38">[ date ]</a>
+              <a href="thread.html#38">[ thread ]</a>
+              <a href="subject.html#38">[ subject ]</a>
+              <a href="author.html#38">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

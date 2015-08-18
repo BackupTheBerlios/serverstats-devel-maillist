@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] Creation of groups of sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Creation%20of%20groups%20of%20sources&In-Reply-To=%3C44A965A5.90107%40team23.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000108.html">
+   <LINK REL="Next"  HREF="000086.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] Creation of groups of sources</H1>
+    <B>David Danier</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Creation%20of%20groups%20of%20sources&In-Reply-To=%3C44A965A5.90107%40team23.de%3E"
+       TITLE="[Serverstats-devel] Creation of groups of sources">david.danier at team23.de
+       </A><BR>
+    <I>Mon Jul  3 20:44:53 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000108.html">[Serverstats-devel] Creation of groups of sources
+</A></li>
+        <LI>Next message: <A HREF="000086.html">[Serverstats-devel] r139 - in branches/xmlconfig: . test
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#111">[ date ]</a>
+              <a href="thread.html#111">[ thread ]</a>
+              <a href="subject.html#111">[ subject ]</a>
+              <a href="author.html#111">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> When I've made  the xml config by hosts approach but in reality we
+</I>&gt;<i> should have  by groups of sources approach.
+</I>
+I have groups by graph, because sources could poll multiple
+hosts/services/whatsoever. A graph is always linked to one (or more)
+category.
+And, of course, it's much easier to sort graphs directly, because a
+graph could contain multiple sources from multiple hosts.
+
+&gt;<i> For the current job, that I currently working on  I require this and
+</I>&gt;<i> templates support
+</I>&gt;<i> So I can use tree  to  groups my source :D
+</I>
+I think with XML-support you can sort your source-*files* any way you
+want, because you put them together using xincludes (or XSLT). So I
+don't see any reason to have some structure inside that sources.
+
+&gt;<i> I've done this tree to organize my infrastructure.
+</I>&gt;<i> I've still just one problem  on  'datacenter1' level ...
+</I>&gt;<i> 'datacenter1'  node displays all graphs and I want that do nothing   ...
+</I>&gt;<i> just an organizationalUnit ;)
+</I>
+This is possible with the current SVN-version. Just add &quot;none&quot; as a filter.
+
+&gt;<i> moreover is 'filter' is not specified the script return error  ( 'Offset
+</I>&gt;<i> &quot;filter&quot; does not exist'  ).  I believe that should be better to set
+</I>&gt;<i> filter  to none  by default
+</I>
+True, that should remind the user about writing valid configs.
+With XML it could be validated using DTDs or (better) XMLSchema or RelaxNG.
+
+&gt;<i> For templates I must use xml and xinclude
+</I>&gt;<i> I think to impletent your tree structure in xml
+</I>
+Just go ahead ;-)
+
+And don't hesitate to rewrite the whole config-class.
+(Thats anyway what I though you want to do)
+
+Greetings, David Danier
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 191 bytes
+Desc: OpenPGP digital signature
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060703/0690935b/attachment.pgp">https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060703/0690935b/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000108.html">[Serverstats-devel] Creation of groups of sources
+</A></li>
+	<LI>Next message: <A HREF="000086.html">[Serverstats-devel] r139 - in branches/xmlconfig: . test
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#111">[ date ]</a>
+              <a href="thread.html#111">[ thread ]</a>
+              <a href="subject.html#111">[ subject ]</a>
+              <a href="author.html#111">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

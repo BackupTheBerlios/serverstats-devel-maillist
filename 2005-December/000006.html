@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r89 - trunk/sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r89%20-%20trunk/sources&In-Reply-To=%3C200512231009.jBNA96wQ008756%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000005.html">
+   <LINK REL="Next"  HREF="000007.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r89 - trunk/sources</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r89%20-%20trunk/sources&In-Reply-To=%3C200512231009.jBNA96wQ008756%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r89 - trunk/sources">goliath at berlios.de
+       </A><BR>
+    <I>Fri Dec 23 11:09:06 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000005.html">[Serverstats-devel] r88 - in trunk: . includes sources
+</A></li>
+        <LI>Next message: <A HREF="000007.html">[Serverstats-devel] Re: Serverstats 0.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#6">[ date ]</a>
+              <a href="thread.html#6">[ thread ]</a>
+              <a href="subject.html#6">[ subject ]</a>
+              <a href="author.html#6">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2005-12-23 11:09:02 +0100 (Fri, 23 Dec 2005)
+New Revision: 89
+
+Modified:
+   trunk/sources/external.php
+Log:
+ * Bugfix: external source now works with multiline-output (&quot;a:1\nb:2&quot;)
+
+
+Modified: trunk/sources/external.php
+===================================================================
+--- trunk/sources/external.php	2005-12-22 12:25:19 UTC (rev 88)
++++ trunk/sources/external.php	2005-12-23 10:09:02 UTC (rev 89)
+@@ -26,7 +26,7 @@
+ class external extends source
+ {
+ 	private $command;
+-	private $datarow;
++	private $datarows;
+ 	private $data;
+ 
+ 	private $dsdef = array();
+@@ -48,17 +48,19 @@
+ 	
+ 	private function getDatarow()
+ 	{
+-		if (isset($this-&gt;datarow))
++		if (isset($this-&gt;datarows))
+ 		{
+ 			return;
+ 		}
+-		$this-&gt;datarow = exec(escapeshellcmd($this-&gt;command));
+-		if ($this-&gt;datarow === false)
++		$this-&gt;datarows = array();
++		$return = 0;
++		exec(escapeshellcmd($this-&gt;command), $this-&gt;datarows, $return);
++		if ($return !== 0)
+ 		{
+ 			throw new Exception('Could not exec command (' . $this-&gt;command . ')');
+ 		}
+ 		// Some scripts have ugly output, so we have to delete all unneeded spaces
+-		$this-&gt;datarow = preg_replace('/([a-zA-Z0-9_]{1,19})[\s,]*:[\s,]*(.+)/', '\\1:\\2', $this-&gt;datarow);
++		$this-&gt;datarows = preg_replace('/([a-zA-Z0-9_]{1,19})[\s,]*:[\s,]*(.+)/', '\\1:\\2', $this-&gt;datarows);
+ 	}
+ 	
+ 	private function getData()
+@@ -69,17 +71,20 @@
+ 		}
+ 		$this-&gt;getDatarow();
+ 		$this-&gt;data = array();
+-		$elements = preg_split('/[\s,]+/', $this-&gt;datarow);
+-		foreach ($elements as $element)
++		foreach ($this-&gt;datarows as $datarow)
+ 		{
+-			if (preg_match('/^([a-zA-Z0-9_]{1,19}):(.+)$/', $element, $split))
++			$elements = preg_split('/[\s,]+/', $datarow);
++			foreach ($elements as $element)
+ 			{
+-				$this-&gt;data[$split[1]] = $split[2];
++				if (preg_match('/^([a-zA-Z0-9_]{1,19}):(.+)$/', $element, $split))
++				{
++					$this-&gt;data[$split[1]] = $split[2];
++				}
++				else
++				{
++					$this-&gt;data[] = $element;
++				}
+ 			}
+-			else
+-			{
+-				$this-&gt;data[] = $element;
+-			}
+ 		}
+ 	}
+ 	
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000005.html">[Serverstats-devel] r88 - in trunk: . includes sources
+</A></li>
+	<LI>Next message: <A HREF="000007.html">[Serverstats-devel] Re: Serverstats 0.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#6">[ date ]</a>
+              <a href="thread.html#6">[ thread ]</a>
+              <a href="subject.html#6">[ subject ]</a>
+              <a href="author.html#6">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r155 - branches/xmlconfig2/config.sample
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r155%20-%20branches/xmlconfig2/config.sample&In-Reply-To=%3C200607032019.k63KJWaP002382%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000115.html">
+   <LINK REL="Next"  HREF="000117.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r155 - branches/xmlconfig2/config.sample</H1>
+    <B>scramatte at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r155%20-%20branches/xmlconfig2/config.sample&In-Reply-To=%3C200607032019.k63KJWaP002382%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r155 - branches/xmlconfig2/config.sample">scramatte at berlios.de
+       </A><BR>
+    <I>Mon Jul  3 22:19:32 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000115.html">[Serverstats-devel] r154 - branches
+</A></li>
+        <LI>Next message: <A HREF="000117.html">[Serverstats-devel] r156 - in branches/xmlconfig2/config.sample: . xml
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#116">[ date ]</a>
+              <a href="thread.html#116">[ thread ]</a>
+              <a href="subject.html#116">[ subject ]</a>
+              <a href="author.html#116">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: scramatte
+Date: 2006-07-03 22:19:29 +0200 (Mon, 03 Jul 2006)
+New Revision: 155
+
+Added:
+   branches/xmlconfig2/config.sample/xml.php
+Log:
+Add xmlconfig support
+
+
+Added: branches/xmlconfig2/config.sample/xml.php
+===================================================================
+--- branches/xmlconfig2/config.sample/xml.php	2006-07-03 20:18:06 UTC (rev 154)
++++ branches/xmlconfig2/config.sample/xml.php	2006-07-03 20:19:29 UTC (rev 155)
+@@ -0,0 +1,36 @@
++&lt;?php
++/**
++ * $Id: simple.php 123 2006-04-11 12:35:34Z goliath $
++ *
++ * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
++ * License: GPL v2 or later (<A HREF="http://www.gnu.org/licenses/gpl.html">http://www.gnu.org/licenses/gpl.html</A>)
++ *
++ * Copyright (C) 2005 David Danier
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++//$config['used'] = true; // is the simple config used
++
++$dom = new domDocument();
++$dom-&gt;load(CONFIGPATH . 'xml/sources.xml');
++$dom-&gt;Xinclude();
++
++$config['modules'] = xmlconfig::read($dom);
++$config['used'] = true;
++
++//print_r ($config);
++?&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000115.html">[Serverstats-devel] r154 - branches
+</A></li>
+	<LI>Next message: <A HREF="000117.html">[Serverstats-devel] r156 - in branches/xmlconfig2/config.sample: . xml
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#116">[ date ]</a>
+              <a href="thread.html#116">[ thread ]</a>
+              <a href="subject.html#116">[ subject ]</a>
+              <a href="author.html#116">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

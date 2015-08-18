@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r112 - trunk/doc
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r112%20-%20trunk/doc&In-Reply-To=%3C200602191102.k1JB2mHN022727%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000039.html">
+   <LINK REL="Next"  HREF="000041.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r112 - trunk/doc</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r112%20-%20trunk/doc&In-Reply-To=%3C200602191102.k1JB2mHN022727%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r112 - trunk/doc">goliath at berlios.de
+       </A><BR>
+    <I>Sun Feb 19 12:02:48 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000039.html">[Serverstats-devel] r111 - in trunk: config.sample sources
+</A></li>
+        <LI>Next message: <A HREF="000041.html">[Serverstats-devel] r113 - in trunk: . config.sample
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#40">[ date ]</a>
+              <a href="thread.html#40">[ thread ]</a>
+              <a href="subject.html#40">[ subject ]</a>
+              <a href="author.html#40">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-02-19 12:02:44 +0100 (Sun, 19 Feb 2006)
+New Revision: 112
+
+Modified:
+   trunk/doc/sources.txt
+Log:
+ * Docs for ping and ping_http
+
+
+Modified: trunk/doc/sources.txt
+===================================================================
+--- trunk/doc/sources.txt	2006-02-19 10:44:20 UTC (rev 111)
++++ trunk/doc/sources.txt	2006-02-19 11:02:44 UTC (rev 112)
+@@ -16,6 +16,8 @@
+   2.8. mysql
+   2.9. traffic
+   2.10. traffic_proc
++  2.11. ping
++  2.12. ping_http
+   
+ 3. additional sources
+ 
+@@ -375,6 +377,57 @@
+   'ds' =&gt; 'eth0_rbytes',
+ 
+ ===============================================================================
++ 2.11. ping
++===============================================================================
++
++Uses 'ping' to ping some server.
++
++Parameters:
++$host: Host, that should be pinged
++	Format: String
++$ping_opts: Options passed to ping
++	change it for other UNIX-systems than linux, should tell ping to have
++	a timeout of one second and to only send one ping
++	Format: String
++	Default: '-c 1 -W 1'
++$ping_exec: Path to ping
++	Format: String
++	Default: '/bin/ping'
++	
++Datasources:
++	time: Time in ms
++	
++
++===============================================================================
++ 2.12. ping_http
++===============================================================================
++
++Connects to a HTTP-server and measures the time a request takes.
++
++Parameters:
++$host: HTTP-server
++	Format: String
++$port: Port of the HTTP-daemon
++	Format: integer
++	Default: 80
++$path: Remote path that should be requested
++	Format: String
++	Default: '/'
++$command: HTTP-command
++	Format: String (only 'HEAD' or 'GET')
++	Default: 'HEAD'
++$timeout: Timeout in seconds
++	Format: integer
++	Default: 1
++	
++Datasources:
++	time: ping-time in ms
++	open: delay to open the connection
++	send: delay to send the request
++	receive: delay to receive the respons
++	close: delay to close the connection
++	
++===============================================================================
+  3. additional sources
+ ===============================================================================
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000039.html">[Serverstats-devel] r111 - in trunk: config.sample sources
+</A></li>
+	<LI>Next message: <A HREF="000041.html">[Serverstats-devel] r113 - in trunk: . config.sample
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#40">[ date ]</a>
+              <a href="thread.html#40">[ thread ]</a>
+              <a href="subject.html#40">[ subject ]</a>
+              <a href="author.html#40">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

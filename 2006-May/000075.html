@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] simpleconfig.class.php
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-May/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20simpleconfig.class.php&In-Reply-To=%3C44684FDF.1090203%40spuetz.ath.cx%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000074.html">
+   <LINK REL="Next"  HREF="000076.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] simpleconfig.class.php</H1>
+    <B>Martin Spuetz</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20simpleconfig.class.php&In-Reply-To=%3C44684FDF.1090203%40spuetz.ath.cx%3E"
+       TITLE="[Serverstats-devel] simpleconfig.class.php">mas at spuetz.ath.cx
+       </A><BR>
+    <I>Mon May 15 11:54:39 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000074.html">[Serverstats-devel] simpleconfig.class.php
+</A></li>
+        <LI>Next message: <A HREF="000076.html">[Serverstats-devel] simpleconfig.class.php
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#75">[ date ]</a>
+              <a href="thread.html#75">[ thread ]</a>
+              <a href="subject.html#75">[ subject ]</a>
+              <a href="author.html#75">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>David Danier wrote:
+&gt;<i> Knapp zu sp&#228;t, ich antworte aber trotzdem nochmal mit Erkl&#228;rungen.
+</I>
+Jep, das hab ich gemerkt, gerade abgeschickt, da kam die svn mail.
+
+&gt;&gt;<i> mit dem Problem der $GLOBALS und dem Zend Optimizer, ich denke, es ist
+</I>&gt;&gt;<i> keine gute Idee, den globalen Namespace von PHP zu benutzen, zumindest
+</I>&gt;&gt;<i> nicht in der Art.
+</I>&gt;<i> 
+</I>&gt;<i> Naja, das ist innerhalb eines Methodenaufrufes, weshalb der globale
+</I>&gt;<i> Namespace nicht verschmutzt wird. Die Variable $GLOBALS wird nur im
+</I>&gt;<i> Namespace dieser Methode ersetzt.
+</I>
+$GLOBALS ist der globale Namespace ;)
+
+&gt;&gt;<i> Ich hab mir den Source jetzt nicht so genau angeschaut, aber du
+</I>&gt;&gt;<i> scheinst das $GLOBALS- Array per-copy an simpleconfig::graph zu
+</I>&gt;&gt;<i> &#252;bergeben, daran h&#228;ngt sich der Cache wahrscheinlich auf, ist auch
+</I>&gt;&gt;<i> verst&#228;ndlich ;)
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> -public static function graph(&amp;$config, $simpleconfig)
+</I>&gt;&gt;<i> +public static function graph(&amp;$config, &amp;$simpleconfig)
+</I>&gt;<i> 
+</I>&gt;<i> Das ist nicht n&#246;tig, das $GLOBALS kein Array ist. $GLOBALS ist eine
+</I>&gt;<i> Instanz der Klasse config, die ArrayAccess anbietet. Um genau zu sein
+</I>&gt;<i> ist es genau die Instanz von config, die der Wurzel der Konfiguration
+</I>&gt;<i> entspricht.
+</I>
+Und das ist das Problem, ich wusste nicht, dass das PHP &#252;berhaupt
+zul&#228;sst und das die Optimizer daran scheitern ist mehr als verst&#228;ndlich:
+
+<A HREF="http://de2.php.net/manual/en/reserved.variables.php#reserved.variables.globals">http://de2.php.net/manual/en/reserved.variables.php#reserved.variables.globals</A>
+
+<A HREF="http://de2.php.net/manual/en/language.variables.scope.php">http://de2.php.net/manual/en/language.variables.scope.php</A> (Example 12-3)
+
+[snip erkl&#228;rung]
+
+Jep, an dem Diff habe ich ja gesehen, dass das wirklich nur eine
+kleiner &#196;nderung ist, so sollte das alles passen - mit einerm neuen
+Object w&#228;re das wirklich etwas kompliziert geworden ;-)
+
+
+&gt;<i> Trotzdem nat&#252;rlich danke f&#252;r die Vorschl&#228;ge. Falls dir mit dem genaueren
+</I>&gt;<i> Wissen bzgl. der Funktionsweise noch eine bessere Idee einf&#228;llt hab ich
+</I>&gt;<i> auf jeden Fall offene Ohren daf&#252;r. ;-)
+</I>
+Ich denke, mit der &#196;nderung wird das mit dem Zend Optimizer
+funktionieren und dann ist ja das Problem auch behoben.
+
+Gruss,
+Martin
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000074.html">[Serverstats-devel] simpleconfig.class.php
+</A></li>
+	<LI>Next message: <A HREF="000076.html">[Serverstats-devel] simpleconfig.class.php
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#75">[ date ]</a>
+              <a href="thread.html#75">[ thread ]</a>
+              <a href="subject.html#75">[ subject ]</a>
+              <a href="author.html#75">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r164 - trunk/sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r164%20-%20trunk/sources&In-Reply-To=%3C200610212005.k9LK5LBQ021411%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r164 - trunk/sources</H1>
+    <B>goliath at mail.berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r164%20-%20trunk/sources&In-Reply-To=%3C200610212005.k9LK5LBQ021411%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r164 - trunk/sources">goliath at mail.berlios.de
+       </A><BR>
+    <I>Sat Oct 21 22:05:21 CEST 2006</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#134">[ date ]</a>
+              <a href="thread.html#134">[ thread ]</a>
+              <a href="subject.html#134">[ subject ]</a>
+              <a href="author.html#134">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-10-21 22:05:20 +0200 (Sat, 21 Oct 2006)
+New Revision: 164
+
+Modified:
+   trunk/sources/ping.php
+Log:
+ * Host was not escaped, fixed this
+
+
+Modified: trunk/sources/ping.php
+===================================================================
+--- trunk/sources/ping.php	2006-08-02 20:08:28 UTC (rev 163)
++++ trunk/sources/ping.php	2006-10-21 20:05:20 UTC (rev 164)
+@@ -46,7 +46,7 @@
+ 		{
+ 			$opt_string .= ' ' . escapeshellarg($opt);
+ 		}
+-		$command = escapeshellcmd($this-&gt;ping_exec) . $opt_string . ' ' . $this-&gt;host;
++		$command = escapeshellcmd($this-&gt;ping_exec) . $opt_string . ' ' . escapeshellarg($this-&gt;host);
+ 		$output = array();
+ 		$return = 0;
+ 		exec($command . ' 2&gt;&amp;1', $output, $return);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#134">[ date ]</a>
+              <a href="thread.html#134">[ thread ]</a>
+              <a href="subject.html#134">[ subject ]</a>
+              <a href="author.html#134">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

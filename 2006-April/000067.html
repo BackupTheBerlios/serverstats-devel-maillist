@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] Re: Serverstats / traffic_proc
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Re%3A%20Serverstats%20/%20traffic_proc&In-Reply-To=%3C444F5106.6030105%40spuetz.ath.cx%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000066.html">
+   <LINK REL="Next"  HREF="000068.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] Re: Serverstats / traffic_proc</H1>
+    <B>Martin Spuetz</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Re%3A%20Serverstats%20/%20traffic_proc&In-Reply-To=%3C444F5106.6030105%40spuetz.ath.cx%3E"
+       TITLE="[Serverstats-devel] Re: Serverstats / traffic_proc">mas at spuetz.ath.cx
+       </A><BR>
+    <I>Wed Apr 26 12:52:54 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000066.html">[Serverstats-devel] Re: Serverstats / traffic_proc
+</A></li>
+        <LI>Next message: <A HREF="000068.html">[Serverstats-devel] Re: Serverstats / traffic_proc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#67">[ date ]</a>
+              <a href="thread.html#67">[ thread ]</a>
+              <a href="subject.html#67">[ subject ]</a>
+              <a href="author.html#67">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>David Danier wrote:
+&gt;&gt;<i> Schreibe es derzeit sozusagen auf eine Client/Server Variante um. Ziel ist es, auf einem Server einen Xinetd mit &quot;rrdtool -&quot; (in einer chroot) laufen zu haben, und die Commands der anderen via netcat an diesen zu schicken.
+</I>&gt;<i> 
+</I>&gt;<i> Client/Server-Support hatte ich mir auch schon &#252;berlegt, allerdings mit
+</I>&gt;<i> einem etwas anderen Ansatz:
+</I>&gt;<i> Der Server hat Serverstats laufen. Anstatt der update.php gibt es ein
+</I>&gt;<i> zus&#228;tzliches Script fetchValues.php (o.&#228;.). Dieses Script wird vom
+</I>&gt;<i> entfernten Rechner direkt per HTTP aufgerufen. Es gibt alle oder nur
+</I>&gt;<i> ausgew&#228;hlte Sourcen in XML kodiert zur&#252;ck, die der Server dann
+</I>&gt;<i> auswertet. Alternativ wird einfach ein serialisiertes Sources-Objekt
+</I>&gt;<i> zur&#252;ckgegeben bei dem die Daten schon abgerufen wurden (viel einfacher).
+</I>
+serialisiertes Objekt ist ja ein bisschen evil, warum nicht einfach
+&#252;ber einen Webdienst, z.B. &#252;ber SOAP?
+
+&gt;<i> Was jetzt schon sehr einfach m&#246;glich ist w&#228;re der Zugriff auf die Daten
+</I>&gt;<i> (/proc etc.) oder auf die RRD-Dateien &#252;ber einen Netzwerkmount. Hier
+</I>&gt;<i> k&#246;nnte NFS oder auch SSHFS zum Einsatz kommen. Ich denke wenn man das
+</I>&gt;<i> mit SSHFS auf die RRD-Dateien anwendet hat man ein einfaches und
+</I>&gt;<i> sicheres (verschl&#252;sselt) System.
+</I>
+M&#246;glich ja, aber nicht wirklich in gesch&#228;ftskritischen Bereichen
+einsetzbar. Ein robuster Webservice w&#252;rde da weitaus mehr
+M&#246;glichkeiten bieten, der Server m&#252;sste sich ja nicht nur auf das
+Auswerten von Performancedaten beschr&#228;nken, es k&#246;nnte auch eine Art
+Monitoring eingebaut werden.
+
+Was h&#228;lst du von einem Webdienst?
+
+Beste Gr&#252;&#223;e,
+Martin
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000066.html">[Serverstats-devel] Re: Serverstats / traffic_proc
+</A></li>
+	<LI>Next message: <A HREF="000068.html">[Serverstats-devel] Re: Serverstats / traffic_proc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#67">[ date ]</a>
+              <a href="thread.html#67">[ thread ]</a>
+              <a href="subject.html#67">[ subject ]</a>
+              <a href="author.html#67">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

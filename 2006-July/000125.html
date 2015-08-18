@@ -1,0 +1,408 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r160 - in branches/xmlconfig2/config.sample/xml: . templates
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r160%20-%20in%20branches/xmlconfig2/config.sample/xml%3A%20.%20templates&In-Reply-To=%3C200607041336.k64DaB3C019992%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000120.html">
+   <LINK REL="Next"  HREF="000126.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r160 - in branches/xmlconfig2/config.sample/xml: . templates</H1>
+    <B>scramatte at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r160%20-%20in%20branches/xmlconfig2/config.sample/xml%3A%20.%20templates&In-Reply-To=%3C200607041336.k64DaB3C019992%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r160 - in branches/xmlconfig2/config.sample/xml: . templates">scramatte at berlios.de
+       </A><BR>
+    <I>Tue Jul  4 15:36:11 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000120.html">[Serverstats-devel] r159 - in branches/xmlconfig2: ajax ajax/css config.sample config.sample/xml includes sources
+</A></li>
+        <LI>Next message: <A HREF="000126.html">[Serverstats-devel] r161 - in branches/xmlconfig2: ajax config.sample config.sample/xml config.sample/xml/templates includes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#125">[ date ]</a>
+              <a href="thread.html#125">[ thread ]</a>
+              <a href="subject.html#125">[ subject ]</a>
+              <a href="author.html#125">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: scramatte
+Date: 2006-07-04 15:36:06 +0200 (Tue, 04 Jul 2006)
+New Revision: 160
+
+Added:
+   branches/xmlconfig2/config.sample/xml/main.xml
+   branches/xmlconfig2/config.sample/xml/templates/
+   branches/xmlconfig2/config.sample/xml/templates/ucd-snmp-mib-load-graph.xml
+   branches/xmlconfig2/config.sample/xml/templates/ucd-snmp-mib-load.xml
+   branches/xmlconfig2/config.sample/xml/tree.xml
+Modified:
+   branches/xmlconfig2/config.sample/xml/config.xml
+   branches/xmlconfig2/config.sample/xml/graphs.xml
+   branches/xmlconfig2/config.sample/xml/sources.xml
+Log:
+Update xmlconfig
+
+
+Modified: branches/xmlconfig2/config.sample/xml/config.xml
+===================================================================
+--- branches/xmlconfig2/config.sample/xml/config.xml	2006-07-03 23:56:30 UTC (rev 159)
++++ branches/xmlconfig2/config.sample/xml/config.xml	2006-07-04 13:36:06 UTC (rev 160)
+@@ -1,5 +1,7 @@
+ &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
+-&lt;config xmlns=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;  &gt;
++&lt;config xmlns=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;&gt;
++        &lt;xi:include href=&quot;tree.xml&quot; /&gt;
++	&lt;xi:include href=&quot;main.xml&quot; /&gt;
+ 	&lt;xi:include href=&quot;sources.xml&quot; /&gt;
+-	&lt;xi:include href=&quot;graphs.xml&quot; /&gt;
++        &lt;xi:include href=&quot;graphs.xml&quot; /&gt;
+ &lt;/config&gt;
+
+Modified: branches/xmlconfig2/config.sample/xml/graphs.xml
+===================================================================
+--- branches/xmlconfig2/config.sample/xml/graphs.xml	2006-07-03 23:56:30 UTC (rev 159)
++++ branches/xmlconfig2/config.sample/xml/graphs.xml	2006-07-04 13:36:06 UTC (rev 160)
+@@ -1,122 +1,4 @@
+ &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
+-&lt;graphs xmlns=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;  &gt;
+-	&lt;graph&gt;
+-			 &lt;param name=&quot;title&quot;&gt;Load SNMP&lt;/param&gt;
+-                                &lt;param name=&quot;lowerLimit&quot;&gt;0&lt;/param&gt;
+-                                &lt;param name=&quot;altAutoscaleMax&quot;&gt;true&lt;/param&gt;
+-				&lt;param name=&quot;categories&quot; xsi:type=&quot;xsd:array&quot;&gt;
+-					&lt;param name=&quot;title&quot;&gt;vps&lt;/param&gt;
+-					&lt;param name=&quot;groupby&quot;&gt;vps&lt;/param&gt;
+-					&lt;param name=&quot;impact&quot;&gt;important&lt;/param&gt;
+-				&lt;/param&gt;
+-                                &lt;param name=&quot;content&quot; xsi:type=&quot;xsd:array&quot;&gt;
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
+-                                                        &lt;param name=&quot;type&quot;&gt;COMMENT&lt;/param&gt;
+-                                                        &lt;param name=&quot;text&quot;&gt;average number of tasks in the queue\:\n&lt;/param&gt;
+-                                                &lt;/param&gt;
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
+-                                                        &lt;param name=&quot;type&quot;&gt;LINE&lt;/param&gt;
+-                                                        &lt;param name=&quot;source&quot;&gt;snmp1&lt;/param&gt;
+-                                                        &lt;param name=&quot;ds&quot;&gt;1min&lt;/param&gt;
+-                                                        &lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
+-                                                        &lt;param name=&quot;legend&quot;&gt;1 minute&lt;/param&gt;
+-                                                        &lt;param name=&quot;width&quot;&gt;1&lt;/param&gt;
+-                                                        &lt;param name=&quot;color&quot;&gt;FFDD00&lt;/param&gt;
+-                                                &lt;/param&gt;
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
+-                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
+-                                                        &lt;param name=&quot;name&quot;&gt;snmp1_1min&lt;/param&gt;
+-                                                        &lt;param name=&quot;cf&quot;&gt;LAST&lt;/param&gt;
+-                                                        &lt;param name=&quot;format&quot;&gt;  cur\: %01.2lf&lt;/param&gt;
+-                                                &lt;/param&gt;
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
+-                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
+-                                                        &lt;param name=&quot;name&quot;&gt;snmp1_1min&lt;/param&gt;
+-                                                        &lt;param name=&quot;cf&quot;&gt;MAXIMUM&lt;/param&gt;
+-                                                        &lt;param name=&quot;format&quot;&gt;  max\: %01.2lf&lt;/param&gt;
+-                                                &lt;/param&gt;
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
+-                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
+-                                                        &lt;param name=&quot;name&quot;&gt;snmp1_1min&lt;/param&gt;
+-                                                        &lt;param name=&quot;cf&quot;&gt;MINIMUM&lt;/param&gt;
+-                                                        &lt;param name=&quot;format&quot;&gt;  min\: %01.2lf&lt;/param&gt;
+-                                                &lt;/param&gt;
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
+-                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
+-                                                        &lt;param name=&quot;name&quot;&gt;snmp1_1min&lt;/param&gt;
+-                                                        &lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
+-                                                        &lt;param name=&quot;format&quot;&gt;  avg\: %01.2lf\n&lt;/param&gt;
+-                                                &lt;/param&gt;
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
+-                                                        &lt;param name=&quot;type&quot;&gt;LINE&lt;/param&gt;
+-                                                        &lt;param name=&quot;source&quot;&gt;snmp1&lt;/param&gt;
+-                                                        &lt;param name=&quot;ds&quot;&gt;5min&lt;/param&gt;
+-                                                        &lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
+-                                                        &lt;param name=&quot;legend&quot;&gt;5 minutes&lt;/param&gt;
+-                                                        &lt;param name=&quot;width&quot;&gt;1&lt;/param&gt;
+-                                                        &lt;param name=&quot;color&quot;&gt;FF8800&lt;/param&gt;
+-                                                &lt;/param&gt;
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
+-                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
+-                                                        &lt;param name=&quot;name&quot;&gt;snmp1_5min&lt;/param&gt;
+-                                                        &lt;param name=&quot;cf&quot;&gt;LAST&lt;/param&gt;
+-                                                        &lt;param name=&quot;format&quot;&gt;  cur\: %01.2lf&lt;/param&gt;
+-                                                &lt;/param&gt;
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
+-                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
+-                                                        &lt;param name=&quot;name&quot;&gt;snmp1_5min&lt;/param&gt;
+-                                                        &lt;param name=&quot;cf&quot;&gt;MAXIMUM&lt;/param&gt;
+-                                                        &lt;param name=&quot;format&quot;&gt;  max\: %01.2lf&lt;/param&gt;
+-                                                &lt;/param&gt;
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
+-                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
+-                                                        &lt;param name=&quot;name&quot;&gt;snmp1_5min&lt;/param&gt;
+-                                                        &lt;param name=&quot;cf&quot;&gt;MINIMUM&lt;/param&gt;
+-                                                        &lt;param name=&quot;format&quot;&gt;  min\: %01.2lf&lt;/param&gt;
+-                                                &lt;/param&gt;
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
+-                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
+-                                                        &lt;param name=&quot;name&quot;&gt;snmp1_5min&lt;/param&gt;
+-                                                        &lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
+-                                                        &lt;param name=&quot;format&quot;&gt;  avg\: %01.2lf\n&lt;/param&gt;
+-                                                &lt;/param&gt;
+-
+-
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
+-                                                        &lt;param name=&quot;type&quot;&gt;LINE&lt;/param&gt;
+-                                                        &lt;param name=&quot;source&quot;&gt;snmp1&lt;/param&gt;
+-                                                        &lt;param name=&quot;ds&quot;&gt;15min&lt;/param&gt;
+-                                                        &lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
+-                                                        &lt;param name=&quot;legend&quot;&gt;15 minutes&lt;/param&gt;
+-                                                        &lt;param name=&quot;width&quot;&gt;1&lt;/param&gt;
+-                                                        &lt;param name=&quot;color&quot;&gt;FF0000&lt;/param&gt;
+-                                                &lt;/param&gt;
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
+-                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
+-                                                        &lt;param name=&quot;name&quot;&gt;snmp1_15min&lt;/param&gt;
+-                                                        &lt;param name=&quot;cf&quot;&gt;LAST&lt;/param&gt;
+-                                                        &lt;param name=&quot;format&quot;&gt;  cur\: %01.2lf&lt;/param&gt;
+-                                                &lt;/param&gt;
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
+-                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
+-                                                        &lt;param name=&quot;name&quot;&gt;snmp1_15min&lt;/param&gt;
+-                                                        &lt;param name=&quot;cf&quot;&gt;MAXIMUM&lt;/param&gt;
+-                                                        &lt;param name=&quot;format&quot;&gt;  max\: %01.2lf&lt;/param&gt;
+-                                                &lt;/param&gt;
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
+-                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
+-                                                        &lt;param name=&quot;name&quot;&gt;snmp1_15min&lt;/param&gt;
+-                                                        &lt;param name=&quot;cf&quot;&gt;MINIMUM&lt;/param&gt;
+-                                                        &lt;param name=&quot;format&quot;&gt;  min\: %01.2lf&lt;/param&gt;
+-                                                &lt;/param&gt;
+-                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
+-                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
+-                                                        &lt;param name=&quot;name&quot;&gt;snmp1_15min&lt;/param&gt;
+-                                                        &lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
+-                                                        &lt;param name=&quot;format&quot;&gt;  avg\: %01.2lf&lt;/param&gt;
+-                                                &lt;/param&gt;
+-
+-                                &lt;/param&gt;
+-
+-	&lt;/graph&gt;
++&lt;graphs xmlns=&quot;urn:serverstats&quot; xmlns:stats=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;&gt;
++	&lt;xi:include href=&quot;templates/ucd-snmp-mib-load-graph.xml&quot;	/&gt;
+ &lt;/graphs&gt;
+
+Added: branches/xmlconfig2/config.sample/xml/main.xml
+===================================================================
+--- branches/xmlconfig2/config.sample/xml/main.xml	2006-07-03 23:56:30 UTC (rev 159)
++++ branches/xmlconfig2/config.sample/xml/main.xml	2006-07-04 13:36:06 UTC (rev 160)
+@@ -0,0 +1,7 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
++&lt;main xmlns=&quot;urn:serverstats&quot; xmlns:stats=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;&gt;
++	&lt;param name=&quot;language&quot;&gt;en_US&lt;/param&gt;
++	&lt;param name=&quot;rrdtool&quot;&gt;/usr/bin/rrdtool&lt;/param&gt;
++	&lt;param name=&quot;step&quot;&gt;300&lt;/param&gt;
++	
++&lt;/main&gt;
+
+Modified: branches/xmlconfig2/config.sample/xml/sources.xml
+===================================================================
+--- branches/xmlconfig2/config.sample/xml/sources.xml	2006-07-03 23:56:30 UTC (rev 159)
++++ branches/xmlconfig2/config.sample/xml/sources.xml	2006-07-04 13:36:06 UTC (rev 160)
+@@ -1,13 +1,8 @@
+ &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
+-&lt;sources xmlns=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;  &gt;
++&lt;sources xmlns=&quot;urn:serverstats&quot; xmlns:stats=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;  &gt;
+ 	&lt;source type=&quot;cpu&quot; id=&quot;cpu2&quot; /&gt;
+ 	&lt;source type=&quot;snmp&quot; id=&quot;snmp1&quot;&gt;
+ 		&lt;param name=&quot;host&quot;&gt;127.0.0.1&lt;/param&gt;
+-		&lt;param name=&quot;comunity&quot;&gt;public&lt;/param&gt;
+-		&lt;param name=&quot;objects&quot; xsi:type=&quot;xsd:array&quot;&gt;
+-			&lt;param name=&quot;1min&quot;&gt;UCD-SNMP-MIB::laLoad.1&lt;/param&gt;
+-		        &lt;param name=&quot;5min&quot;&gt;UCD-SNMP-MIB::laLoad.2&lt;/param&gt;
+-		        &lt;param name=&quot;15min&quot;&gt;UCD-SNMP-MIB::laLoad.3&lt;/param&gt;
+-		&lt;/param&gt;
++		&lt;xi:include href=&quot;templates/ucd-snmp-mib-load.xml#xmlns(s=urn:serverstats)xpointer(/s:template/*)&quot; /&gt;
+ 	&lt;/source&gt;
+ &lt;/sources&gt;
+
+Added: branches/xmlconfig2/config.sample/xml/templates/ucd-snmp-mib-load-graph.xml
+===================================================================
+--- branches/xmlconfig2/config.sample/xml/templates/ucd-snmp-mib-load-graph.xml	2006-07-03 23:56:30 UTC (rev 159)
++++ branches/xmlconfig2/config.sample/xml/templates/ucd-snmp-mib-load-graph.xml	2006-07-04 13:36:06 UTC (rev 160)
+@@ -0,0 +1,116 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
++&lt;graph xmlns=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot;  xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;&gt;
++				&lt;param name=&quot;title&quot;&gt;Load&lt;/param&gt;
++				&lt;param name=&quot;lowerLimit&quot;&gt;0&lt;/param&gt;
++				&lt;param name=&quot;altAutoscaleMax&quot;&gt;true&lt;/param&gt;
++				&lt;param name=&quot;content&quot; xsi:type=&quot;xsd:array&quot;&gt;
++						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
++							&lt;param name=&quot;type&quot;&gt;COMMENT&lt;/param&gt;
++							&lt;param name=&quot;text&quot;&gt;average number of tasks in the queue\:\n&lt;/param&gt;
++						&lt;/param&gt;
++						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
++							&lt;param name=&quot;type&quot;&gt;LINE&lt;/param&gt;
++							&lt;param name=&quot;source&quot;&gt;load&lt;/param&gt;
++							&lt;param name=&quot;ds&quot;&gt;1min&lt;/param&gt;
++							&lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
++							&lt;param name=&quot;legend&quot;&gt;1 minute&lt;/param&gt;
++							&lt;param name=&quot;width&quot;&gt;1&lt;/param&gt;
++							&lt;param name=&quot;color&quot;&gt;FFDD00&lt;/param&gt;
++						&lt;/param&gt;
++						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
++							&lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
++							&lt;param name=&quot;name&quot;&gt;load_1min&lt;/param&gt;
++							&lt;param name=&quot;cf&quot;&gt;LAST&lt;/param&gt;
++							&lt;param name=&quot;format&quot;&gt;  cur\: %01.2lf&lt;/param&gt;
++						&lt;/param&gt;
++						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
++							&lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
++							&lt;param name=&quot;name&quot;&gt;load_1min&lt;/param&gt;
++							&lt;param name=&quot;cf&quot;&gt;MAXIMUM&lt;/param&gt;
++							&lt;param name=&quot;format&quot;&gt;  max\: %01.2lf&lt;/param&gt;
++						&lt;/param&gt;
++						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
++							&lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
++							&lt;param name=&quot;name&quot;&gt;load_1min&lt;/param&gt;
++							&lt;param name=&quot;cf&quot;&gt;MINIMUM&lt;/param&gt;
++							&lt;param name=&quot;format&quot;&gt;  min\: %01.2lf&lt;/param&gt;
++						&lt;/param&gt;
++						&lt;param xsi:type=&quot;xsd:array&quot;&gt;
++							&lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
++							&lt;param name=&quot;name&quot;&gt;load_1min&lt;/param&gt;
++							&lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
++							&lt;param name=&quot;format&quot;&gt;  avg\: %01.2lf\n&lt;/param&gt;
++						&lt;/param&gt;
++                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
++                                                        &lt;param name=&quot;type&quot;&gt;LINE&lt;/param&gt;
++                                                        &lt;param name=&quot;source&quot;&gt;load&lt;/param&gt;
++                                                        &lt;param name=&quot;ds&quot;&gt;5min&lt;/param&gt;
++                                                        &lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
++                                                        &lt;param name=&quot;legend&quot;&gt;5 minutes&lt;/param&gt;
++                                                        &lt;param name=&quot;width&quot;&gt;1&lt;/param&gt;
++                                                        &lt;param name=&quot;color&quot;&gt;FF8800&lt;/param&gt;
++                                                &lt;/param&gt;
++                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
++                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
++                                                        &lt;param name=&quot;name&quot;&gt;load_5min&lt;/param&gt;
++                                                        &lt;param name=&quot;cf&quot;&gt;LAST&lt;/param&gt;
++                                                        &lt;param name=&quot;format&quot;&gt;  cur\: %01.2lf&lt;/param&gt;
++                                                &lt;/param&gt;
++                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
++                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
++                                                        &lt;param name=&quot;name&quot;&gt;load_5min&lt;/param&gt;
++                                                        &lt;param name=&quot;cf&quot;&gt;MAXIMUM&lt;/param&gt;
++                                                        &lt;param name=&quot;format&quot;&gt;  max\: %01.2lf&lt;/param&gt;
++                                                &lt;/param&gt;
++                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
++                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
++                                                        &lt;param name=&quot;name&quot;&gt;load_5min&lt;/param&gt;
++                                                        &lt;param name=&quot;cf&quot;&gt;MINIMUM&lt;/param&gt;
++                                                        &lt;param name=&quot;format&quot;&gt;  min\: %01.2lf&lt;/param&gt;
++                                                &lt;/param&gt;
++                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
++                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
++                                                        &lt;param name=&quot;name&quot;&gt;load_5min&lt;/param&gt;
++                                                        &lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
++                                                        &lt;param name=&quot;format&quot;&gt;  avg\: %01.2lf\n&lt;/param&gt;
++                                                &lt;/param&gt;
++
++
++                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
++                                                        &lt;param name=&quot;type&quot;&gt;LINE&lt;/param&gt;
++                                                        &lt;param name=&quot;source&quot;&gt;load&lt;/param&gt;
++                                                        &lt;param name=&quot;ds&quot;&gt;15min&lt;/param&gt;
++                                                        &lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
++                                                        &lt;param name=&quot;legend&quot;&gt;15 minutes&lt;/param&gt;
++                                                        &lt;param name=&quot;width&quot;&gt;1&lt;/param&gt;
++                                                        &lt;param name=&quot;color&quot;&gt;FF0000&lt;/param&gt;
++                                                &lt;/param&gt;
++                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
++                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
++                                                        &lt;param name=&quot;name&quot;&gt;load_15min&lt;/param&gt;
++                                                        &lt;param name=&quot;cf&quot;&gt;LAST&lt;/param&gt;
++                                                        &lt;param name=&quot;format&quot;&gt;  cur\: %01.2lf&lt;/param&gt;
++                                                &lt;/param&gt;
++                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
++                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
++                                                        &lt;param name=&quot;name&quot;&gt;load_15min&lt;/param&gt;
++                                                        &lt;param name=&quot;cf&quot;&gt;MAXIMUM&lt;/param&gt;
++                                                        &lt;param name=&quot;format&quot;&gt;  max\: %01.2lf&lt;/param&gt;
++                                                &lt;/param&gt;
++                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
++                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
++                                                        &lt;param name=&quot;name&quot;&gt;load_15min&lt;/param&gt;
++                                                        &lt;param name=&quot;cf&quot;&gt;MINIMUM&lt;/param&gt;
++                                                        &lt;param name=&quot;format&quot;&gt;  min\: %01.2lf&lt;/param&gt;
++                                                &lt;/param&gt;
++                                                &lt;param xsi:type=&quot;xsd:array&quot;&gt;
++                                                        &lt;param name=&quot;type&quot;&gt;GPRINT&lt;/param&gt;
++                                                        &lt;param name=&quot;name&quot;&gt;load_15min&lt;/param&gt;
++                                                        &lt;param name=&quot;cf&quot;&gt;AVERAGE&lt;/param&gt;
++                                                        &lt;param name=&quot;format&quot;&gt;  avg\: %01.2lf&lt;/param&gt;
++                                                &lt;/param&gt;
++
++
++
++				&lt;/param&gt;
++&lt;/graph&gt;
+
+Added: branches/xmlconfig2/config.sample/xml/templates/ucd-snmp-mib-load.xml
+===================================================================
+--- branches/xmlconfig2/config.sample/xml/templates/ucd-snmp-mib-load.xml	2006-07-03 23:56:30 UTC (rev 159)
++++ branches/xmlconfig2/config.sample/xml/templates/ucd-snmp-mib-load.xml	2006-07-04 13:36:06 UTC (rev 160)
+@@ -0,0 +1,9 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
++&lt;template xmlns=&quot;urn:serverstats&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot;&gt; 
++	&lt;param name=&quot;comunity&quot;&gt;public&lt;/param&gt;
++	&lt;param name=&quot;objects&quot; xsi:type=&quot;xsd:array&quot;&gt;
++        	&lt;param name=&quot;1min&quot;&gt;UCD-SNMP-MIB::laLoad.1&lt;/param&gt;
++                &lt;param name=&quot;5min&quot;&gt;UCD-SNMP-MIB::laLoad.2&lt;/param&gt;
++                &lt;param name=&quot;15min&quot;&gt;UCD-SNMP-MIB::laLoad.3&lt;/param&gt;
++        &lt;/param&gt;
++&lt;/template&gt;
+
+Added: branches/xmlconfig2/config.sample/xml/tree.xml
+===================================================================
+--- branches/xmlconfig2/config.sample/xml/tree.xml	2006-07-03 23:56:30 UTC (rev 159)
++++ branches/xmlconfig2/config.sample/xml/tree.xml	2006-07-04 13:36:06 UTC (rev 160)
+@@ -0,0 +1,7 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
++&lt;item xmlns=&quot;urn:serverstats&quot; xmlns:xi=&quot;<A HREF="http://www.w3.org/2001/XInclude">http://www.w3.org/2001/XInclude</A>&quot; xmlns:xsi=&quot;<A HREF="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</A>&quot; title=&quot;All&quot; filter=&quot;&quot; &gt;
++	&lt;item title=&quot;VPS&quot; filter=&quot;groupby:vps&quot; &gt;
++		&lt;item title=&quot;127.0.0.1&quot; filter=&quot;host:127.0.0.1&quot; /&gt;
++	&lt;/item&gt;
++&lt;/item&gt;
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000120.html">[Serverstats-devel] r159 - in branches/xmlconfig2: ajax ajax/css config.sample config.sample/xml includes sources
+</A></li>
+	<LI>Next message: <A HREF="000126.html">[Serverstats-devel] r161 - in branches/xmlconfig2: ajax config.sample config.sample/xml config.sample/xml/templates includes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#125">[ date ]</a>
+              <a href="thread.html#125">[ thread ]</a>
+              <a href="subject.html#125">[ subject ]</a>
+              <a href="author.html#125">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

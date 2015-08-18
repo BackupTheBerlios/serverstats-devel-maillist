@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r173 - in trunk: . config.sample includes
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2009-May/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r173%20-%20in%20trunk%3A%20.%20config.sample%20includes&In-Reply-To=%3C200905191403.n4JE3fZb001240%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000147.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r173 - in trunk: . config.sample includes</H1>
+    <B>goliath at mail.berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r173%20-%20in%20trunk%3A%20.%20config.sample%20includes&In-Reply-To=%3C200905191403.n4JE3fZb001240%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r173 - in trunk: . config.sample includes">goliath at mail.berlios.de
+       </A><BR>
+    <I>Tue May 19 16:03:41 CEST 2009</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000147.html">[Serverstats-devel] r174 - in trunk: . includes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#146">[ date ]</a>
+              <a href="thread.html#146">[ thread ]</a>
+              <a href="subject.html#146">[ subject ]</a>
+              <a href="author.html#146">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2009-05-19 16:01:42 +0200 (Tue, 19 May 2009)
+New Revision: 173
+
+Modified:
+   trunk/config.sample/graph.php
+   trunk/graph.php
+   trunk/includes/rrdgraph.class.php
+Log:
+ * Support logarithmic y-axis scaling
+
+
+Modified: trunk/config.sample/graph.php
+===================================================================
+--- trunk/config.sample/graph.php	2008-01-20 20:26:45 UTC (rev 172)
++++ trunk/config.sample/graph.php	2009-05-19 14:01:42 UTC (rev 173)
+@@ -49,6 +49,22 @@
+ // Add own graphs (examples, like those used in the simple-config)
+ /*
+ $config['list'][] = array(
++	'title' =&gt; 'Something with logarithmic y-axis scaling',
++	'lowerLimit' =&gt; 0,
++	'altAutoscaleMax' =&gt; true,
++	'logarithmic' =&gt; true,
++	'content' =&gt; array(
++		array(
++			'type' =&gt; 'AREA',
++			'source' =&gt; 'users',
++			'ds' =&gt; 'users',
++			'cf' =&gt; 'AVERAGE',
++			'legend' =&gt; 'users logged in',
++			'color' =&gt; '4444DD'
++		)
++	)
++);
++$config['list'][] = array(
+ 	'title' =&gt; 'Users logged in',
+ 	'lowerLimit' =&gt; 0,
+ 	'altAutoscaleMax' =&gt; true,
+
+Modified: trunk/graph.php
+===================================================================
+--- trunk/graph.php	2008-01-20 20:26:45 UTC (rev 172)
++++ trunk/graph.php	2009-05-19 14:01:42 UTC (rev 173)
+@@ -91,6 +91,10 @@
+ 	{
+ 		$rrdgraph-&gt;setAltAutoscaleMax($graph['altAutoscaleMax']);
+ 	}
++	if (isset($graph['logarithmic']))
++	{
++		$rrdgraph-&gt;setLogarithmic($graph['logarithmic']);
++	}
+ 	
+ 	$lasttype = null;
+ 	foreach($graph['content'] as $c)
+
+Modified: trunk/includes/rrdgraph.class.php
+===================================================================
+--- trunk/includes/rrdgraph.class.php	2008-01-20 20:26:45 UTC (rev 172)
++++ trunk/includes/rrdgraph.class.php	2009-05-19 14:01:42 UTC (rev 173)
+@@ -41,6 +41,7 @@
+ 	private $altYMrtg = false;
+ 	private $altAutoscale = false;
+ 	private $altAutoscaleMax = false;
++	private $logarithmic = false;
+ 	private $lazy = false;
+ 	
+ 	private $content = array();
+@@ -321,6 +322,10 @@
+ 		{
+ 			$params .= ' -M ';
+ 		}
++		if ($this-&gt;logarithmic)
++		{
++			$params .= ' -o ';
++		}
+ 		if ($this-&gt;lazy)
+ 		{
+ 			$params .= ' -z ';
+@@ -472,6 +477,11 @@
+ 		$this-&gt;altAutoscaleMax = $altAutoscaleMax;
+ 	}
+ 	
++	public function setLogarithmic($logarithmic = false)
++	{
++		$this-&gt;logarithmic = $logarithmic;
++	}
++	
+ 	public function setLazy($lazy = true)
+ 	{
+ 		$this-&gt;lazy = $lazy;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000147.html">[Serverstats-devel] r174 - in trunk: . includes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#146">[ date ]</a>
+              <a href="thread.html#146">[ thread ]</a>
+              <a href="subject.html#146">[ subject ]</a>
+              <a href="author.html#146">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

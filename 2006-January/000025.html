@@ -1,0 +1,306 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r99 - in trunk: . includes
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-January/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r99%20-%20in%20trunk%3A%20.%20includes&In-Reply-To=%3C200601161102.k0GB2CNF021622%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000024.html">
+   <LINK REL="Next"  HREF="000026.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r99 - in trunk: . includes</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r99%20-%20in%20trunk%3A%20.%20includes&In-Reply-To=%3C200601161102.k0GB2CNF021622%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r99 - in trunk: . includes">goliath at berlios.de
+       </A><BR>
+    <I>Mon Jan 16 12:02:12 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000024.html">[Serverstats-devel] r98 - trunk/sources
+</A></li>
+        <LI>Next message: <A HREF="000026.html">[Serverstats-devel] r100 - trunk/sources/traffic
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#25">[ date ]</a>
+              <a href="thread.html#25">[ thread ]</a>
+              <a href="subject.html#25">[ subject ]</a>
+              <a href="author.html#25">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-01-16 12:02:09 +0100 (Mon, 16 Jan 2006)
+New Revision: 99
+
+Modified:
+   trunk/includes/rrd.class.php
+   trunk/update.php
+Log:
+ * rrd::__construct() not loads the needed options using 'rrdtool info', a cache to save the rrd-options is not needed anymore (NEEDS TESTING)
+
+
+Modified: trunk/includes/rrd.class.php
+===================================================================
+--- trunk/includes/rrd.class.php	2006-01-16 08:22:10 UTC (rev 98)
++++ trunk/includes/rrd.class.php	2006-01-16 11:02:09 UTC (rev 99)
+@@ -29,7 +29,7 @@
+ 	private $rrdfile;
+ 	private $created = false;
+ 	
+-	private $step = 60;
++	private $step = 300;
+ 	private $datasources = array();
+ 	private $archives = array();
+ 	private $values = array();
+@@ -38,54 +38,141 @@
+ 	{
+ 		$this-&gt;rrdtoolbin = $rrdtoolbin;
+ 		$this-&gt;rrdfile = $rrdfile;
++		if (file_exists($this-&gt;rrdfile))
++		{
++			$this-&gt;restoreOptions();
++		}
+ 	}
+ 	
+-	public function initOptions($temp)
++	private function restoreOptions()
+ 	{
+-		$this-&gt;step = $temp['step'];
+-		$this-&gt;datasources = $temp['datasources'];
+-		$this-&gt;archives = $temp['archives'];
+-		foreach ($this-&gt;datasources as $name =&gt; $ds)
++		$output = array();
++		$return = 0;
++		$params = ' info ' . escapeshellarg($this-&gt;rrdfile);
++		$command = escapeshellcmd($this-&gt;rrdtoolbin) . $params;
++		exec($command . ' 2&gt;&amp;1', $output, $return);
++		if ($return != 0)
+ 		{
+-			// Backwards compability
+-			if (isset($ds['name']))
++			throw new Exception('rrdtool (&quot;' . $command . '&quot;) finished with exitcode ' . $return . &quot;\n&quot; . implode(&quot;\n&quot;, $output));
++		}
++		$matches = array();
++		foreach ($output as $line)
++		{
++			if (preg_match('/^(.*?)\s*=\s*(.*?)$/', $line, $matches))
+ 			{
+-				$name = $ds['name'];
++				$key = $matches[1];
++				$value = $matches[2];
++				if ($key == 'step')
++				{
++					$this-&gt;step = $value;
++				}
++				elseif (preg_match('/^ds\[([a-zA-Z0-9_]+)\]\.(.*?)$/', $key, $matches))
++				{
++					$dsname = $matches[1];
++					$dsattribute = $matches[2];
++					if (!isset($this-&gt;datasources[$dsname]))
++					{
++						$this-&gt;datasources[$dsname] = array();
++					}
++					switch ($dsattribute)
++					{
++						case 'type':
++							$value = trim($value, '&quot;');
++							$this-&gt;datasources[$dsname]['type'] = $value;
++							switch ($value)
++							{
++								case 'GAUGE':
++								case 'COUNTER':
++								case 'DERIVE':
++								case 'ABSOLUTE':
++									$this-&gt;values[$dsname] = 'U';
++									break;
++								case 'COMPUTE':
++									break;
++								default:
++									throw new Exception('Unknown Datasource-type: ' . $value);
++									break;
++							}
++							break;
++						case 'cdef':
++							$value = trim($value, '&quot;');
++							$this-&gt;datasources[$dsname]['expression'] = $value;
++							break;
++						case 'min':
++							if ($value == 'NaN')
++							{
++								$this-&gt;datasources[$dsname]['min'] = 'U';
++							}
++							else
++							{
++								$this-&gt;datasources[$dsname]['min'] = floatval($value);
++							}
++							break;
++						case 'max':
++							if ($value == 'NaN')
++							{
++								$this-&gt;datasources[$dsname]['max'] = 'U';
++							}
++							else
++							{
++								$this-&gt;datasources[$dsname]['max'] = floatval($value);
++							}
++							break;
++						case 'minimal_heartbeat':
++							$this-&gt;datasources[$dsname]['heartbeat'] = intval($value);
++							break;
++					}
++				}
++				/* Not all values can be imported this way, but the
++				   RRA-definition is not needed for rrdupdate,
++				   so we may skip this */
++				/*
++				elseif (preg_match('/^rra\[([0-9]+)\]\.(.*?)$/', $key, $matches))
++				{
++					$rranum = $matches[1];
++					$rraattribute = $matches[2];
++					if (!isset($this-&gt;archives[$rranum]))
++					{
++						$this-&gt;archives[$rranum] = array();
++					}
++					switch ($rraattribute)
++					{
++						case 'cf':
++							$value = trim($value, '&quot;');
++							$this-&gt;archives[$rranum]['cf'] = $value;
++							break;
++						case 'rows':
++							$this-&gt;archives[$rranum]['rows'] = intval($value);
++							break;
++						case 'xff':
++							$this-&gt;archives[$rranum]['xff'] = floatval($value);
++							break;
++						case 'pdp_per_row':
++							$this-&gt;archives[$rranum]['steps'] = intval($value);
++							break;
++						case 'alpha':
++							$this-&gt;archives[$rranum]['alpha'] = floatval($value);
++							break;
++						case 'beta':
++							$this-&gt;archives[$rranum]['beta'] = floatval($value);
++							break;
++						case 'gamma':
++							$this-&gt;archives[$rranum]['gamma'] = floatval($value);
++							break;
++						case 'failure_threshold':
++							$this-&gt;archives[$rranum]['threshold'] = $value;
++							break;
++						case 'window_length':
++							$this-&gt;archives[$rranum][''] = $value;
++							break;
++					}
++				}
++				*/
+ 			}
+-			switch($ds['type'])
+-			{
+-				case 'GAUGE':
+-				case 'COUNTER':
+-				case 'DERIVE':
+-				case 'ABSOLUTE':
+-					$this-&gt;values[$name] = 'U';
+-					break;
+-				case 'COMPUTE':
+-					break;
+-				default:
+-					throw new Exception('Unknown Datasource-type: ' . $type);
+-					break;
+-			}
+ 		}
+-		if (!file_exists($this-&gt;rrdfile))
+-		{
+-			$this-&gt;create();
+-		}
+-		else
+-		{
+-			$this-&gt;created = true;
+-		}
++		$this-&gt;created = true;
+ 	}
+ 	
+-	public function getOptions()
+-	{
+-		$temp = array();
+-		$temp['step'] = $this-&gt;step;
+-		$temp['datasources'] = $this-&gt;datasources;
+-		$temp['archives'] = $this-&gt;archives;
+-		return $temp;
+-	}
+-	
+ 	public function create()
+ 	{
+ 		$params = ' create ' . escapeshellarg($this-&gt;rrdfile);
+
+Modified: trunk/update.php
+===================================================================
+--- trunk/update.php	2006-01-16 08:22:10 UTC (rev 98)
++++ trunk/update.php	2006-01-16 11:02:09 UTC (rev 99)
+@@ -38,7 +38,6 @@
+ 	$source = $sourcedata['module'];
+ 	// All needed Vars
+ 	$cachefile = CACHEPATH . $sourcename . '.sav';
+-	$rrdcachefile = CACHEPATH . $sourcename . '.rrd.sav';
+ 	$rrdfile = RRDPATH . $sourcename . '.rrd';
+ 	// The classes may throw exceptions, so we need to catch them
+ 	try
+@@ -69,14 +68,8 @@
+ 			unset($cache);
+ 		}
+ 		$sourcerrd = new rrd($config['main']['rrdtool'], $rrdfile);
+-		if (file_exists($rrdcachefile))
++		if (!file_exists($rrdfile))
+ 		{
+-			$cache = unserialize(file_get_contents($rrdcachefile));
+-			$sourcerrd-&gt;initOptions($cache);
+-			unset($cache);
+-		}
+-		else
+-		{
+ 			if ($sourcerrd-&gt;checkVersion('&lt;', '1.2'))
+ 			{
+ 				throw new Exception('rrdtool &gt;= 1.2 required');
+@@ -98,9 +91,6 @@
+ 				$sourcerrd-&gt;addArchive($rra['cf'], $rra['xff'], $rra['steps'], $rra['rows']);
+ 			}
+ 			$sourcerrd-&gt;create();
+-			$cache = serialize($sourcerrd-&gt;getOptions());
+-			file_put_contents($rrdcachefile, $cache);
+-			unset($cache);
+ 		}
+ 		echo &quot;\tUpdating RRD-file&quot; . PHP_EOL;
+ 		$config['log']['logger']-&gt;logString(logger::INFO, 'Updating source &quot;' . $sourcename . '&quot;');
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000024.html">[Serverstats-devel] r98 - trunk/sources
+</A></li>
+	<LI>Next message: <A HREF="000026.html">[Serverstats-devel] r100 - trunk/sources/traffic
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#25">[ date ]</a>
+              <a href="thread.html#25">[ thread ]</a>
+              <a href="subject.html#25">[ subject ]</a>
+              <a href="author.html#25">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

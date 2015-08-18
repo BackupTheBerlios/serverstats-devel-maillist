@@ -1,0 +1,962 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r101 - in trunk: . config.sample includes sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-January/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r101%20-%20in%20trunk%3A%20.%20config.sample%20includes%20sources&In-Reply-To=%3C200601231223.k0NCNToa004649%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000026.html">
+   <LINK REL="Next"  HREF="000028.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r101 - in trunk: . config.sample includes sources</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r101%20-%20in%20trunk%3A%20.%20config.sample%20includes%20sources&In-Reply-To=%3C200601231223.k0NCNToa004649%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r101 - in trunk: . config.sample includes sources">goliath at berlios.de
+       </A><BR>
+    <I>Mon Jan 23 13:23:29 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000026.html">[Serverstats-devel] r100 - trunk/sources/traffic
+</A></li>
+        <LI>Next message: <A HREF="000028.html">[Serverstats-devel] r102 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#27">[ date ]</a>
+              <a href="thread.html#27">[ thread ]</a>
+              <a href="subject.html#27">[ subject ]</a>
+              <a href="author.html#27">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-01-23 13:23:07 +0100 (Mon, 23 Jan 2006)
+New Revision: 101
+
+Added:
+   trunk/config.sample/monitor.php
+   trunk/includes/source_cached.class.php
+   trunk/includes/source_rrd.class.php
+Removed:
+   trunk/includes/cached.class.php
+   trunk/includes/monitor.class.php
+Modified:
+   trunk/.todo
+   trunk/TODO
+   trunk/config.sample/graph.php
+   trunk/config.sample/rra.php
+   trunk/config.sample/sources.php
+   trunk/includes/functions.php
+   trunk/includes/rrd.class.php
+   trunk/includes/source.class.php
+   trunk/sources/apache.php
+   trunk/sources/cpu.php
+   trunk/sources/disk.php
+   trunk/sources/external.php
+   trunk/sources/load.php
+   trunk/sources/memory.php
+   trunk/sources/mysql.php
+   trunk/sources/ping.php
+   trunk/sources/ping_service.php
+   trunk/sources/traffic.php
+   trunk/sources/traffic_proc.php
+   trunk/sources/users.php
+   trunk/update.php
+Log:
+ * Monitoring works, but kills most of the old source-interface
+   (todo: warnings should only be sent once)
+ * Changed all sources to support new interface
+ * It is now possible to have sources that do not create RRD-files
+ * cleanup
+
+
+Modified: trunk/.todo
+===================================================================
+--- trunk/.todo	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/.todo	2006-01-23 12:23:07 UTC (rev 101)
+@@ -29,8 +29,11 @@
+             ini_set('precision', 32) in init.php
+         &lt;/comment&gt;
+     &lt;/note&gt;
+-    &lt;note priority=&quot;high&quot; time=&quot;1126975273&quot;&gt;
++    &lt;note priority=&quot;high&quot; time=&quot;1126975273&quot; done=&quot;1137978235&quot;&gt;
+         safe_mode bugfixes (auto-escapeshellcmd() for exec()) or document that Serverstats is safe_mode=off only
++        &lt;comment&gt;
++            not possible, Serverstats needs safe_mode=off
++        &lt;/comment&gt;
+     &lt;/note&gt;
+     &lt;note priority=&quot;medium&quot; time=&quot;1121445220&quot;&gt;
+         Support all graph options
+
+Modified: trunk/TODO
+===================================================================
+--- trunk/TODO	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/TODO	2006-01-23 12:23:07 UTC (rev 101)
+@@ -1,7 +1,3 @@
+-- safe_mode bugfixes (auto-escapeshellcmd() for exec()) or document that
+-  Serverstats is safe_mode=off only
+-  (added Sat Sep 17 18:41:13 2005, incomplete, priority high)
+-
+ - Support all graph options
+   (added Fri Jul 15 18:33:40 2005, incomplete, priority medium)
+ 
+
+Modified: trunk/config.sample/graph.php
+===================================================================
+--- trunk/config.sample/graph.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/config.sample/graph.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -23,7 +23,6 @@
+  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+ 
+-$config = array();
+ // Define the look of the graphs
+ $config['width'] = 500;
+ $config['height'] = 150;
+
+Added: trunk/config.sample/monitor.php
+===================================================================
+--- trunk/config.sample/monitor.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/config.sample/monitor.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -0,0 +1,32 @@
++&lt;?php
++/**
++ * $Id: sources.php 82 2005-12-14 11:35:04Z akorthaus $
++ *
++ * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
++ * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
++ *
++ * Copyright (C) 2005 David Danier
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++/*
++$config['load'] = array(
++	'1min &gt;= 100'
++);
++*/
++
++?&gt;
+
+Modified: trunk/config.sample/rra.php
+===================================================================
+--- trunk/config.sample/rra.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/config.sample/rra.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -23,7 +23,6 @@
+  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+ 
+-$config = array();
+ // Define what archives will be used (-&gt; RRA)
+ // see 'man rrdcreate' for details
+ 
+
+Modified: trunk/config.sample/sources.php
+===================================================================
+--- trunk/config.sample/sources.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/config.sample/sources.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -24,7 +24,6 @@
+  */
+ 
+ // Define the sources, read the sourcefiles for the needed details
+-$config = array();
+ $config['cpu']['module'] = new cpu();
+ $config['mem']['module'] = new memory();
+ $config['load']['module'] = new load();
+
+Deleted: trunk/includes/cached.class.php
+===================================================================
+--- trunk/includes/cached.class.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/includes/cached.class.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -1,36 +0,0 @@
+-&lt;?php
+-/**
+- * $Id$
+- *
+- * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
+- * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+- *
+- * Copyright (C) 2005 David Danier
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+- */
+-
+-interface cached
+-{
+-	// Called if no cachedata is present
+-	public function initCache();
+-	// Called to load the cached data
+-	public function loadCache($cachedata);
+-	// Called to fetch the cache and save it back to disk
+-	public function getCache();
+-}
+-
+-?&gt;
+
+Modified: trunk/includes/functions.php
+===================================================================
+--- trunk/includes/functions.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/includes/functions.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -92,4 +92,26 @@
+ 	}
+ }
+ 
++function value_compare($value1, $value2, $operator)
++{
++	switch ($operator)
++	{
++		case '&gt;=':
++			return ($value1 &gt;= $value2);
++		case '&gt;':
++			return ($value1 &gt; $value2);
++		case '&lt;=':
++			return ($value1 &lt;= $value2);
++		case '&lt;':
++			return ($value1 &lt; $value2);
++		case '=':
++		case '==':
++			return ($value1 == $value2);
++		case '!=':
++			return ($value1 != $value2);
++		default:
++			throw new Exception('Invalid operator');
++	}
++}
++
+ ?&gt;
+
+Deleted: trunk/includes/monitor.class.php
+===================================================================
+--- trunk/includes/monitor.class.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/includes/monitor.class.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -1,30 +0,0 @@
+-&lt;?php
+-/**
+- * $Id$
+- *
+- * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
+- * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
+- * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
+- *
+- * Copyright (C) 2005 David Danier
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+- */
+-
+-interface monitor
+-{
+-}
+-
+-?&gt;
+
+Modified: trunk/includes/rrd.class.php
+===================================================================
+--- trunk/includes/rrd.class.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/includes/rrd.class.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -403,7 +403,7 @@
+ 		}
+ 		$this-&gt;values[$dsname] = $value;
+ 	}
+-
++	
+ 	public function update()
+ 	{
+ 		$params = ' update ' . escapeshellarg($this-&gt;rrdfile);
+
+Modified: trunk/includes/source.class.php
+===================================================================
+--- trunk/includes/source.class.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/includes/source.class.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -30,10 +30,8 @@
+ 	public function init() { }
+ 	// Called to refresh the data
+ 	abstract function refreshData();
+-	// Called if no rrd (or rrdcache) in present
+-	abstract public function initRRD(rrd $rrd);
+-	// Called to update the rrd
+-	abstract public function updateRRD(rrd $rrd);
++	// Called to fetch values from source
++	abstract function fetchValues();
+ }
+ 
+ ?&gt;
+
+Copied: trunk/includes/source_cached.class.php (from rev 100, trunk/includes/cached.class.php)
+===================================================================
+--- trunk/includes/cached.class.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/includes/source_cached.class.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -0,0 +1,36 @@
++&lt;?php
++/**
++ * $Id$
++ *
++ * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
++ * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
++ *
++ * Copyright (C) 2005 David Danier
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++interface source_cached
++{
++	// Called if no cachedata is present
++	public function initCache();
++	// Called to load the cached data
++	public function loadCache($cachedata);
++	// Called to fetch the cache and save it back to disk
++	public function getCache();
++}
++
++?&gt;
+
+Added: trunk/includes/source_rrd.class.php
+===================================================================
+--- trunk/includes/source_rrd.class.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/includes/source_rrd.class.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -0,0 +1,37 @@
++&lt;?php
++/**
++ * $Id$
++ *
++ * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
++ * Project: Serverstats, <A HREF="http://www.webmasterpro.de/~ddanier/serverstats/">http://www.webmasterpro.de/~ddanier/serverstats/</A>
++ * License: GPL v2 or later (<A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>)
++ *
++ * Copyright (C) 2005 David Danier
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++interface source_rrd
++{
++	// Called if no rrd file is present
++	public function initRRD(rrd $rrd);
++	
++	/*
++	// Called to update the rrd
++	abstract public function updateRRD(rrd $rrd);
++	*/
++}
++
++?&gt;
+
+Modified: trunk/sources/apache.php
+===================================================================
+--- trunk/sources/apache.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/sources/apache.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -38,7 +38,7 @@
+  * ExtendedStatus On
+  */
+ 
+-class apache extends source
++class apache extends source implements source_rrd
+ {
+ 	private $url_serverstatus;
+ 	private $show;
+@@ -105,16 +105,18 @@
+ 		}
+ 	}
+ 	
+-	public function updateRRD(rrd $rrd)
++	public function fetchValues()
+ 	{
++		$values = array();
+ 		foreach ($this-&gt;data as $dsname =&gt; $value)
+ 		{
+-			$rrd-&gt;setValue($dsname, $value);
++			$values[$dsname] = $value;
+ 			if (isset($this-&gt;psshow[$dsname]))
+ 			{
+-				$rrd-&gt;setValue($this-&gt;psshow[$dsname], $value);
++				$values[$this-&gt;psshow[$dsname]] = $value;
+ 			}
+ 		}
++		return $values;
+ 	}
+ }
+ 
+
+Modified: trunk/sources/cpu.php
+===================================================================
+--- trunk/sources/cpu.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/sources/cpu.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -24,7 +24,7 @@
+  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+ 
+-class cpu extends source implements cached
++class cpu extends source implements source_cached, source_rrd
+ {
+ 	private $path_stat;
+ 	
+@@ -56,8 +56,9 @@
+ 		}
+ 	}
+ 	
+-	public function updateRRD(rrd $rrd)
++	public function fetchValues()
+ 	{
++		$returnValues = array();
+ 		foreach ($this-&gt;stats as $cpu =&gt; $values)
+ 		{
+ 			$sumProc = array_sum($values) - array_sum($this-&gt;oldstats[$cpu]);
+@@ -67,15 +68,16 @@
+ 				{
+ 					if ($sumProc == 0)
+ 					{
+-						$rrd-&gt;setValue($cpu . '_' . $key, 0);
++						$returnValues[$cpu . '_' . $key] = 0;
+ 					}
+ 					else
+ 					{
+-						$rrd-&gt;setValue($cpu . '_' . $key, (($value - $this-&gt;oldstats[$cpu][$key]) * 100) / $sumProc);
++						$returnValues[$cpu . '_' . $key] = (($value - $this-&gt;oldstats[$cpu][$key]) * 100) / $sumProc;
+ 					}
+ 				}
+ 			}
+ 		}
++		return $returnValues;
+ 	}
+ 	
+ 	private function getStats()
+
+Modified: trunk/sources/disk.php
+===================================================================
+--- trunk/sources/disk.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/sources/disk.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -23,7 +23,7 @@
+  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+ 
+-class disk extends source
++class disk extends source implements source_rrd
+ {
+ 	private $path_stat;
+ 	private $disk;
+@@ -64,19 +64,21 @@
+ 		}
+ 	}
+ 	
+-	public function updateRRD(rrd $rrd)
++	public function fetchValues()
+ 	{
+-		$rrd-&gt;setValue('read', $this-&gt;stats_disk['sectors_read'] * $this-&gt;sector_size);
+-		$rrd-&gt;setValue('write', $this-&gt;stats_disk['sectors_written'] * $this-&gt;sector_size);
+-		$rrd-&gt;setValue('readps', $this-&gt;stats_disk['sectors_read'] * $this-&gt;sector_size);
+-		$rrd-&gt;setValue('writeps', $this-&gt;stats_disk['sectors_written'] * $this-&gt;sector_size);
++		$values = array();
++		$values['read'] = $this-&gt;stats_disk['sectors_read'] * $this-&gt;sector_size;
++		$values['write'] = $this-&gt;stats_disk['sectors_written'] * $this-&gt;sector_size;
++		$values['readps'] = $this-&gt;stats_disk['sectors_read'] * $this-&gt;sector_size;
++		$values['writeps'] = $this-&gt;stats_disk['sectors_written'] * $this-&gt;sector_size;
+ 		foreach ($this-&gt;stats_part as $part =&gt; $values)
+ 		{
+-			$rrd-&gt;setValue('part' . $part . '_read', $values['sectors_read'] * $this-&gt;sector_size);
+-			$rrd-&gt;setValue('part' . $part . '_write', $values['sectors_written'] * $this-&gt;sector_size);
+-			$rrd-&gt;setValue('part' . $part . '_readps', $values['sectors_read'] * $this-&gt;sector_size);
+-			$rrd-&gt;setValue('part' . $part . '_writeps', $values['sectors_written'] * $this-&gt;sector_size);
++			$values['part' . $part . '_read'] = $values['sectors_read'] * $this-&gt;sector_size;
++			$values['part' . $part . '_write'] = $values['sectors_written'] * $this-&gt;sector_size;
++			$values['part' . $part . '_readps'] = $values['sectors_read'] * $this-&gt;sector_size;
++			$values['part' . $part . '_writeps'] = $values['sectors_written'] * $this-&gt;sector_size;
+ 		}
++		return $values;
+ 	}
+ 	
+ 	private function getStats()
+
+Modified: trunk/sources/external.php
+===================================================================
+--- trunk/sources/external.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/sources/external.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -23,7 +23,7 @@
+  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+ 
+-class external extends source
++class external extends source implements source_rrd
+ {
+ 	private $command;
+ 	private $datarows;
+@@ -110,12 +110,14 @@
+ 		}
+ 	}
+ 	
+-	public function updateRRD(rrd $rrd)
++	public function fetchValues()
+ 	{
++		$values = array();
+ 		foreach ($this-&gt;data as $key =&gt; $value)
+ 		{
+-			$rrd-&gt;setValue($key, $value);
++			$values[$key] = $value;
+ 		}
++		return $values;
+ 	}
+ }
+ 
+
+Modified: trunk/sources/load.php
+===================================================================
+--- trunk/sources/load.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/sources/load.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -23,7 +23,7 @@
+  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+ 
+-class load extends source
++class load extends source implements source_rrd
+ {
+ 	private $loadavgfile;
+ 	
+@@ -62,13 +62,15 @@
+ 		$rrd-&gt;addDatasource('tasks', 'GAUGE', null, 0);
+ 	}
+ 	
+-	public function updateRRD(rrd $rrd)
++	public function fetchValues()
+ 	{
+-		$rrd-&gt;setValue('1min', $this-&gt;min1);
+-		$rrd-&gt;setValue('5min', $this-&gt;min5);
+-		$rrd-&gt;setValue('15min', $this-&gt;min15);
+-		$rrd-&gt;setValue('running', $this-&gt;running);
+-		$rrd-&gt;setValue('tasks', $this-&gt;tasks);
++		$values = array();
++		$values['1min'] = $this-&gt;min1;
++		$values['5min'] = $this-&gt;min5;
++		$values['15min'] = $this-&gt;min15;
++		$values['running'] = $this-&gt;running;
++		$values['tasks'] = $this-&gt;tasks;
++		return $values;
+ 	}
+ }
+ 
+
+Modified: trunk/sources/memory.php
+===================================================================
+--- trunk/sources/memory.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/sources/memory.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -23,7 +23,7 @@
+  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+ 
+-class memory extends source
++class memory extends source implements source_rrd
+ {
+ 	private $meminfofile;
+ 	private $data = array();
+@@ -89,15 +89,17 @@
+ 		}
+ 	}
+ 	
+-	public function updateRRD(rrd $rrd)
++	public function fetchValues()
+ 	{
++		$values = array();
+ 		foreach ($this-&gt;data as $name =&gt; $value)
+ 		{
+-			if ($rrd-&gt;hasDatasource($name))
++			if (in_array($name, $this-&gt;show))
+ 			{
+-				$rrd-&gt;setValue($name, $value);
++				$values[$name] = $value;
+ 			}
+ 		}
++		return $values;
+ 	}
+ }
+ 
+
+Modified: trunk/sources/mysql.php
+===================================================================
+--- trunk/sources/mysql.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/sources/mysql.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -23,7 +23,7 @@
+  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+ 
+-class mysql extends source
++class mysql extends source implements source_rrd
+ {
+ 	private $db;
+ 	private $host;
+@@ -71,11 +71,13 @@
+ 		$rrd-&gt;addDatasource('processcount', 'GAUGE', null, 0);
+ 	}
+ 	
+-	public function updateRRD(rrd $rrd)
++	public function fetchValues()
+ 	{
+-		$rrd-&gt;setValue('questions', $this-&gt;questions);
+-		$rrd-&gt;setValue('questionsps', $this-&gt;questions);
+-		$rrd-&gt;setValue('processcount', $this-&gt;processcount);
++		$values = array();
++		$values['questions'] = $this-&gt;questions;
++		$values['questionsps'] = $this-&gt;questions;
++		$values['processcount'] = $this-&gt;processcount;
++		return $values;
+ 	}
+ }
+ 
+
+Modified: trunk/sources/ping.php
+===================================================================
+--- trunk/sources/ping.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/sources/ping.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -22,8 +22,8 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+-
+-class ping extends source
++                                                  
++class ping extends source implements source_rrd
+ {
+ 	private $host;
+ 	private $ping_time;
+@@ -70,9 +70,11 @@
+ 		$rrd-&gt;addDatasource('time', 'GAUGE', null, 0);
+ 	}
+ 	
+-	public function updateRRD(rrd $rrd)
++	public function fetchValues()
+ 	{
+-		$rrd-&gt;setValue('time', $this-&gt;ping_time);
++		$values = array();
++		$values['time'] = $this-&gt;ping_time;
++		return $values;
+ 	}
+ }
+ 
+
+Modified: trunk/sources/ping_service.php
+===================================================================
+--- trunk/sources/ping_service.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/sources/ping_service.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -23,7 +23,7 @@
+  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+ 
+-class ping_service extends source
++class ping_service extends source implements source_rrd
+ {
+ 	private $host;
+ 	private $port;
+@@ -70,9 +70,11 @@
+ 		$rrd-&gt;addDatasource('time', 'GAUGE', null, 0);
+ 	}
+ 	
+-	public function updateRRD(rrd $rrd)
++	public function fetchValues()
+ 	{
+-		$rrd-&gt;setValue('time', $this-&gt;ping_time);
++		$values = array();
++		$values['time'] = $this-&gt;ping_time;
++		return $values;
+ 	}
+ 	
+ 	static public function httpCommand($host, $path = '/')
+
+Modified: trunk/sources/traffic.php
+===================================================================
+--- trunk/sources/traffic.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/sources/traffic.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -23,7 +23,7 @@
+  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+ 
+-class traffic extends source
++class traffic extends source implements source_rrd
+ {
+ 	private $logdir;
+ 	private $chain;
+@@ -62,8 +62,10 @@
+ 	
+ 	public function updateRRD(rrd $rrd)
+ 	{
+-		$rrd-&gt;setValue('traffic', $this-&gt;traffic);
+-		$rrd-&gt;setValue('bps', $this-&gt;traffic);
++		$values = array();
++		$values['traffic'] = $this-&gt;traffic;
++		$values['bps'] = $this-&gt;traffic;
++		return $values;
+ 	}
+ }
+ 
+
+Modified: trunk/sources/traffic_proc.php
+===================================================================
+--- trunk/sources/traffic_proc.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/sources/traffic_proc.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -21,7 +21,7 @@
+  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+ 
+-class traffic_proc extends source
++class traffic_proc extends source implements source_rrd
+ {
+ 	private $ifs;
+ 	private $data;
+@@ -76,18 +76,20 @@
+ 		}
+ 	}
+ 	
+-	public function updateRRD(rrd $rrd)
++	public function fetchValues()
+ 	{
++		$values = array();
+ 		foreach ($this-&gt;ifs as $if)
+ 		{
+ 			if (isset($this-&gt;data[$if]))
+ 			{
+-				$rrd-&gt;setValue($if . '_rbytes', $this-&gt;data[$if]['rbytes']);
+-				$rrd-&gt;setValue($if . '_rpackets', $this-&gt;data[$if]['rpackets']);
+-				$rrd-&gt;setValue($if . '_tbytes', $this-&gt;data[$if]['tbytes']);
+-				$rrd-&gt;setValue($if . '_tpackets', $this-&gt;data[$if]['tpackets']);
++				$values[$if . '_rbytes'] = $this-&gt;data[$if]['rbytes'];
++				$values[$if . '_rpackets'] = $this-&gt;data[$if]['rpackets'];
++				$values[$if . '_tbytes'] = $this-&gt;data[$if]['tbytes'];
++				$values[$if . '_tpackets'] = $this-&gt;data[$if]['tpackets'];
+ 			}
+ 		}
++		return $values;
+ 	}
+ }
+ 
+
+Modified: trunk/sources/users.php
+===================================================================
+--- trunk/sources/users.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/sources/users.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -23,7 +23,7 @@
+  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  */
+ 
+-class users extends source
++class users extends source implements source_rrd
+ {
+ 	private $usersbin;
+ 	private $count;
+@@ -51,9 +51,11 @@
+ 		$rrd-&gt;addDatasource('users', 'GAUGE', null, 0);
+ 	}
+ 	
+-	public function updateRRD(rrd $rrd)
++	public function fetchValues()
+ 	{
+-		$rrd-&gt;setValue('users', $this-&gt;count);
++		$values = array();
++		$values['users'] = $this-&gt;count;
++		return $values;
+ 	}
+ }
+ 
+
+Modified: trunk/update.php
+===================================================================
+--- trunk/update.php	2006-01-20 10:48:22 UTC (rev 100)
++++ trunk/update.php	2006-01-23 12:23:07 UTC (rev 101)
+@@ -47,7 +47,7 @@
+ 			throw new Exception('Source &quot;' . $sourcename . '&quot; not instanceof source');
+ 		}
+ 		$source-&gt;init();
+-		if ($source instanceof cached)
++		if ($source instanceof source_cached)
+ 		{
+ 			if (file_exists($cachefile))
+ 			{
+@@ -61,41 +61,76 @@
+ 			}
+ 		}
+ 		$source-&gt;refreshData();
+-		if ($source instanceof cached)
++		if ($source instanceof source_cached)
+ 		{
+ 			$cache = serialize($source-&gt;getCache());
+ 			file_put_contents($cachefile, $cache);
+ 			unset($cache);
+ 		}
+-		$sourcerrd = new rrd($config['main']['rrdtool'], $rrdfile);
+-		if (!file_exists($rrdfile))
++		$sourcevalues = $source-&gt;fetchValues();
++		if ($source instanceof source_rrd)
+ 		{
+-			if ($sourcerrd-&gt;checkVersion('&lt;', '1.2'))
++			$sourcerrd = new rrd($config['main']['rrdtool'], $rrdfile);
++			if (!file_exists($rrdfile))
+ 			{
+-				throw new Exception('rrdtool &gt;= 1.2 required');
++				if ($sourcerrd-&gt;checkVersion('&lt;', '1.2'))
++				{
++					throw new Exception('rrdtool &gt;= 1.2 required');
++				}
++				echo &quot;\tCreating RRD-file&quot; . PHP_EOL;
++				$config['log']['logger']-&gt;logString(logger::INFO, 'Creating RRD-file for source &quot;' . $sourcename . '&quot;');
++				$source-&gt;initRRD($sourcerrd);
++				$sourcerrd-&gt;setStep($config['main']['step']);
++				if (isset($sourcedata['rra']))
++				{
++					$sourcerra = $sourcedata['rra'];
++				}
++				else
++				{
++					$sourcerra = 'default';
++				}
++				foreach ($config['rra'][$sourcerra] as $rra)
++				{
++					$sourcerrd-&gt;addArchive($rra['cf'], $rra['xff'], $rra['steps'], $rra['rows']);
++				}
++				$sourcerrd-&gt;create();
+ 			}
+-			echo &quot;\tCreating RRD-file&quot; . PHP_EOL;
+-			$config['log']['logger']-&gt;logString(logger::INFO, 'Creating RRD-file for source &quot;' . $sourcename . '&quot;');
+-			$source-&gt;initRRD($sourcerrd);
+-			$sourcerrd-&gt;setStep($config['main']['step']);
+-			if (isset($sourcedata['rra']))
++			echo &quot;\tUpdating RRD-file&quot; . PHP_EOL;
++			$config['log']['logger']-&gt;logString(logger::INFO, 'Updating source &quot;' . $sourcename . '&quot;');
++			foreach ($sourcevalues as $valuename =&gt; $value)
+ 			{
+-				$sourcerra = $sourcedata['rra'];
++				$sourcerrd-&gt;setValue($valuename, $value);
+ 			}
+-			else
++			$sourcerrd-&gt;update();
++		}
++		// TODO: Only send warnings once
++		if (isset($config['monitor'][$sourcename]))
++		{
++			echo &quot;\tMonitoring values&quot; . PHP_EOL;
++			foreach ($config['monitor'][$sourcename] as $rule)
+ 			{
+-				$sourcerra = 'default';
++				$matches = array();
++				if (preg_match('/^([a-zA-Z0-9_]+)\s*(&gt;=?|&lt;=?)\s*(.*)$/', $rule, $matches))
++				{
++					$name = $matches[1];
++					$operator = $matches[2];
++					$limit = $matches[3];
++					if (!isset($sourcevalues[$name]))
++					{
++						throw new Exception(&quot;Invalid datasource in rule: $rule ($sourcename)&quot;);
++					}
++					if (value_compare($sourcevalues[$name], $limit, $operator))
++					{
++						echo &quot;\t\tLimit hit: $rule ($sourcename)&quot; . PHP_EOL;
++						$config['log']['logger']-&gt;logString(logger::ERR, &quot;Limit hit: $rule ($sourcename)&quot;);
++					}
++				}
++				else
++				{
++					throw new Exception(&quot;Invalid rule: $rule ($sourcename)&quot;);
++				}
+ 			}
+-			foreach ($config['rra'][$sourcerra] as $rra)
+-			{
+-				$sourcerrd-&gt;addArchive($rra['cf'], $rra['xff'], $rra['steps'], $rra['rows']);
+-			}
+-			$sourcerrd-&gt;create();
+ 		}
+-		echo &quot;\tUpdating RRD-file&quot; . PHP_EOL;
+-		$config['log']['logger']-&gt;logString(logger::INFO, 'Updating source &quot;' . $sourcename . '&quot;');
+-		$source-&gt;updateRRD($sourcerrd);
+-		$sourcerrd-&gt;update();
+ 	}
+ 	catch (Exception $e)
+ 	{
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000026.html">[Serverstats-devel] r100 - trunk/sources/traffic
+</A></li>
+	<LI>Next message: <A HREF="000028.html">[Serverstats-devel] r102 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#27">[ date ]</a>
+              <a href="thread.html#27">[ thread ]</a>
+              <a href="subject.html#27">[ subject ]</a>
+              <a href="author.html#27">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

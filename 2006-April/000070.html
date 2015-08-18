@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] Re: Serverstats / traffic_proc
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Re%3A%20Serverstats%20/%20traffic_proc&In-Reply-To=%3C444FF0F0.4060908%40team23.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000069.html">
+   <LINK REL="Next"  HREF="000065.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] Re: Serverstats / traffic_proc</H1>
+    <B>David Danier</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20Re%3A%20Serverstats%20/%20traffic_proc&In-Reply-To=%3C444FF0F0.4060908%40team23.de%3E"
+       TITLE="[Serverstats-devel] Re: Serverstats / traffic_proc">david.danier at team23.de
+       </A><BR>
+    <I>Thu Apr 27 00:15:12 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000069.html">[Serverstats-devel] Re: Serverstats / traffic_proc
+</A></li>
+        <LI>Next message: <A HREF="000065.html">[Serverstats-devel] r128 - trunk/sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#70">[ date ]</a>
+              <a href="thread.html#70">[ thread ]</a>
+              <a href="subject.html#70">[ subject ]</a>
+              <a href="author.html#70">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> Jetzt sind wir dann total off-topic.
+</I>
+Solange wir wenigstens produktiv sind ;-)
+
+&gt;&gt;<i> Sowas wie SOAP meinte ich mit &quot;gibt alle oder nur ausgew&#228;hlte Sourcen in
+</I>&gt;&gt;<i> XML kodiert zur&#252;ck&quot;. ;-)
+</I>&gt;<i> Das w&#228;re ja nicht Sinn der Sache, mit SOAP l&#228;sst sich das Source-
+</I>&gt;<i> Objekt ganz normal verwenden, als wenn es ein &quot;lokales&quot; Objekt w&#228;re.
+</I>&gt;<i> Der XML-Kram passiert transparent im Hintergrund.
+</I>
+Wie gesagt, ich kenn mich mit SOAP nicht wirklich aus. Wenn das soweit
+geht ist das nat&#252;rlich ne sehr einfache und effiziente L&#246;sung. Muss mir
+wohl SOAP mal genauer anschauen.
+W&#228;re evtl. aber sowas wie XML-RPC schlanker? (Interessensfrage)
+
+Anders w&#252;rde es aber auch funktionieren, gedacht war das grob
+folgenderma&#223;en:
+
+// Das aufrufende Script macht:
+$source = new $sourcename($params, ...); // lokale Source initialisieren
+$data = fetchData($url, $sourcename, $params) // Datenafruf starten
+$source-&gt;restoreData($data); // Daten laden, statt refreshData()
+rrd_update($source); // RRD aktualisieren
+
+// Die aufgerufene URL macht:
+$source = new $sourcename($params, ...); // Source initialisieren
+$source-&gt;refreshData(); // Daten aktualisieren
+$data = $source-&gt;dumpData(); // Daten irgendwie zur&#252;ckgeben
+echo $data; // Daten an den Server zur&#252;ckgeben
+
+&gt;<i> Bei Serverstats habe ich zur Zeit das gleiche Problem wie mit mrtg,
+</I>&gt;<i> f&#252;r jede Instanz muss ich die Adresse wechseln und mich dann auch
+</I>&gt;<i> immer wieder neu authentifizieren. Zudem kommt noch, dass ich auf
+</I>&gt;<i> allen Servern php installiert habe, aber nicht auf allen einen
+</I>&gt;<i> Webserver, bzw. das dann dort wieder nicht in die Policy passt. Beide
+</I>&gt;<i> Probleme w&#252;rde ein Webservice l&#246;sen.
+</I>
+Oder ein Proxy, der den Login durchreicht. Webservice ist nat&#252;rlich
+eleganter.
+
+&gt;<i> Jep, wenn man einen Webdienst auf jedem Client laufen l&#228;sst. Wenn man
+</I>&gt;<i> jetzt aber Serverstats in Client und Server aufteilt, k&#246;nnte man den
+</I>&gt;<i> Webdienst auf dem Server laufen lassen und die Clients schicken nur
+</I>&gt;<i> noch ihre Daten an den Server. Das w&#228;re f&#252;r mich die optimale L&#246;sung.
+</I>
+Ich h&#228;tte das eigentlich umgekehrt gedacht.
+Der Server pollt die Clients. Vorteile:
+ * Server gibt Tempo vor
+   (Abstand zwischen Polls)
+ * Kein cronjob auf dem Client n&#246;tiv, einfachere Konfiguration
+ * Server nicht so einfach anfreifbar durch Einschleusung von Fremddaten
+ * Zuordnung zu Clients auf dem Server f&#228;llt leichter
+ * Monitoring kann bei Fehlern bzgl. der Erreichbarkeit auch reagieren
+ * zentrale Verwaltung (bzgl. Ausfallsicherheit sollte das kein Problem
+darstellen, wenn der zentrale Server down ist klappen beide Ans&#228;tze
+nicht mehr)
+
+&gt;<i> Die Absicherung w&#228;re auch sehr einfach, der Webdienst l&#228;uft unter SSL,
+</I>&gt;<i> jeder Client bekommt einen Lizenzschl&#252;ssel, der dann bei der
+</I>&gt;<i> &#220;bertragung zur Identifizierung und zur Authentifizierung dient.
+</I>
+Einfacher:
+SSL und HTTP-Auth und der Client kennt den Login.
+
+&gt;<i> Die Implementierung sollte ja auch nicht so schwierig sein, wird
+</I>&gt;<i> vielleicht etwas problematisch die Einzelinstanz und die
+</I>&gt;<i> Serverinstanzen auf Dauer unter einen Hut zu bringen - aber da stellt
+</I>&gt;<i> sich ja erstmal die Frage, ob du dir sowas &#252;berhaupt vorstellen
+</I>&gt;<i> kannst, oder ob dir das zu viel Client/Server ist?
+</I>
+Nein, so in etwa hatte ich das gedacht. Allerdings hab ich das nicht
+wirklich zuende gedacht, war nur eine grobe Idee.
+
+Was noch hinzukommen m&#252;sste w&#228;re eine bessere Verwaltung der Graphen in
+Serverstats. Irgendeine Struktur sollte f&#252;r soetwas m&#246;glich sein.
+Ansonsten gibt das Chaos, wenn beispielsweise auf einmal mehrere
+CPU-Graphen vorhanden sind.
+Auch der SimpleConfig-Teil sollte dann stark &#252;berarbeitet werden (hab
+ich teilweise eh vor, das sollte modularer und flexibler werden).
+
+&gt;<i> Interesse schon, ich suche schon seit einiger Zeit nach einer
+</I>&gt;<i> Client/Server- Monitoring- L&#246;sung, aber Nagios, mrtg, cacti... sind
+</I>&gt;<i> alle oversized oder zu kompliziert.
+</I>
+Genau aus dem Grund hab ich Serverstats begonnen. Ist f&#252;r meinen
+Einsatzzweck inzwischen zwar auch etwas oversized (Monitoring und und
+den Logger benutz ich beispielsweise nicht wirklich), umfasst aber denke
+ich die Kernaufgaben die eine Monitoringl&#246;sung bieten sollte ziemlich
+brauchbar.
+
+&gt;<i> Zur Zeit habe ich
+</I>&gt;<i> Abschlusspr&#252;fungen in den letzten Z&#252;gen und bin da sehr angespannt,
+</I>
+Dann w&#252;nsch ich dir schonmal viel Erfolg!
+
+&gt;<i> aber im Mai bzw. Juni k&#246;nnte ich mir da schonwas vorstellen. Dazu
+</I>&gt;<i> w&#252;rde auch passen, dass wir auf der Arbeit je nach Arbeitsbelastung
+</I>&gt;<i> bis zu 20% unserer Arbeitszeit f&#252;r private Projekte nutzen k&#246;nnen -
+</I>&gt;<i> Chef hat sich da wohl von Google inspirieren lassen ;)
+</I>
+Klingt mir sehr sympatisch dein Chef. Du kannst dich im Mai ja nochmal
+melden. Da es mir zeitlich &#228;hnlich geht denke ich nicht, dass ich viel
+in Client/Server-Richtung implementieren werde.
+
+Viele Gr&#252;&#223;e, David Danier
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 191 bytes
+Desc: OpenPGP digital signature
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060427/097d7468/attachment.pgp">https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060427/097d7468/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000069.html">[Serverstats-devel] Re: Serverstats / traffic_proc
+</A></li>
+	<LI>Next message: <A HREF="000065.html">[Serverstats-devel] r128 - trunk/sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#70">[ date ]</a>
+              <a href="thread.html#70">[ thread ]</a>
+              <a href="subject.html#70">[ subject ]</a>
+              <a href="author.html#70">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

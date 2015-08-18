@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] How can I use same graph  definition with many sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20How%20can%20I%20use%20same%20graph%20%20definition%20with%0A%20many%20sources&In-Reply-To=%3C44AA3609.6030904%40wanadoo.fr%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000122.html">
+   <LINK REL="Next"  HREF="000124.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] How can I use same graph  definition with many sources</H1>
+    <B>S&#233;bastien CRAMATTE</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20How%20can%20I%20use%20same%20graph%20%20definition%20with%0A%20many%20sources&In-Reply-To=%3C44AA3609.6030904%40wanadoo.fr%3E"
+       TITLE="[Serverstats-devel] How can I use same graph  definition with many sources">s.cramatte at wanadoo.fr
+       </A><BR>
+    <I>Tue Jul  4 11:34:01 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000122.html">[Serverstats-devel] How can I use same graph  definition with many sources
+</A></li>
+        <LI>Next message: <A HREF="000124.html">[Serverstats-devel] How can I use same graph  definition with many sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#123">[ date ]</a>
+              <a href="thread.html#123">[ thread ]</a>
+              <a href="subject.html#123">[ subject ]</a>
+              <a href="author.html#123">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>David Danier a &#233;crit :
+&gt;&gt;<i> In you current code each graph is  more or less attached to a source
+</I>&gt;&gt;<i> because &quot;name&quot; offset  refer to a  rrd file with same name.
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> It can be attached to more than just one source:
+</I>&gt;<i> <A HREF="http://webmasterpro.de/~ddanier/serverstats/demo/detail.php?graph=14&amp;tree=1">http://webmasterpro.de/~ddanier/serverstats/demo/detail.php?graph=14&amp;tree=1</A>
+</I>&gt;<i> ----------8&lt;-----------------------------------------------------------
+</I>&gt;<i> $ ls /.../serverstats/rrd/ping*
+</I>&gt;<i> /var/www/localhost/htdocs/serverstats/rrd/ping_80_237_211_1.rrd
+</I>&gt;<i> /var/www/localhost/htdocs/serverstats/rrd/ping_http_localhost.rrd
+</I>&gt;<i> /var/www/localhost/htdocs/serverstats/rrd/ping_www_gentoo_org.rrd
+</I>&gt;<i> /var/www/localhost/htdocs/serverstats/rrd/ping_www_google_com.rrd
+</I>&gt;<i> /var/www/localhost/htdocs/serverstats/rrd/ping_www_heise_de.rrd
+</I>&gt;<i>   
+</I>Could you send your config file ?
+I don't see how can I do that :(
+&gt;<i> -----------------------------------------------------------&gt;8----------
+</I>&gt;<i>
+</I>&gt;<i> The source itself has no real link to the graphs or one special graph.
+</I>&gt;<i> (Ok, SimpleConfig links them somehow)
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> My problem is that I need to use the exactly same graph definition with
+</I>&gt;&gt;<i> lot's of  sources.
+</I>&gt;&gt;<i> For example If we monitor various snmp hosts we should need to look at
+</I>&gt;&gt;<i> memory, cpu or processes on each ...
+</I>&gt;&gt;<i> Only the source change ... the graph definition should be the same !
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> Thats where I thought XSLT could be used to transform a bunch of
+</I>&gt;<i> parameters into a working configuration.
+</I>&gt;<i> Of course it is possible to use some transformation implemented inside a
+</I>&gt;<i> class, too (like SimpleConfig does with arrays now).
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>I will think to that feature
+&gt;&gt;<i> So how can I do that ?
+</I>&gt;&gt;<i> Maybe I can use file offset  but It's not simple If I must specify each
+</I>&gt;&gt;<i> time the file ...
+</I>&gt;&gt;<i> Any Ideas ?
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> I think xinclude's are not powerful enough here. They miss the
+</I>&gt;<i> possibility to define some parameters (like title, source).
+</I>&gt;<i>
+</I>&gt;<i> Greetings, David Danier
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000122.html">[Serverstats-devel] How can I use same graph  definition with many sources
+</A></li>
+	<LI>Next message: <A HREF="000124.html">[Serverstats-devel] How can I use same graph  definition with many sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#123">[ date ]</a>
+              <a href="thread.html#123">[ thread ]</a>
+              <a href="subject.html#123">[ subject ]</a>
+              <a href="author.html#123">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

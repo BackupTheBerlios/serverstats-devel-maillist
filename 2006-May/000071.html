@@ -1,0 +1,461 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r129 - in trunk: includes sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-May/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r129%20-%20in%20trunk%3A%20includes%20sources&In-Reply-To=%3C200605120855.k4C8twsv027383%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000072.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r129 - in trunk: includes sources</H1>
+    <B>goliath at berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r129%20-%20in%20trunk%3A%20includes%20sources&In-Reply-To=%3C200605120855.k4C8twsv027383%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r129 - in trunk: includes sources">goliath at berlios.de
+       </A><BR>
+    <I>Fri May 12 10:55:58 CEST 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000072.html">[Serverstats-devel] simpleconfig.class.php
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#71">[ date ]</a>
+              <a href="thread.html#71">[ thread ]</a>
+              <a href="subject.html#71">[ subject ]</a>
+              <a href="author.html#71">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2006-05-12 10:55:53 +0200 (Fri, 12 May 2006)
+New Revision: 129
+
+Added:
+   trunk/sources/snmp.php
+Modified:
+   trunk/includes/rrd.class.php
+   trunk/includes/simpleconfig.class.php
+   trunk/sources/external.php
+Log:
+ * added SNMP-source (untested)
+ * moved escapeDsName() to rrd-class
+ * optimized external-source
+
+
+Modified: trunk/includes/rrd.class.php
+===================================================================
+--- trunk/includes/rrd.class.php	2006-04-26 09:34:40 UTC (rev 128)
++++ trunk/includes/rrd.class.php	2006-05-12 08:55:53 UTC (rev 129)
+@@ -506,6 +506,11 @@
+ 	{
+ 		return $this-&gt;step * 4;
+ 	}
++	
++	public static function escapeDsName($name)
++	{
++		return preg_replace('/[^a-zA-Z0-9_]/', '_', $name);
++	}
+ }
+ 
+ ?&gt;
+
+Modified: trunk/includes/simpleconfig.class.php
+===================================================================
+--- trunk/includes/simpleconfig.class.php	2006-04-26 09:34:40 UTC (rev 128)
++++ trunk/includes/simpleconfig.class.php	2006-05-12 08:55:53 UTC (rev 129)
+@@ -25,11 +25,6 @@
+ 
+ class simpleconfig
+ {
+-	public static function escapeDsName($name)
+-	{
+-		return preg_replace('/[^a-zA-Z0-9_]/', '_', $name);
+-	}
+-	
+ 	public static function graph(&amp;$config, $simpleconfig)
+ 	{
+ 		if (!$simpleconfig['used'])
+@@ -63,7 +58,7 @@
+ 										'content' =&gt; array(
+ 											array(
+ 												'type' =&gt; 'LINE',
+-												'source' =&gt; $module . '_' . self::escapeDsName($host),
++												'source' =&gt; $module . '_' . rrd::escapeDsName($host),
+ 												'ds' =&gt; 'requestsps',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'Requests/s',
+@@ -180,7 +175,7 @@
+ 										'content' =&gt; array(
+ 											array(
+ 												'type' =&gt; 'LINE',
+-												'source' =&gt; $module . '_' . self::escapeDsName($disk),
++												'source' =&gt; $module . '_' . rrd::escapeDsName($disk),
+ 												'ds' =&gt; 'readps',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'read',
+@@ -188,7 +183,7 @@
+ 											),
+ 											array(
+ 												'type' =&gt; 'LINE',
+-												'source' =&gt; $module . '_' . self::escapeDsName($disk),
++												'source' =&gt; $module . '_' . rrd::escapeDsName($disk),
+ 												'ds' =&gt; 'writeps',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'write',
+@@ -674,7 +669,7 @@
+ 										'content' =&gt; array(
+ 											array(
+ 												'type' =&gt; 'LINE',
+-												'source' =&gt; $module . '_' . self::escapeDsName($host),
++												'source' =&gt; $module . '_' . rrd::escapeDsName($host),
+ 												'ds' =&gt; 'time',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; $host,
+@@ -701,7 +696,7 @@
+ 								{
+ 									$content[] = array(
+ 										'type' =&gt; 'LINE',
+-										'source' =&gt; $module . '_' . self::escapeDsName($host),
++										'source' =&gt; $module . '_' . rrd::escapeDsName($host),
+ 										'ds' =&gt; 'time',
+ 										'cf' =&gt; 'AVERAGE',
+ 										'legend' =&gt; $host . '\n',
+@@ -737,7 +732,7 @@
+ 										'content' =&gt; array(
+ 											array(
+ 												'type' =&gt; 'AREA',
+-												'source' =&gt; $module . '_' . self::escapeDsName($host),
++												'source' =&gt; $module . '_' . rrd::escapeDsName($host),
+ 												'ds' =&gt; 'open',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'open connection\n',
+@@ -746,7 +741,7 @@
+ 											array(
+ 												'type' =&gt; 'AREA',
+ 												'stacked' =&gt; true,
+-												'source' =&gt; $module . '_' . self::escapeDsName($host),
++												'source' =&gt; $module . '_' . rrd::escapeDsName($host),
+ 												'ds' =&gt; 'send',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'send request\n',
+@@ -755,7 +750,7 @@
+ 											array(
+ 												'type' =&gt; 'AREA',
+ 												'stacked' =&gt; true,
+-												'source' =&gt; $module . '_' . self::escapeDsName($host),
++												'source' =&gt; $module . '_' . rrd::escapeDsName($host),
+ 												'ds' =&gt; 'receive',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'receive response\n',
+@@ -764,7 +759,7 @@
+ 											array(
+ 												'type' =&gt; 'AREA',
+ 												'stacked' =&gt; true,
+-												'source' =&gt; $module . '_' . self::escapeDsName($host),
++												'source' =&gt; $module . '_' . rrd::escapeDsName($host),
+ 												'ds' =&gt; 'close',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'close connection\n',
+@@ -772,7 +767,7 @@
+ 											),
+ 											array(
+ 												'type' =&gt; 'LINE',
+-												'source' =&gt; $module . '_' . self::escapeDsName($host),
++												'source' =&gt; $module . '_' . rrd::escapeDsName($host),
+ 												'ds' =&gt; 'time',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'total',
+@@ -799,7 +794,7 @@
+ 								{
+ 									$content[] = array(
+ 										'type' =&gt; 'LINE',
+-										'source' =&gt; $module . '_' . self::escapeDsName($host),
++										'source' =&gt; $module . '_' . rrd::escapeDsName($host),
+ 										'ds' =&gt; 'time',
+ 										'cf' =&gt; 'AVERAGE',
+ 										'legend' =&gt; $host . '\n',
+@@ -835,7 +830,7 @@
+ 										'content' =&gt; array(
+ 											array(
+ 												'type' =&gt; 'LINE',
+-												'source' =&gt; $module . '_' . self::escapeDsName($chain),
++												'source' =&gt; $module . '_' . rrd::escapeDsName($chain),
+ 												'ds' =&gt; 'bps',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; $chain,
+@@ -852,7 +847,7 @@
+ 										'content' =&gt; array(
+ 											array(
+ 												'type' =&gt; 'LINE',
+-												'source' =&gt; $module . '_' . self::escapeDsName($chain),
++												'source' =&gt; $module . '_' . rrd::escapeDsName($chain),
+ 												'ds' =&gt; 'traffic',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; $chain,
+@@ -879,7 +874,7 @@
+ 								{
+ 									$content[] = array(
+ 										'type' =&gt; 'LINE',
+-										'source' =&gt; $module . '_' . self::escapeDsName($chain),
++										'source' =&gt; $module . '_' . rrd::escapeDsName($chain),
+ 										'ds' =&gt; 'bps',
+ 										'cf' =&gt; 'AVERAGE',
+ 										'legend' =&gt; $chain,
+@@ -900,7 +895,7 @@
+ 								{
+ 									$content[] = array(
+ 										'type' =&gt; 'LINE',
+-										'source' =&gt; $module . '_' . self::escapeDsName($chain),
++										'source' =&gt; $module . '_' . rrd::escapeDsName($chain),
+ 										'ds' =&gt; 'traffic',
+ 										'cf' =&gt; 'AVERAGE',
+ 										'legend' =&gt; $chain,
+@@ -936,7 +931,7 @@
+ 										'content' =&gt; array(
+ 											array(
+ 												'type' =&gt; 'LINE',
+-												'source' =&gt; $module . '_' . self::escapeDsName($interface),
++												'source' =&gt; $module . '_' . rrd::escapeDsName($interface),
+ 												'ds' =&gt; $interface . '_rbytes',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'Download Bytes/s',
+@@ -944,7 +939,7 @@
+ 											),
+ 											array(
+ 												'type' =&gt; 'LINE',
+-												'source' =&gt; $module . '_' . self::escapeDsName($interface),
++												'source' =&gt; $module . '_' . rrd::escapeDsName($interface),
+ 												'ds' =&gt; $interface . '_tbytes',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'Upload Bytes/s',
+@@ -971,7 +966,7 @@
+ 								{
+ 									$content[] = array(
+ 											'type' =&gt; 'LINE',
+-											'source' =&gt; $module . '_' . self::escapeDsName($interface),
++											'source' =&gt; $module . '_' . rrd::escapeDsName($interface),
+ 											'ds' =&gt; $interface . '_rbytes',
+ 											'cf' =&gt; 'AVERAGE',
+ 											'legend' =&gt; 'Download Bytes/s (' . $interface . ')',
+@@ -979,7 +974,7 @@
+ 									);
+ 									$content[] = array(
+ 											'type' =&gt; 'LINE',
+-											'source' =&gt; $module . '_' . self::escapeDsName($interface),
++											'source' =&gt; $module . '_' . rrd::escapeDsName($interface),
+ 											'ds' =&gt; $interface . '_tbytes',
+ 											'cf' =&gt; 'AVERAGE',
+ 											'legend' =&gt; 'Upload Bytes/s (' . $interface . ')\n',
+@@ -1046,7 +1041,7 @@
+ 				case 'apache':
+ 					foreach ($modconf['hosts'] as $host)
+ 					{
+-						$config[$module . '_' . self::escapeDsName($host)]['module'] = new apache('<A HREF="http://">http://</A>' . $host . '/server-status?auto');
++						$config[$module . '_' . rrd::escapeDsName($host)]['module'] = new apache('<A HREF="http://">http://</A>' . $host . '/server-status?auto');
+ 					}
+ 					break;
+ 				case 'cpu':
+@@ -1055,7 +1050,7 @@
+ 				case 'disk':
+ 					foreach ($modconf['disks'] as $disk)
+ 					{
+-						$config[$module . '_' . self::escapeDsName($disk)]['module'] = new disk($disk);
++						$config[$module . '_' . rrd::escapeDsName($disk)]['module'] = new disk($disk);
+ 					}
+ 					break;
+ 				case 'load':
+@@ -1070,25 +1065,25 @@
+ 				case 'ping':
+ 					foreach ($modconf['hosts'] as $host)
+ 					{
+-						$config[$module . '_' . self::escapeDsName($host)]['module'] = new ping($host);
++						$config[$module . '_' . rrd::escapeDsName($host)]['module'] = new ping($host);
+ 					}
+ 					break;
+ 				case 'ping_http':
+ 					foreach ($modconf['hosts'] as $host)
+ 					{
+-						$config[$module . '_' . self::escapeDsName($host)]['module'] = new ping_http($host);
++						$config[$module . '_' . rrd::escapeDsName($host)]['module'] = new ping_http($host);
+ 					}
+ 					break;
+ 				case 'traffic':
+ 					foreach ($modconf['chains'] as $chain)
+ 					{
+-						$config[$module . '_' . self::escapeDsName($chain)]['module'] = new traffic($chain);
++						$config[$module . '_' . rrd::escapeDsName($chain)]['module'] = new traffic($chain);
+ 					}
+ 					break;
+ 				case 'traffic_proc':
+ 					foreach ($modconf['interfaces'] as $interface)
+ 					{
+-						$config[$module . '_' . self::escapeDsName($interface)]['module'] = new traffic_proc($interface);
++						$config[$module . '_' . rrd::escapeDsName($interface)]['module'] = new traffic_proc($interface);
+ 					}
+ 					break;
+ 				case 'users':
+
+Modified: trunk/sources/external.php
+===================================================================
+--- trunk/sources/external.php	2006-04-26 09:34:40 UTC (rev 128)
++++ trunk/sources/external.php	2006-05-12 08:55:53 UTC (rev 129)
+@@ -112,12 +112,7 @@
+ 	
+ 	public function fetchValues()
+ 	{
+-		$values = array();
+-		foreach ($this-&gt;data as $key =&gt; $value)
+-		{
+-			$values[$key] = $value;
+-		}
+-		return $values;
++		return $this-&gt;data;
+ 	}
+ }
+ 
+
+Added: trunk/sources/snmp.php
+===================================================================
+--- trunk/sources/snmp.php	2006-04-26 09:34:40 UTC (rev 128)
++++ trunk/sources/snmp.php	2006-05-12 08:55:53 UTC (rev 129)
+@@ -0,0 +1,102 @@
++&lt;?php
++/**
++ * $Id$
++ *
++ * Author: David Danier, <A HREF="https://lists.berlios.de/mailman/listinfo/serverstats-devel">david.danier at team23.de</A>
++ * Project: Serverstats, <A HREF="http://serverstats.berlios.de/">http://serverstats.berlios.de/</A>
++ * License: GPL v2 or later (<A HREF="http://www.gnu.org/licenses/gpl.html">http://www.gnu.org/licenses/gpl.html</A>)
++ *
++ * Copyright (C) 2005 David Danier
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++class snmp extends source implements source_rrd
++{
++	private $host;
++	private $objects = array();
++	private $community;
++	
++	private $data = array();
++	
++	private $dsdef = array();
++	
++	public function __construct($host, $objects, $community = 'public')
++	{
++		$this-&gt;host = $host;
++		if (!is_array($objects))
++		{
++			$objects = array($objects);
++		}
++		$this-&gt;objects = $objects;
++		$this-&gt;community = $community;
++	}
++	
++	public function addDatasourceDefinition($object, $type = 'GAUGE', $heartbeat = null, $min = 'U', $max = 'U')
++	{
++		$this-&gt;dsdef[$object] = array(
++			'type' =&gt; $type,
++			'heartbeat' =&gt; $heartbeat,
++			'min' =&gt; $min,
++			'max' =&gt; $max
++		);
++	}
++	
++	public function refreshData()
++	{
++		foreach ($this-&gt;objects as $object)
++		{
++			$value = snmpgetnext($this-&gt;host, $this-&gt;community, $object);
++			if ($value !== false)
++			{
++				$this-&gt;data[$object] = $value;
++			}
++		}
++	}
++	
++	public function initRRD(rrd $rrd)
++	{
++		foreach ($this-&gt;objects as $object)
++		{
++			if (isset($this-&gt;dsdef[$object]))
++			{
++				$opt = $this-&gt;dsdef[$object];
++				$rrd-&gt;addDatasource(
++					rrd::escapeDsName($object),
++					$opt['type'],
++					$opt['heartbeat'],
++					$opt['min'],
++					$opt['max']
++				);
++			}
++			else
++			{
++				$rrd-&gt;addDatasource(rrd::escapeDsName($object), 'GAUGE');
++			}
++		}
++	}
++	
++	public function fetchValues()
++	{
++		$values = array();
++		foreach ($this-&gt;data as $key =&gt; $value)
++		{
++			$values[rrd::escapeDsName($key)] = $value;
++		}
++		return $values;
++	}
++}
++
++?&gt;
+
+
+Property changes on: trunk/sources/snmp.php
+___________________________________________________________________
+Name: svn:keywords
+   + LastChangedDate LastChangedRevision LastChangedBy HeadURL Id
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000072.html">[Serverstats-devel] simpleconfig.class.php
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#71">[ date ]</a>
+              <a href="thread.html#71">[ thread ]</a>
+              <a href="subject.html#71">[ subject ]</a>
+              <a href="author.html#71">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

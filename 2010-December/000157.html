@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r184 - trunk/includes
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2010-December/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r184%20-%20trunk/includes&In-Reply-To=%3C20101207094539.01C0A480CA9%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000156.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r184 - trunk/includes</H1>
+    <B>goliath at mail.berlios.de</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r184%20-%20trunk/includes&In-Reply-To=%3C20101207094539.01C0A480CA9%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r184 - trunk/includes">goliath at mail.berlios.de
+       </A><BR>
+    <I>Tue Dec  7 10:45:38 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000156.html">[Serverstats-devel] r183 - trunk/sources
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#157">[ date ]</a>
+              <a href="thread.html#157">[ thread ]</a>
+              <a href="subject.html#157">[ subject ]</a>
+              <a href="author.html#157">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: goliath
+Date: 2010-12-07 10:45:38 +0100 (Tue, 07 Dec 2010)
+New Revision: 184
+
+Modified:
+   trunk/includes/simpleconfig.class.php
+Log:
+handle eth0:0 in simpleconfig
+
+Modified: trunk/includes/simpleconfig.class.php
+===================================================================
+--- trunk/includes/simpleconfig.class.php	2010-12-05 15:21:20 UTC (rev 183)
++++ trunk/includes/simpleconfig.class.php	2010-12-07 09:45:38 UTC (rev 184)
+@@ -1122,7 +1122,7 @@
+ 											array(
+ 												'type' =&gt; 'LINE',
+ 												'source' =&gt; $module . '_' . rrd::escapeDsName($interface),
+-												'ds' =&gt; $interface . '_rbytes',
++												'ds' =&gt; rrd::escapeDsName($interface) . '_rbytes',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'Download Bytes/s',
+ 												'color' =&gt; '0002A3'
+@@ -1130,7 +1130,7 @@
+ 											array(
+ 												'type' =&gt; 'LINE',
+ 												'source' =&gt; $module . '_' . rrd::escapeDsName($interface),
+-												'ds' =&gt; $interface . '_tbytes',
++												'ds' =&gt; rrd::escapeDsName($interface) . '_tbytes',
+ 												'cf' =&gt; 'AVERAGE',
+ 												'legend' =&gt; 'Upload Bytes/s',
+ 												'color' =&gt; '00A302'
+@@ -1157,7 +1157,7 @@
+ 									$content[] = array(
+ 											'type' =&gt; 'LINE',
+ 											'source' =&gt; $module . '_' . rrd::escapeDsName($interface),
+-											'ds' =&gt; $interface . '_rbytes',
++											'ds' =&gt; rrd::escapeDsName($interface) . '_rbytes',
+ 											'cf' =&gt; 'AVERAGE',
+ 											'legend' =&gt; 'Download Bytes/s (' . $interface . ')',
+ 											'color' =&gt; sprintf('%02X%02X%02X', rand(0, 255), rand(0, 255), rand(0, 255))
+@@ -1165,7 +1165,7 @@
+ 									$content[] = array(
+ 											'type' =&gt; 'LINE',
+ 											'source' =&gt; $module . '_' . rrd::escapeDsName($interface),
+-											'ds' =&gt; $interface . '_tbytes',
++											'ds' =&gt; rrd::escapeDsName($interface) . '_tbytes',
+ 											'cf' =&gt; 'AVERAGE',
+ 											'legend' =&gt; 'Upload Bytes/s (' . $interface . ')\n',
+ 											'color' =&gt; sprintf('%02X%02X%02X', rand(0, 255), rand(0, 255), rand(0, 255))
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000156.html">[Serverstats-devel] r183 - trunk/sources
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#157">[ date ]</a>
+              <a href="thread.html#157">[ thread ]</a>
+              <a href="subject.html#157">[ subject ]</a>
+              <a href="author.html#157">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

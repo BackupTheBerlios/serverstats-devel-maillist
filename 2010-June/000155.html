@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] r182 - trunk/sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2010-June/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r182%20-%20trunk/sources&In-Reply-To=%3C201006161248.o5GCmG23023774%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000154.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] r182 - trunk/sources</H1>
+    <B>p_michalczyk at BerliOS</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20r182%20-%20trunk/sources&In-Reply-To=%3C201006161248.o5GCmG23023774%40sheep.berlios.de%3E"
+       TITLE="[Serverstats-devel] r182 - trunk/sources">p_michalczyk at mail.berlios.de
+       </A><BR>
+    <I>Wed Jun 16 14:48:16 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000154.html">[Serverstats-devel] r181 - trunk/sources
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#155">[ date ]</a>
+              <a href="thread.html#155">[ thread ]</a>
+              <a href="subject.html#155">[ subject ]</a>
+              <a href="author.html#155">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: p_michalczyk
+Date: 2010-06-16 14:48:16 +0200 (Wed, 16 Jun 2010)
+New Revision: 182
+
+Modified:
+   trunk/sources/apache_mod_cband.php
+Log:
+Changed some DSs, added usage info, cleaned up.
+
+Modified: trunk/sources/apache_mod_cband.php
+===================================================================
+--- trunk/sources/apache_mod_cband.php	2010-06-15 11:32:23 UTC (rev 181)
++++ trunk/sources/apache_mod_cband.php	2010-06-16 12:48:16 UTC (rev 182)
+@@ -28,12 +28,30 @@
+  * In order to use this source you have to configure Apache/mod_cband
+  * like that:
+  *
++ * LoadModule cband_module modules/mod_cband.so
+  * &lt;Location /cband-status&gt;
+  *     SetHandler cband-status
+  *     Order deny,allow
+  *     Deny from all
+  *     Allow from 127.0.0.1
+  * &lt;/Location&gt;
++ *
++ * Then configure CBandUser with following directives:
++ * 
++ * &lt;CBandUser example&gt;
++ *  CBandUserLimit 0
++ *  CBandUserScoreboard /var/log/apache2/example.cband
++ * &lt;/CBandUser&gt;
++ * 
++ * Next add CBandUser to as many VirtualHosts as You wish:
++ * &lt;VirtualHost *:80&gt;
++ *  ServerName a.example.com
++ *  ...
++ *  CBandUser example
++ * &lt;/VirtualHost&gt;
++ *
++ * Now You can gather statistics for either VirtualHost or user
++ * passing their names as '$targets' to this module.
+  */
+ 
+ class apache_mod_cband extends source implements source_rrd
+@@ -47,12 +65,10 @@
+ 	{
+ 		foreach ($targets as $target) {
+ 			$this-&gt;labels[] = array(
++				$target.' traffic used' =&gt; $target.'_tused',
++				$target.' traffic limit' =&gt; $target.'_tlimit',
+ 				$target.' bandwidth used' =&gt; $target.'_bused',
+-				$target.' bandwidth slice' =&gt; $target.'_bslice',
+-				$target.' bandwidth limit' =&gt; $target.'_blimit',
+-				/* 'VHost bandwidth used' =&gt; 'vbandused',
+-				'VHost bandwidth slice' =&gt; 'vbandslice',
+-				'VHost bandwidth limit' =&gt; 'vbandlimit', */
++				$target.' bandwidth limit' =&gt; $target.'_blimit'
+ 			);
+ 		}
+ 		
+@@ -71,20 +87,22 @@
+ 		$status-&gt;loadXML(implode('', $lines));
+ 		foreach ($this-&gt;targets as $target) {
+ 			$elem = $status-&gt;getElementsByTagName($target);
+-			//print($elem-&gt;item(0)-&gt;nodeValue);
+ 			if ($elem != null) {
+ 				$limits = $elem-&gt;item(0)-&gt;getElementsByTagName(&quot;limits&quot;);
+ 				$total = $limits-&gt;item(0)-&gt;getElementsByTagName(&quot;total&quot;);
+-				$this-&gt;data[$target.'_blimit'] = ((int)$total-&gt;item(0)-&gt;nodeValue)*1024;
+-				$this-&gt;data[$target.'_bslice'] = 0;
++				$this-&gt;data[$target.'_tlimit'] = ((int)$total-&gt;item(0)-&gt;nodeValue)*1024;
++				$kbps = $limits-&gt;item(0)-&gt;getElementsByTagName(&quot;kbps&quot;);
++				$this-&gt;data[$target.'_blimit'] = (int)$kbps-&gt;item(0)-&gt;nodeValue;
++				
+ 				$usages = $elem-&gt;item(0)-&gt;getElementsByTagName(&quot;usages&quot;);
+ 				$total = $usages-&gt;item(0)-&gt;getElementsByTagName(&quot;total&quot;);
+-				$this-&gt;data[$target.'_bused'] = ((int)$total-&gt;item(0)-&gt;nodeValue)*1024;
+-				//print ((int)$total-&gt;item(0)-&gt;nodeValue)*1024;
++				$this-&gt;data[$target.'_tused'] = ((int)$total-&gt;item(0)-&gt;nodeValue)*1024;
++				$this-&gt;data[$target.'_bused'] = $this-&gt;data[$target.'_tused'];
+ 			} else {
++				$this-&gt;data[$target.'_tused'] = 0;
++				$this-&gt;data[$target.'_tlimit'] = 0;
++				$this-&gt;data[$target.'_bused'] = 0;
+ 				$this-&gt;data[$target.'_blimit'] = 0;
+-				$this-&gt;data[$target.'_bslice'] = 0;
+-				$this-&gt;data[$target.'_bused'] = 0;
+ 			}
+ 		}
+ 	}
+@@ -93,9 +111,10 @@
+ 	{
+ 		foreach ($this-&gt;targets as $target)
+ 		{
+-			$rrd-&gt;addDatasource($target.'_blimit', 'GAUGE');
+-			$rrd-&gt;addDatasource($target.'_bslice', 'GAUGE');
+-			$rrd-&gt;addDatasource($target.'_bused', 'DERIVE', null, 0);
++			$rrd-&gt;addDatasource(rrd::escapeDsName($target.'_tused'), 'GAUGE');
++			$rrd-&gt;addDatasource(rrd::escapeDsName($target.'_tlimit'), 'GAUGE');
++			$rrd-&gt;addDatasource(rrd::escapeDsName($target.'_bused'), 'DERIVE', null, 0);
++			$rrd-&gt;addDatasource(rrd::escapeDsName($target.'_blimit'), 'GAUGE');
+ 		}
+ 	}
+ 	
+@@ -104,8 +123,7 @@
+ 		$values = array();
+ 		foreach ($this-&gt;data as $dsname =&gt; $value)
+ 		{
+-			$values[$dsname] = $value;
+-			//print($dsname.&quot;: &quot;.$value);
++			$values[rrd::escapeDsName($dsname)] = $value;
+ 		}
+ 		return $values;
+ 	}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000154.html">[Serverstats-devel] r181 - trunk/sources
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#155">[ date ]</a>
+              <a href="thread.html#155">[ thread ]</a>
+              <a href="subject.html#155">[ subject ]</a>
+              <a href="author.html#155">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>

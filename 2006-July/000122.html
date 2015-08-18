@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Serverstats-devel] How can I use same graph  definition with many sources
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/serverstats-devel/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20How%20can%20I%20use%20same%20graph%20%20definition%20with%0A%20many%20sources&In-Reply-To=%3C44AA2994.6020903%40team23.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000121.html">
+   <LINK REL="Next"  HREF="000123.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Serverstats-devel] How can I use same graph  definition with many sources</H1>
+    <B>David Danier</B> 
+    <A HREF="mailto:serverstats-devel%40lists.berlios.de?Subject=Re%3A%20%5BServerstats-devel%5D%20How%20can%20I%20use%20same%20graph%20%20definition%20with%0A%20many%20sources&In-Reply-To=%3C44AA2994.6020903%40team23.de%3E"
+       TITLE="[Serverstats-devel] How can I use same graph  definition with many sources">david.danier at team23.de
+       </A><BR>
+    <I>Tue Jul  4 10:40:52 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000121.html">[Serverstats-devel] How can I use same graph  definition with many sources
+</A></li>
+        <LI>Next message: <A HREF="000123.html">[Serverstats-devel] How can I use same graph  definition with many sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#122">[ date ]</a>
+              <a href="thread.html#122">[ thread ]</a>
+              <a href="subject.html#122">[ subject ]</a>
+              <a href="author.html#122">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> In you current code each graph is  more or less attached to a source
+</I>&gt;<i> because &quot;name&quot; offset  refer to a  rrd file with same name.
+</I>
+It can be attached to more than just one source:
+<A HREF="http://webmasterpro.de/~ddanier/serverstats/demo/detail.php?graph=14&amp;tree=1">http://webmasterpro.de/~ddanier/serverstats/demo/detail.php?graph=14&amp;tree=1</A>
+----------8&lt;-----------------------------------------------------------
+$ ls /.../serverstats/rrd/ping*
+/var/www/localhost/htdocs/serverstats/rrd/ping_80_237_211_1.rrd
+/var/www/localhost/htdocs/serverstats/rrd/ping_http_localhost.rrd
+/var/www/localhost/htdocs/serverstats/rrd/ping_www_gentoo_org.rrd
+/var/www/localhost/htdocs/serverstats/rrd/ping_www_google_com.rrd
+/var/www/localhost/htdocs/serverstats/rrd/ping_www_heise_de.rrd
+-----------------------------------------------------------&gt;8----------
+
+The source itself has no real link to the graphs or one special graph.
+(Ok, SimpleConfig links them somehow)
+
+&gt;<i> My problem is that I need to use the exactly same graph definition with
+</I>&gt;<i> lot's of  sources.
+</I>&gt;<i> For example If we monitor various snmp hosts we should need to look at
+</I>&gt;<i> memory, cpu or processes on each ...
+</I>&gt;<i> Only the source change ... the graph definition should be the same !
+</I>
+Thats where I thought XSLT could be used to transform a bunch of
+parameters into a working configuration.
+Of course it is possible to use some transformation implemented inside a
+class, too (like SimpleConfig does with arrays now).
+
+&gt;<i> So how can I do that ?
+</I>&gt;<i> Maybe I can use file offset  but It's not simple If I must specify each
+</I>&gt;<i> time the file ...
+</I>&gt;<i> Any Ideas ?
+</I>
+I think xinclude's are not powerful enough here. They miss the
+possibility to define some parameters (like title, source).
+
+Greetings, David Danier
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 191 bytes
+Desc: OpenPGP digital signature
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060704/f9dabd8f/attachment.pgp">https://lists.berlios.de/pipermail/serverstats-devel/attachments/20060704/f9dabd8f/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000121.html">[Serverstats-devel] How can I use same graph  definition with many sources
+</A></li>
+	<LI>Next message: <A HREF="000123.html">[Serverstats-devel] How can I use same graph  definition with many sources
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#122">[ date ]</a>
+              <a href="thread.html#122">[ thread ]</a>
+              <a href="subject.html#122">[ subject ]</a>
+              <a href="author.html#122">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/serverstats-devel">More information about the Serverstats-devel
+mailing list</a><br>
+</body></html>
